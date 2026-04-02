@@ -348,6 +348,68 @@ npm uninstall -g ccg-workflow  # npm 全域性使用者需額外執行
 - [GudaStudio/skills](https://github.com/GuDaStudio/skills) — 路由設計
 - [ace-tool](https://linux.do/t/topic/1344562) — MCP 工具
 
+## 實戰洞見與使用建議
+
+> 以下是實際導入 CCG 後的觀察與建議，供正體中文使用者參考。
+
+### 誰最適合用 CCG？
+
+CCG 的威力在**跨前後端的中大型功能開發**。如果你的任務是：
+
+| 場景 | 建議 |
+|------|------|
+| 改一行 CSS、修一個 typo | 直接用 Claude Code，不需要 CCG |
+| 單純後端 API 或單純前端元件 | `/ccg:backend` 或 `/ccg:frontend` 快速模式即可 |
+| 全端功能（如：登入系統、看板 API + UI） | `/ccg:workflow` 或 `/ccg:team-*` 系列最有感 |
+| 需要嚴格品質把關的專案 | `/ccg:spec-*` OPSX 規範驅動 |
+
+**經驗法則**：如果你覺得「這個功能我要同時改 3 個以上檔案」，就值得用 CCG。
+
+### 沒有 Codex / Gemini CLI 也能用
+
+CCG 的安全設計意味著 Claude 是唯一有寫入權限的模型。即使你沒裝 Codex 或 Gemini CLI，大部分命令仍可運作（Claude 會自行處理）。先裝起來體驗斜杠命令的工作流紀律，之後再逐步加入其他模型。
+
+### 與既有工作流共存
+
+如果你已經有自己的 Skills 系統（如 Superpowers）、自訂的 slash commands、或 CLAUDE.md 規範，CCG 可以和平共存：
+
+- CCG 命令都有 `/ccg:` 前綴，不會衝突
+- CCG 安裝的 skills 在 `~/.claude/skills/ccg/` 子目錄
+- 你可以選擇性使用——日常小事用自己的流程，大型功能才出動 CCG
+
+### OPSX 的價值：讓 AI「不能自由發揮」
+
+這是 CCG 最被低估的功能。`/ccg:spec-research` 會先把需求轉成**約束集**（constraint set），AI 必須在約束內實作。這解決了一個常見痛點：
+
+> 「AI 寫的 code 能跑，但不是我要的架構」
+
+用 OPSX 的流程是：需求 → 約束 → 計劃 → 實作。每一步都可以人工審核，確保方向正確。
+
+### Windows 環境注意事項
+
+- 安裝時建議用 `--skip-prompt` 非互動模式（互動選單在某些終端不穩定）
+- `codeagent-wrapper` 需要 `jq`，Windows 上用 `choco install jq` 或 `scoop install jq`
+- MCP 設定有時需要手動修正，可用 `npx ccg-workflow fix-mcp` 排查
+
+### 省 Token 的技巧
+
+- `/ccg:codex-exec` 讓 Codex 全權執行計劃，Claude 只做最後審核——**大幅降低 Claude token 消耗**
+- Agent Teams 系列每步之間 `/clear` 隔離上下文，避免 context window 爆掉
+- `/ccg:enhance` 可以把模糊需求轉成結構化描述，減少 AI 來回確認的 token 浪費
+
+### Impeccable UI/UX 命令的隱藏寶藏
+
+除了核心開發命令，CCG 附帶 20+ 個 UI/UX 打磨命令（`/ccg:polish`、`/ccg:audit`、`/ccg:distill` 等），這些命令在做前端專案時非常實用：
+
+```bash
+/ccg:audit          # 跑一次無障礙 + 效能 + 主題稽核，產出評分報告
+/ccg:polish         # 出貨前最終品質掃描（間距、對齊、一致性）
+/ccg:harden         # 強化錯誤處理、i18n、邊界情況
+/ccg:distill        # 砍掉不必要的複雜度，讓設計更乾淨
+```
+
+即使你不用 CCG 的多模型路由，單獨使用這些 UI/UX 命令也很值得。
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=fengshao1227/ccg-workflow&type=timeline&legend=top-left)](https://www.star-history.com/#fengshao1227/ccg-workflow&type=timeline&legend=top-left)
