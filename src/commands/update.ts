@@ -343,7 +343,7 @@ async function performUpdate(fromVersion: string, toVersion: string, isNewVersio
       }
       catch { /* best-effort restore */ }
     }
-    console.log(ansis.yellow('  旧版本文件已保留 / Old files preserved'))
+    console.log(ansis.yellow('  舊版本檔案已保留 / Old files preserved'))
     return
   }
 
@@ -416,7 +416,7 @@ async function performUpdate(fromVersion: string, toVersion: string, isNewVersio
   else {
     // Failure: restore from backups so user still has a working installation
     console.log()
-    console.log(ansis.yellow.bold('  ⚠ 正在恢复旧版本文件 / Restoring old version files...'))
+    console.log(ansis.yellow.bold('  ⚠ 正在恢復舊版本檔案 / Restoring old version files...'))
     let restored = 0
     for (const dir of backedUp) {
       const backupPath = dir + BACKUP_SUFFIX
@@ -436,8 +436,8 @@ async function performUpdate(fromVersion: string, toVersion: string, isNewVersio
     }
 
     if (restored > 0) {
-      console.log(ansis.green(`  ✓ 已恢复 ${restored} 个目录 / Restored ${restored} directories`))
-      console.log(ansis.gray('    旧版命令仍可正常使用 / Old commands still work'))
+      console.log(ansis.green(`  ✓ 已恢復 ${restored} 個目錄 / Restored ${restored} directories`))
+      console.log(ansis.gray('    舊版命令仍可正常使用 / Old commands still work'))
     }
     console.log()
     console.log(ansis.yellow(i18n.t('update:manualRetry')))

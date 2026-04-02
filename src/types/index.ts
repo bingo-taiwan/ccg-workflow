@@ -1,10 +1,10 @@
-// 支持的语言
+// 支援的語言
 export type SupportedLang = 'zh-TW' | 'zh-CN' | 'en'
 
-// 模型类型
+// 模型型別
 export type ModelType = 'codex' | 'gemini' | 'claude'
 
-// 协作模式
+// 協作模式
 export type CollaborationMode = 'parallel' | 'smart' | 'sequential'
 
 // 路由策略
@@ -27,7 +27,7 @@ export interface ModelRouting {
     strategy: 'parallel'
   }
   mode: CollaborationMode
-  geminiModel?: string // Gemini 具体型号（默认 gemini-3.1-pro-preview）
+  geminiModel?: string // Gemini 具體型號（預設 gemini-3.1-pro-preview）
 }
 
 // CCG 配置
@@ -51,12 +51,12 @@ export interface CcgConfig {
     setup_url: string
   }
   performance?: {
-    liteMode?: boolean // 轻量模式：禁用 Web UI，更快响应
-    skipImpeccable?: boolean // 跳过 Impeccable 前端设计命令安装
+    liteMode?: boolean // 輕量模式：禁用 Web UI，更快響應
+    skipImpeccable?: boolean // 跳過 Impeccable 前端設計命令安裝
   }
 }
 
-// 工作流定义
+// 工作流定義
 export interface WorkflowConfig {
   id: string
   name: string
@@ -69,13 +69,13 @@ export interface WorkflowConfig {
   descriptionEn?: string
 }
 
-// 初始化选项
+// 初始化選項
 export interface InitOptions {
   lang?: SupportedLang
   skipPrompt?: boolean
-  skipMcp?: boolean // 更新时跳过 MCP 配置
+  skipMcp?: boolean // 更新時跳過 MCP 配置
   force?: boolean
-  // 非交互模式参数
+  // 非互動模式引數
   frontend?: string
   backend?: string
   mode?: CollaborationMode
@@ -83,7 +83,7 @@ export interface InitOptions {
   installDir?: string
 }
 
-// 安装结果
+// 安裝結果
 export interface InstallResult {
   success: boolean
   installedCommands: string[]
@@ -105,8 +105,8 @@ export interface AceToolConfig {
 
 // fast-context (Windsurf Fast Context) 配置
 export interface FastContextConfig {
-  apiKey?: string // WINDSURF_API_KEY (本地装 Windsurf 登录后可自动提取)
-  includeSnippets?: boolean // FC_INCLUDE_SNIPPETS — true 返回完整代码片段
+  apiKey?: string // WINDSURF_API_KEY (本地裝 Windsurf 登入後可自動提取)
+  includeSnippets?: boolean // FC_INCLUDE_SNIPPETS — true 返回完整程式碼片段
 }
 
 // Re-export CLI types

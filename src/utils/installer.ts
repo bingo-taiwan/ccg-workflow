@@ -561,18 +561,18 @@ export function showBinaryDownloadWarning(binDir: string): void {
 
   console.log()
   console.log(ansis.red.bold(`  ╔════════════════════════════════════════════════════════════╗`))
-  console.log(ansis.red.bold(`  ║  ⚠  codeagent-wrapper 下载失败                            ║`))
+  console.log(ansis.red.bold(`  ║  ⚠  codeagent-wrapper 下載失敗                            ║`))
   console.log(ansis.red.bold(`  ║     Binary download failed (network issue)                 ║`))
   console.log(ansis.red.bold(`  ╚════════════════════════════════════════════════════════════╝`))
   console.log()
-  console.log(ansis.yellow(`  多模型协作命令 (/ccg:workflow, /ccg:plan 等) 需要此文件才能工作。`))
+  console.log(ansis.yellow(`  多模型協作命令 (/ccg:workflow, /ccg:plan 等) 需要此檔案才能工作。`))
   console.log(ansis.yellow(`  Multi-model commands require this binary to work.`))
   console.log()
-  console.log(ansis.cyan(`  手动修复 / Manual fix:`))
+  console.log(ansis.cyan(`  手動修復 / Manual fix:`))
   console.log()
-  console.log(ansis.white(`    1. 下载 / Download:`))
+  console.log(ansis.white(`    1. 下載 / Download:`))
   console.log(ansis.cyan(`       ${releaseUrl}`))
-  console.log(ansis.gray(`       → 找到 ${ansis.white(binaryFileName)} 并下载`))
+  console.log(ansis.gray(`       → 找到 ${ansis.white(binaryFileName)} 並下載`))
   console.log()
   console.log(ansis.white(`    2. 放到 / Place at:`))
   const displayPath = process.platform === 'win32'
@@ -581,11 +581,11 @@ export function showBinaryDownloadWarning(binDir: string): void {
   console.log(ansis.cyan(`       ${displayPath}`))
   console.log()
   if (process.platform !== 'win32') {
-    console.log(ansis.white(`    3. 加权限 / Make executable:`))
+    console.log(ansis.white(`    3. 加許可權 / Make executable:`))
     console.log(ansis.cyan(`       chmod +x "${binDir}/${destFileName}"`))
     console.log()
   }
-  console.log(ansis.white(`    或重新安装 / Or re-install:`))
+  console.log(ansis.white(`    或重新安裝 / Or re-install:`))
   console.log(ansis.cyan(`       npx ccg-workflow@latest`))
   console.log()
 }

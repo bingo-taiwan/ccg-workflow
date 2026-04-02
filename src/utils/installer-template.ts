@@ -117,7 +117,7 @@ export function injectConfigVariables(content: string, config: {
     processed = processed.replace(/,\s*\{\{MCP_SEARCH_TOOL\}\}/g, '')
     processed = processed.replace(
       /```\n\{\{MCP_SEARCH_TOOL\}\}[\s\S]*?\n```/g,
-      '> MCP 未配置。使用 `Glob` 定位文件 + `Grep` 搜索关键符号 + `Read` 读取文件内容。',
+      '> MCP 未配置。使用 `Glob` 定位檔案 + `Grep` 搜尋關鍵符號 + `Read` 讀取檔案內容。',
     )
     processed = processed.replace(/`\{\{MCP_SEARCH_TOOL\}\}`/g, '`Glob + Grep`（MCP 未配置）')
     processed = processed.replace(/\{\{MCP_SEARCH_TOOL\}\}/g, 'Glob + Grep')

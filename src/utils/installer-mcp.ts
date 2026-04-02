@@ -151,24 +151,24 @@ export async function installContextWeaver(config: ContextWeaverConfig): Promise
 
   try {
     // 0. Install contextweaver CLI globally
-    console.log('  ⏳ 正在安装 ContextWeaver CLI...')
+    console.log('  ⏳ 正在安裝 ContextWeaver CLI...')
     const { execSync } = await import('node:child_process')
     try {
       execSync('npm install -g @hsingjui/contextweaver', { stdio: 'pipe' })
-      console.log('  ✓ ContextWeaver CLI 安装成功')
+      console.log('  ✓ ContextWeaver CLI 安裝成功')
     }
     catch {
       if (process.platform !== 'win32') {
         try {
           execSync('sudo npm install -g @hsingjui/contextweaver', { stdio: 'pipe' })
-          console.log('  ✓ ContextWeaver CLI 安装成功 (sudo)')
+          console.log('  ✓ ContextWeaver CLI 安裝成功 (sudo)')
         }
         catch {
-          console.log('  ⚠ ContextWeaver CLI 安装失败，请手动运行: npm install -g @hsingjui/contextweaver')
+          console.log('  ⚠ ContextWeaver CLI 安裝失敗，請手動執行: npm install -g @hsingjui/contextweaver')
         }
       }
       else {
-        console.log('  ⚠ ContextWeaver CLI 安装失败，请手动运行: npm install -g @hsingjui/contextweaver')
+        console.log('  ⚠ ContextWeaver CLI 安裝失敗，請手動執行: npm install -g @hsingjui/contextweaver')
       }
     }
 
@@ -176,16 +176,16 @@ export async function installContextWeaver(config: ContextWeaverConfig): Promise
     const contextWeaverDir = join(homedir(), '.contextweaver')
     await fs.ensureDir(contextWeaverDir)
 
-    const envContent = `# ContextWeaver 配置 (由 CCG 自动生成)
+    const envContent = `# ContextWeaver 配置 (由 CCG 自動生成)
 
-# Embedding API - 硅基流动
+# Embedding API - 矽基流動
 EMBEDDINGS_API_KEY=${siliconflowApiKey}
 EMBEDDINGS_BASE_URL=https://api.siliconflow.cn/v1/embeddings
 EMBEDDINGS_MODEL=Qwen/Qwen3-Embedding-8B
 EMBEDDINGS_MAX_CONCURRENCY=10
 EMBEDDINGS_DIMENSIONS=1024
 
-# Reranker - 硅基流动
+# Reranker - 矽基流動
 RERANK_API_KEY=${siliconflowApiKey}
 RERANK_BASE_URL=https://api.siliconflow.cn/v1/rerank
 RERANK_MODEL=Qwen/Qwen3-Reranker-8B

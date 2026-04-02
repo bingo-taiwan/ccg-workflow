@@ -1,11 +1,11 @@
 /**
- * Skill Registry — SKILL.md frontmatter 驱动的技能发现与命令生成
+ * Skill Registry — SKILL.md frontmatter 驅動的技能發現與命令生成
  *
  * 移植自 code-abyss skill-registry.js，TypeScript 化。
  * 核心功能：
- * 1. 递归扫描 templates/skills/ 下所有 SKILL.md
- * 2. 解析 frontmatter 提取 name/description/user-invocable 等元数据
- * 3. 为 user-invocable=true 的技能自动生成 slash commands
+ * 1. 遞迴掃描 templates/skills/ 下所有 SKILL.md
+ * 2. 解析 frontmatter 提取 name/description/user-invocable 等後設資料
+ * 3. 為 user-invocable=true 的技能自動生成 slash commands
  */
 
 import fs from 'fs-extra'
@@ -236,15 +236,15 @@ export function generateCommandContent(skill: SkillMeta, skillsInstallDir: strin
       '',
       skill.description,
       '',
-      `## 执行`,
+      `## 執行`,
       '',
-      '执行以下命令：',
+      '執行以下命令：',
       '',
       '```bash',
       `node "${runSkillPath}" ${skill.name} $ARGUMENTS`,
       '```',
       '',
-      `如需了解此技能的详细说明，请读取: ${skillMdPath}`,
+      `如需瞭解此技能的詳細說明，請讀取: ${skillMdPath}`,
     ].join('\n')
   }
 
@@ -258,7 +258,7 @@ export function generateCommandContent(skill: SkillMeta, skillsInstallDir: strin
     '',
     `## 指令`,
     '',
-    `读取技能秘典文件 \`${skillMdPath}\`，按照其中的指导完成魔尊的任务。`,
+    `讀取技能秘典檔案 \`${skillMdPath}\`，按照其中的指導完成魔尊的任務。`,
     '',
     `\`\`\``,
     `$ARGUMENTS`,

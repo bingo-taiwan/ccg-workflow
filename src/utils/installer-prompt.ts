@@ -8,57 +8,57 @@ import { dirname, join } from 'pathe'
 
 const FAST_CONTEXT_PROMPT_PRIMARY = `# fast-context MCP 工具使用指南
 
-## 核心原则
+## 核心原則
 
-**任何需要理解代码上下文、探索性搜索、或自然语言定位代码的场景，优先使用 \`mcp__fast-context__fast_context_search\`**`
+**任何需要理解程式碼上下文、探索性搜尋、或自然語言定位程式碼的場景，優先使用 \`mcp__fast-context__fast_context_search\`**`
 
-const FAST_CONTEXT_PROMPT_AUXILIARY = `# fast-context MCP 工具使用指南（辅助模式）
+const FAST_CONTEXT_PROMPT_AUXILIARY = `# fast-context MCP 工具使用指南（輔助模式）
 
-## 核心原则
+## 核心原則
 
-**主检索工具为 ace-tool（\`mcp__ace-tool__search_context\`）。当 ace-tool 无法满足语义搜索需求时，使用 \`mcp__fast-context__fast_context_search\` 作为补充。**
+**主檢索工具為 ace-tool（\`mcp__ace-tool__search_context\`）。當 ace-tool 無法滿足語義搜尋需求時，使用 \`mcp__fast-context__fast_context_search\` 作為補充。**
 
-适合使用 fast-context 的场景：
-- 用自然语言描述要找的逻辑（如"部署流程"、"事件处理"）
-- 跨模块、跨层级的调用链路追踪
-- 中文语义搜索（工具支持中英文双语查询）`
+適合使用 fast-context 的場景：
+- 用自然語言描述要找的邏輯（如"部署流程"、"事件處理"）
+- 跨模組、跨層級的呼叫鏈路追蹤
+- 中文語義搜尋（工具支援中英文雙語查詢）`
 
 const FAST_CONTEXT_PROMPT = `# fast-context MCP 工具使用指南
 
-## 核心原则
+## 核心原則
 
-**任何需要理解代码上下文、探索性搜索、或自然语言定位代码的场景，优先使用 \`mcp__fast-context__fast_context_search\`**
+**任何需要理解程式碼上下文、探索性搜尋、或自然語言定位程式碼的場景，優先使用 \`mcp__fast-context__fast_context_search\`**
 
-## 使用场景
+## 使用場景
 
-### 必须用 fast_context_search
-- 探索性搜索（不确定代码在哪个文件/目录）
-- 用自然语言描述要找的逻辑（如"部署流程"、"事件处理"）
-- 理解业务逻辑和调用链路
-- 跨模块、跨层级查询（如从 router 追到 service 到 model）
-- 新任务开始前的代码调研和架构理解
-- 中文语义搜索（工具支持中英文双语查询）
+### 必須用 fast_context_search
+- 探索性搜尋（不確定程式碼在哪個檔案/目錄）
+- 用自然語言描述要找的邏輯（如"部署流程"、"事件處理"）
+- 理解業務邏輯和呼叫鏈路
+- 跨模組、跨層級查詢（如從 router 追到 service 到 model）
+- 新任務開始前的程式碼調研和架構理解
+- 中文語義搜尋（工具支援中英文雙語查詢）
 
-### 根据需求选择工具
-- **语义搜索 / 不确定位置** → \`mcp__fast-context__fast_context_search\`（返回文件+行号范围+grep关键词建议）
-- **精确关键词搜索** → Grep
-- **已知文件路径，查看内容** → Read
-- **按文件名模式查找** → Glob
-- **编辑已有文件** → Edit
+### 根據需求選擇工具
+- **語義搜尋 / 不確定位置** → \`mcp__fast-context__fast_context_search\`（返回檔案+行號範圍+grep關鍵詞建議）
+- **精確關鍵詞搜尋** → Grep
+- **已知檔案路徑，檢視內容** → Read
+- **按檔名模式查詢** → Glob
+- **編輯已有檔案** → Edit
 
-### fast_context_search 参数调优
-- \`tree_depth=1, max_turns=1\` — 快速粗查，适合小项目或初步定位
-- \`tree_depth=3, max_turns=3\`（默认）— 平衡精度与速度，适合大多数场景
-- \`max_turns=5\` — 深度搜索，适合复杂调用链追踪
-- \`project_path\` — 指定搜索的项目根目录，默认为当前工作目录
+### fast_context_search 引數調優
+- \`tree_depth=1, max_turns=1\` — 快速粗查，適合小專案或初步定位
+- \`tree_depth=3, max_turns=3\`（預設）— 平衡精度與速度，適合大多數場景
+- \`max_turns=5\` — 深度搜尋，適合複雜呼叫鏈追蹤
+- \`project_path\` — 指定搜尋的專案根目錄，預設為當前工作目錄
 
-### 禁止行为
-- ❌ 猜测代码位置（"应该在 service/firmware 里"）
-- ❌ 跳过搜索直接回答（"根据框架惯例，应该是..."）
-- ❌ 遇到搜索就启动子代理（fast-context + Grep 组合优先）
+### 禁止行為
+- ❌ 猜測程式碼位置（"應該在 service/firmware 裡"）
+- ❌ 跳過搜尋直接回答（"根據框架慣例，應該是..."）
+- ❌ 遇到搜尋就啟動子代理（fast-context + Grep 組合優先）
 
-### 子代理使用条件
-仅当需要读取 10+ 文件交叉比对、或多轮搜索会撑爆上下文时，才启动子代理。
+### 子代理使用條件
+僅當需要讀取 10+ 檔案交叉比對、或多輪搜尋會撐爆上下文時，才啟動子代理。
 `
 
 const FC_MARKER_START = '<!-- CCG-FAST-CONTEXT-START -->'

@@ -5,7 +5,7 @@ import { join } from 'pathe'
 import { parse, stringify } from 'smol-toml'
 import { version as packageVersion } from '../../package.json'
 
-// v1.4.0: 配置目录统一到 ~/.claude/.ccg/
+// v1.4.0: 配置目錄統一到 ~/.claude/.ccg/
 const CCG_DIR = join(homedir(), '.claude', '.ccg')
 const CONFIG_FILE = join(CCG_DIR, 'config.toml')
 
@@ -60,7 +60,7 @@ export function createDefaultConfig(options: {
     },
     paths: {
       commands: join(homedir(), '.claude', 'commands', 'ccg'),
-      prompts: join(CCG_DIR, 'prompts'), // v1.4.0: 移到配置目录
+      prompts: join(CCG_DIR, 'prompts'), // v1.4.0: 移到配置目錄
       backup: join(CCG_DIR, 'backup'),
     },
     mcp: {

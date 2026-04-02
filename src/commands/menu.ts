@@ -161,19 +161,19 @@ export async function showMainMenu(): Promise<void> {
       pageSize: 20,
       choices: [
         groupSep(isZh ? 'Claude Code' : 'Claude Code'),
-        item('1', i18n.t('menu:options.init'), isZh ? '安装 CCG 工作流' : 'Install CCG workflows'),
+        item('1', i18n.t('menu:options.init'), isZh ? '安裝 CCG 工作流' : 'Install CCG workflows'),
         item('2', i18n.t('menu:options.update'), isZh ? '更新到最新版本' : 'Update to latest version'),
-        item('3', i18n.t('menu:options.configMcp'), isZh ? '代码检索 MCP 工具' : 'Code retrieval MCP tool'),
-        item('4', i18n.t('menu:options.configApi'), isZh ? '自定义 API 端点' : 'Custom API endpoint'),
-        item('5', i18n.t('menu:options.configStyle'), isZh ? '选择输出人格' : 'Choose output personality'),
-        item('6', i18n.t('menu:options.configModel'), isZh ? '前端/后端模型切换' : 'Switch frontend/backend models'),
+        item('3', i18n.t('menu:options.configMcp'), isZh ? '程式碼檢索 MCP 工具' : 'Code retrieval MCP tool'),
+        item('4', i18n.t('menu:options.configApi'), isZh ? '自定義 API 端點' : 'Custom API endpoint'),
+        item('5', i18n.t('menu:options.configStyle'), isZh ? '選擇輸出人格' : 'Choose output personality'),
+        item('6', i18n.t('menu:options.configModel'), isZh ? '前端/後端模型切換' : 'Switch frontend/backend models'),
 
         groupSep(isZh ? '其他工具' : 'Tools'),
         item('T', i18n.t('menu:options.tools'), 'ccusage, CCometixLine'),
-        item('C', i18n.t('menu:options.installClaude'), isZh ? '安装/重装 CLI' : 'Install/reinstall CLI'),
+        item('C', i18n.t('menu:options.installClaude'), isZh ? '安裝/重灌 CLI' : 'Install/reinstall CLI'),
 
         groupSep('CCG'),
-        item('H', i18n.t('menu:options.help'), isZh ? '查看全部斜杠命令' : 'View all slash commands'),
+        item('H', i18n.t('menu:options.help'), isZh ? '檢視全部斜槓命令' : 'View all slash commands'),
         item('-', i18n.t('menu:options.uninstall'), isZh ? '移除 CCG 配置' : 'Remove CCG config'),
 
         new inquirer.Separator(ansis.gray('─'.repeat(42))),
@@ -263,11 +263,11 @@ function showHelp(): void {
   console.log()
 
   // Agent Teams
-  section(isZh ? 'Agent Teams 并行实施:' : 'Agent Teams Parallel:')
-  cmd('/ccg:team-research', isZh ? '需求 → 约束集' : 'Requirements → Constraints')
-  cmd('/ccg:team-plan', isZh ? '约束 → 并行计划' : 'Constraints → Parallel plan')
-  cmd('/ccg:team-exec', isZh ? '并行实施' : 'Parallel execution')
-  cmd('/ccg:team-review', isZh ? '双模型审查' : 'Dual-model review')
+  section(isZh ? 'Agent Teams 並行實施:' : 'Agent Teams Parallel:')
+  cmd('/ccg:team-research', isZh ? '需求 → 約束集' : 'Requirements → Constraints')
+  cmd('/ccg:team-plan', isZh ? '約束 → 並行計劃' : 'Constraints → Parallel plan')
+  cmd('/ccg:team-exec', isZh ? '並行實施' : 'Parallel execution')
+  cmd('/ccg:team-review', isZh ? '雙模型審查' : 'Dual-model review')
   console.log()
 
   // OpenSpec Workflows
@@ -290,7 +290,7 @@ function showHelp(): void {
   // Project Init
   section(i18n.t('menu:help.sections.projectMgmt'))
   cmd('/ccg:init', i18n.t('menu:help.descriptions.init'))
-  cmd('/ccg:enhance', isZh ? 'Prompt 增强' : 'Prompt enhancement')
+  cmd('/ccg:enhance', isZh ? 'Prompt 增強' : 'Prompt enhancement')
   console.log()
 
   console.log(ansis.gray(`  ${i18n.t('menu:help.hint')}`))

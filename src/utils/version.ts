@@ -135,9 +135,9 @@ export async function getChangelog(fromVersion: string, toVersion: string): Prom
   // In a real implementation, this would fetch from CHANGELOG.md or GitHub releases
   // For now, return a placeholder
   return [
-    `升级从 v${fromVersion} 到 v${toVersion}`,
-    '• 优化命令模板',
-    '• 更新专家提示词',
-    '• 修复已知问题',
+    `升級從 v${fromVersion} 到 v${toVersion}`,
+    '• 最佳化命令模板',
+    '• 更新專家提示詞',
+    '• 修復已知問題',
   ]
 }

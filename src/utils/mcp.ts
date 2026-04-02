@@ -87,7 +87,7 @@ export async function writeClaudeCodeConfig(config: ClaudeCodeConfig): Promise<v
 export function applyPlatformCommand(config: McpServerConfig): void {
   // Only process if command exists (avoid wrapping SSE services)
   if (isWindows() && config.command) {
-    // 幂等性检查：如果 command 已经是 'cmd'，说明已处理过，跳过
+    // 冪等性檢查：如果 command 已經是 'cmd'，說明已處理過，跳過
     if (config.command === 'cmd') {
       return
     }
@@ -163,26 +163,26 @@ export function repairCorruptedMcpArgs(config: McpServerConfig): boolean {
   const args = config.args
   let repaired = false
 
-  // 检测并修复 args 开头的错误模式
-  // 正确格式: ['/c', 'npx', '-y', ...]
-  // 错误格式1: ['cmd', '/c', 'npx', ...] (开头多余的 cmd)
-  // 错误格式2: ['/c', 'npx', 'npx', ...] (重复的命令)
-  // 错误格式3: ['cmd', '/c', 'npx', 'npx', ...] (两种错误的组合)
+  // 檢測並修復 args 開頭的錯誤模式
+  // 正確格式: ['/c', 'npx', '-y', ...]
+  // 錯誤格式1: ['cmd', '/c', 'npx', ...] (開頭多餘的 cmd)
+  // 錯誤格式2: ['/c', 'npx', 'npx', ...] (重複的命令)
+  // 錯誤格式3: ['cmd', '/c', 'npx', 'npx', ...] (兩種錯誤的組合)
 
-  // 移除开头多余的 'cmd'
+  // 移除開頭多餘的 'cmd'
   if (args[0] === 'cmd') {
     args.shift()
     repaired = true
   }
 
-  // 确保第一个是 '/c'
+  // 確保第一個是 '/c'
   if (args[0] !== '/c') {
     return repaired
   }
 
-  // 检测并移除重复的命令 (如 'npx', 'npx')
+  // 檢測並移除重複的命令 (如 'npx', 'npx')
   if (args.length >= 3 && args[1] === args[2]) {
-    args.splice(2, 1) // 移除重复的命令
+    args.splice(2, 1) // 移除重複的命令
     repaired = true
   }
 
@@ -208,9 +208,9 @@ export function fixWindowsMcpConfig(config: ClaudeCodeConfig): ClaudeCodeConfig 
   for (const [serverName, serverConfig] of Object.entries(fixed.mcpServers || {})) {
     if (serverConfig && typeof serverConfig === 'object' && 'command' in serverConfig) {
       const mcpConfig = serverConfig as McpServerConfig
-      // 先尝试修复损坏的配置
+      // 先嚐試修復損壞的配置
       repairCorruptedMcpArgs(mcpConfig)
-      // 再应用平台命令包装（幂等，已处理过的会跳过）
+      // 再應用平臺命令包裝（冪等，已處理過的會跳過）
       applyPlatformCommand(mcpConfig)
     }
   }

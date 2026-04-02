@@ -200,9 +200,9 @@ describe('template variable completeness', () => {
 
       // Find any remaining {{ }} template variables
       const remaining = result.match(/\{\{[A-Z_]+\}\}/g) || []
-      // Filter out known non-CCG variables (user-facing placeholders like {{项目路径}})
+      // Filter out known non-CCG variables (user-facing placeholders like {{專案路徑}})
       const ccgVars = remaining.filter(v =>
-        !v.includes('项目') && !v.includes('相关') && !v.includes('WORKDIR'),
+        !v.includes('專案') && !v.includes('相關') && !v.includes('WORKDIR'),
       )
       expect(ccgVars, `unprocessed variables in ${relativePath}: ${ccgVars.join(', ')}`).toEqual([])
     })

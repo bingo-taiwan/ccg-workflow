@@ -177,8 +177,8 @@ export async function init(options: InitOptions = {}): Promise<void> {
         name: 'selectedLang',
         message: '選擇語言 / Select language',
         choices: [
-          { name: `正體中文（台灣）`, value: 'zh-TW' },
-          { name: `简体中文`, value: 'zh-CN' },
+          { name: `正體中文（臺灣）`, value: 'zh-TW' },
+          { name: `簡體中文`, value: 'zh-CN' },
           { name: `English`, value: 'en' },
         ],
         default: 'zh-TW',
@@ -357,25 +357,25 @@ export async function init(options: InitOptions = {}): Promise<void> {
       message: i18n.t('init:mcp.selectTools'),
       choices: [
         {
-          name: `ace-tool ${ansis.green(`(${i18n.t('common:info')})`)} ${ansis.gray('— search_context 代码检索')}`,
+          name: `ace-tool ${ansis.green(`(${i18n.t('common:info')})`)} ${ansis.gray('— search_context 程式碼檢索')}`,
           value: 'ace-tool',
           checked: true,
         },
         {
-          name: `fast-context ${ansis.gray('— AI 驱动语义搜索')}`,
+          name: `fast-context ${ansis.gray('— AI 驅動語義搜尋')}`,
           value: 'fast-context',
         },
         {
-          name: `context7 ${ansis.green('(free)')} ${ansis.gray('— 库文档查询')}`,
+          name: `context7 ${ansis.green('(free)')} ${ansis.gray('— 庫文件查詢')}`,
           value: 'context7',
           checked: true,
         },
         {
-          name: `grok-search ${ansis.gray('— 联网搜索 (需 API Key)')}`,
+          name: `grok-search ${ansis.gray('— 聯網搜尋 (需 API Key)')}`,
           value: 'grok-search',
         },
         {
-          name: `contextweaver ${ansis.gray('— 硅基流动嵌入检索 (需 API Key)')}`,
+          name: `contextweaver ${ansis.gray('— 矽基流動嵌入檢索 (需 API Key)')}`,
           value: 'contextweaver',
         },
       ],
@@ -874,7 +874,7 @@ export async function init(options: InitOptions = {}): Promise<void> {
       if (!result.success) {
         // Critical failure — prominent red box
         console.log(ansis.red.bold(`  ╔════════════════════════════════════════════════════════════╗`))
-        console.log(ansis.red.bold(`  ║  ⚠  安装出现错误 / Installation errors detected           ║`))
+        console.log(ansis.red.bold(`  ║  ⚠  安裝出現錯誤 / Installation errors detected           ║`))
         console.log(ansis.red.bold(`  ╚════════════════════════════════════════════════════════════╝`))
       }
       else {
@@ -885,9 +885,9 @@ export async function init(options: InitOptions = {}): Promise<void> {
       })
       if (!result.success) {
         console.log()
-        console.log(ansis.yellow(`  尝试修复 / Try to fix:`))
+        console.log(ansis.yellow(`  嘗試修復 / Try to fix:`))
         console.log(ansis.cyan(`    npx ccg-workflow@latest init --force`))
-        console.log(ansis.gray(`    如仍失败，请提交 issue 并附上以上错误信息`))
+        console.log(ansis.gray(`    如仍失敗，請提交 issue 並附上以上錯誤資訊`))
         console.log(ansis.gray(`    If still failing, report an issue with the errors above`))
       }
     }
@@ -970,8 +970,8 @@ export async function init(options: InitOptions = {}): Promise<void> {
       console.log()
       console.log(ansis.gray(`     ${i18n.t('init:mcp.mcpOptionsHint')}`))
       console.log()
-      console.log(`     ${ansis.green('1.')} ${ansis.cyan('fast-context')} ${ansis.yellow('(推荐)')}: Windsurf Fast Context`)
-      console.log(`        ${ansis.gray('AI 驱动代码搜索，需 Windsurf 账号，免费/低成本')}`)
+      console.log(`     ${ansis.green('1.')} ${ansis.cyan('fast-context')} ${ansis.yellow('(推薦)')}: Windsurf Fast Context`)
+      console.log(`        ${ansis.gray('AI 驅動程式碼搜尋，需 Windsurf 賬號，免費/低成本')}`)
       console.log()
       console.log(`     ${ansis.green('2.')} ${ansis.cyan('ace-tool / ace-tool-rs')}: ${ansis.underline('https://augmentcode.com/')}`)
       console.log(`        ${ansis.gray(i18n.t('init:mcp.promptEnhancement'))}`)

@@ -44,7 +44,7 @@ describe('mcpProvider = "skip"', () => {
       '```',
     ].join('\n')
     const result = injectConfigVariables(input, skipConfig)
-    expect(result).toContain('> MCP 未配置。使用 `Glob` 定位文件 + `Grep` 搜索关键符号 + `Read` 读取文件内容。')
+    expect(result).toContain('> MCP 未配置。使用 `Glob` 定位檔案 + `Grep` 搜尋關鍵符號 + `Read` 讀取檔案內容。')
     expect(result).not.toContain('{{MCP_SEARCH_TOOL}}')
     expect(result).not.toContain('```')
   })
@@ -53,8 +53,8 @@ describe('mcpProvider = "skip"', () => {
     const input = [
       '```',
       '{{MCP_SEARCH_TOOL}} {',
-      '  "project_root_path": "{{项目路径}}",',
-      '  "query": "可复用的 UI 组件"',
+      '  "project_root_path": "{{專案路徑}}",',
+      '  "query": "可複用的 UI 元件"',
       '}',
       '```',
     ].join('\n')
@@ -64,9 +64,9 @@ describe('mcpProvider = "skip"', () => {
   })
 
   it('replaces inline backtick references', () => {
-    const input = '调用 `{{MCP_SEARCH_TOOL}}` 检索相关代码'
+    const input = '呼叫 `{{MCP_SEARCH_TOOL}}` 檢索相關程式碼'
     const result = injectConfigVariables(input, skipConfig)
-    expect(result).toBe('调用 `Glob + Grep`（MCP 未配置） 检索相关代码')
+    expect(result).toBe('呼叫 `Glob + Grep`（MCP 未配置） 檢索相關程式碼')
     expect(result).not.toContain('{{MCP_SEARCH_TOOL}}')
   })
 
@@ -95,12 +95,12 @@ describe('mcpProvider = "skip"', () => {
       '',
       '```',
       '{{MCP_SEARCH_TOOL}} {',
-      '  "project_root_path": "{{项目路径}}",',
-      '  "query": "{{相关功能关键词}}"',
+      '  "project_root_path": "{{專案路徑}}",',
+      '  "query": "{{相關功能關鍵詞}}"',
       '}',
       '```',
       '',
-      '调用 `{{MCP_SEARCH_TOOL}}` 检索相关代码',
+      '呼叫 `{{MCP_SEARCH_TOOL}}` 檢索相關程式碼',
     ].join('\n')
     const result = injectConfigVariables(input, skipConfig)
 
@@ -121,7 +121,7 @@ describe('mcpProvider = "skip"', () => {
   })
 
   it('does not inject mcp__ace-tool__search_context when skip is selected', () => {
-    const input = '调用 `{{MCP_SEARCH_TOOL}}` 检索'
+    const input = '呼叫 `{{MCP_SEARCH_TOOL}}` 檢索'
     const result = injectConfigVariables(input, skipConfig)
     expect(result).not.toContain('mcp__ace-tool')
     expect(result).not.toContain('mcp__contextweaver')
@@ -135,7 +135,7 @@ describe('mcpProvider = "contextweaver"', () => {
   const cwConfig = { mcpProvider: 'contextweaver' }
 
   it('replaces {{MCP_SEARCH_TOOL}} with contextweaver tool name', () => {
-    const input = '调用 `{{MCP_SEARCH_TOOL}}` 检索'
+    const input = '呼叫 `{{MCP_SEARCH_TOOL}}` 檢索'
     const result = injectConfigVariables(input, cwConfig)
     expect(result).toContain('mcp__contextweaver__codebase-retrieval')
     expect(result).not.toContain('{{MCP_SEARCH_TOOL}}')
@@ -153,7 +153,7 @@ describe('mcpProvider = "contextweaver"', () => {
 // ─────────────────────────────────────────────────────────────
 describe('mcpProvider = "ace-tool" (default)', () => {
   it('replaces {{MCP_SEARCH_TOOL}} with ace-tool tool name', () => {
-    const input = '调用 `{{MCP_SEARCH_TOOL}}` 检索'
+    const input = '呼叫 `{{MCP_SEARCH_TOOL}}` 檢索'
     const result = injectConfigVariables(input, { mcpProvider: 'ace-tool' })
     expect(result).toContain('mcp__ace-tool__search_context')
   })
