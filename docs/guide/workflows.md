@@ -1,103 +1,103 @@
 # 工作流指南
 
-不同的活用不同的工作流。别纠结选哪个，看下面的决策树。
+不同的活用不同的工作流。別糾結選哪個，看下面的決策樹。
 
-## 怎么选
+## 怎麼選
 
 ```
-拿到任务
+拿到任務
   │
-  ├─ 很简单，一句话说清？ ──→ /ccg:frontend 或 /ccg:backend
+  ├─ 很簡單，一句話說清？ ──→ /ccg:frontend 或 /ccg:backend
   │
-  ├─ 想先看看计划？ ────────→ /ccg:plan → /ccg:execute
+  ├─ 想先看看計劃？ ────────→ /ccg:plan → /ccg:execute
   │
-  ├─ 不想让 AI 乱来？ ─────→ /ccg:spec-* 系列
+  ├─ 不想讓 AI 亂來？ ─────→ /ccg:spec-* 系列
   │
-  ├─ 能拆成 3+ 个模块？ ───→ /ccg:team-* 系列
+  ├─ 能拆成 3+ 個模組？ ───→ /ccg:team-* 系列
   │
-  └─ 从头到尾全包？ ────────→ /ccg:workflow
+  └─ 從頭到尾全包？ ────────→ /ccg:workflow
 ```
 
-## 规划 → 执行（最常用）
+## 規劃 → 執行（最常用）
 
-先让 Codex 和 Gemini 各出一份分析，Claude 综合成计划。你看完计划觉得没问题，再执行。
+先讓 Codex 和 Gemini 各出一份分析，Claude 綜合成計劃。你看完計劃覺得沒問題，再執行。
 
 ```bash
-/ccg:plan 实现用户认证功能
-# 计划保存在 .claude/plan/ 目录
-# 打开看看，不满意可以直接改
+/ccg:plan 實現使用者認證功能
+# 計劃儲存在 .claude/plan/ 目錄
+# 開啟看看，不滿意可以直接改
 
-# 两种执行方式，选一个：
-/ccg:execute .claude/plan/user-auth.md   # Claude 亲自干，精细控制
-/ccg:codex-exec .claude/plan/user-auth.md  # Codex 全干，Claude 只审核
+# 兩種執行方式，選一個：
+/ccg:execute .claude/plan/user-auth.md   # Claude 親自幹，精細控制
+/ccg:codex-exec .claude/plan/user-auth.md  # Codex 全乾，Claude 只稽核
 ```
 
-**execute 和 codex-exec 怎么选？**
+**execute 和 codex-exec 怎麼選？**
 
-`execute` 适合复杂任务——Claude 处理每一步，能随时调整方向。但 token 消耗大。
+`execute` 適合複雜任務——Claude 處理每一步，能隨時調整方向。但 token 消耗大。
 
-`codex-exec` 适合目标明确的任务——Codex 一口气干完，Claude 最后审一遍。token 消耗小得多。
+`codex-exec` 適合目標明確的任務——Codex 一口氣幹完，Claude 最後審一遍。token 消耗小得多。
 
-## OPSX 规范驱动（严格控制）
+## OPSX 規範驅動（嚴格控制）
 
-有些场景你不想让 AI 自由发挥。比如实现权限系统，你希望每个细节都有据可查。
+有些場景你不想讓 AI 自由發揮。比如實現許可權系統，你希望每個細節都有據可查。
 
-OPSX 的思路是：**先把需求变成约束条件，再把约束变成零决策计划。执行阶段不需要做任何判断——所有判断在规划阶段就做完了。**
+OPSX 的思路是：**先把需求變成約束條件，再把約束變成零決策計劃。執行階段不需要做任何判斷——所有判斷在規劃階段就做完了。**
 
 ```bash
 /ccg:spec-init
-/ccg:spec-research 实现 RBAC 权限系统
-# 这步会输出一堆约束条件，比如：
-# - 必须支持角色继承
-# - 权限检查延迟 < 5ms
-# - 必须有审计日志
+/ccg:spec-research 實現 RBAC 許可權系統
+# 這步會輸出一堆約束條件，比如：
+# - 必須支援角色繼承
+# - 許可權檢查延遲 < 5ms
+# - 必須有審計日誌
 
 /ccg:spec-plan
-# 约束 → 零决策计划
-# 每一步该改哪个文件、改什么内容、怎么验证，都写清楚了
+# 約束 → 零決策計劃
+# 每一步該改哪個檔案、改什麼內容、怎麼驗證，都寫清楚了
 
 /ccg:spec-impl
-# 按计划一步步执行，不需要再做决策
+# 按計劃一步步執行，不需要再做決策
 
 /ccg:spec-review
-# 双模型独立审查，这个随时都能用
+# 雙模型獨立審查，這個隨時都能用
 ```
 
-每阶段之间可以 `/clear` 释放上下文——状态存在 `openspec/` 目录里，不怕丢。
+每階段之間可以 `/clear` 釋放上下文——狀態存在 `openspec/` 目錄裡，不怕丟。
 
-## Agent Teams 并行（多模块同时开工）
+## Agent Teams 並行（多模組同時開工）
 
-任务能拆成几个不相干的模块？比如"订单 CRUD + 支付对接 + 邮件通知"——三个模块互不依赖，让三个 Builder 同时写。
+任務能拆成幾個不相干的模組？比如"訂單 CRUD + 支付對接 + 郵件通知"——三個模組互不依賴，讓三個 Builder 同時寫。
 
 ```bash
-/ccg:team-research 实现订单系统
-# 产出约束集 + 成功判据
+/ccg:team-research 實現訂單系統
+# 產出約束集 + 成功判據
 # /clear
 
 /ccg:team-plan order-system
-# 拆分为互不干扰的子任务，每个 Builder 只改自己的文件
+# 拆分為互不干擾的子任務，每個 Builder 只改自己的檔案
 # /clear
 
 /ccg:team-exec
-# 多个 Builder 并行写代码
+# 多個 Builder 並行寫程式碼
 # /clear
 
 /ccg:team-review
-# Codex 审一遍 + Gemini 审一遍，Critical 必须修
+# Codex 審一遍 + Gemini 審一遍，Critical 必須修
 ```
 
-**跟普通工作流比有什么区别？**
+**跟普通工作流比有什麼區別？**
 
-普通工作流是连续对话，上下文一直累积。Team 系列每步 `/clear`，通过文件传递状态。好处是上下文不会爆，坏处是没法随时插嘴改方向。
+普通工作流是連續對話，上下文一直累積。Team 系列每步 `/clear`，透過檔案傳遞狀態。好處是上下文不會爆，壞處是沒法隨時插嘴改方向。
 
-适合的场景：任务可以拆成 3 个以上独立模块，模块之间没有强依赖。
+適合的場景：任務可以拆成 3 個以上獨立模組，模組之間沒有強依賴。
 
-## 完整工作流（全自动）
+## 完整工作流（全自動）
 
-`/ccg:workflow` 自动跑完 6 个阶段：研究→构思→计划→执行→优化→评审。
+`/ccg:workflow` 自動跑完 6 個階段：研究→構思→計劃→執行→最佳化→評審。
 
 ```bash
-/ccg:workflow 实现完整的用户认证，注册、登录、JWT
+/ccg:workflow 實現完整的使用者認證，註冊、登入、JWT
 ```
 
-适合不想操心中间过程的场景。但对于大任务，建议还是用 `plan + execute` 分步走，中间自己看一眼计划。
+適合不想操心中間過程的場景。但對於大任務，建議還是用 `plan + execute` 分步走，中間自己看一眼計劃。

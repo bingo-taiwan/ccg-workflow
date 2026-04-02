@@ -1,50 +1,50 @@
 # MCP 配置
 
-MCP 工具让 Claude Code 的代码搜索更聪明。不配也能用，配了体验好很多。
+MCP 工具讓 Claude Code 的程式碼搜尋更聰明。不配也能用，配了體驗好很多。
 
 ```bash
-npx ccg-workflow menu  # 选「配置 MCP」
+npx ccg-workflow menu  # 選「配置 MCP」
 ```
 
-## 代码检索工具（选一个就行）
+## 程式碼檢索工具（選一個就行）
 
 ### ace-tool
 
-基于 Augment Code 的语义搜索。搜代码的时候不是傻找关键字，而是理解你想找什么。
+基於 Augment Code 的語義搜尋。搜程式碼的時候不是傻找關鍵字，而是理解你想找什麼。
 
-需要 Augment Code 账号。没有的话可以用[第三方中转](https://acemcp.heroman.wtf/)。
+需要 Augment Code 賬號。沒有的話可以用[第三方中轉](https://acemcp.heroman.wtf/)。
 
 ### fast-context
 
-Windsurf 的 Fast Context。不需要给整个仓库建索引就能搜，速度快。
+Windsurf 的 Fast Context。不需要給整個倉庫建索引就能搜，速度快。
 
-需要 Windsurf 账号。
+需要 Windsurf 賬號。
 
 ### ContextWeaver
 
-完全本地运行的混合搜索（Embedding + Rerank）。不用联网，但需要硅基流动 API Key（免费注册就有）。
+完全本地執行的混合搜尋（Embedding + Rerank）。不用聯網，但需要矽基流動 API Key（免費註冊就有）。
 
-## 辅助工具（可选）
+## 輔助工具（可選）
 
-- **Context7** — 查最新的库文档。初始化时自动装好，不用管。
-- **Playwright** — 浏览器自动化和测试。
-- **DeepWiki** — 知识库查询。
-- **Exa** — 搜索引擎，需要 API Key。
+- **Context7** — 查最新的庫文件。初始化時自動裝好，不用管。
+- **Playwright** — 瀏覽器自動化和測試。
+- **DeepWiki** — 知識庫查詢。
+- **Exa** — 搜尋引擎，需要 API Key。
 
 ## MCP 同步
 
-配好 MCP 之后，CCG 会自动把配置同步到 Codex 和 Gemini：
+配好 MCP 之後，CCG 會自動把配置同步到 Codex 和 Gemini：
 
 - Codex 同步到 `~/.codex/config.toml`
 - Gemini 同步到 `~/.gemini/settings.json`
 
-这样 `/ccg:codex-exec` 的时候 Codex 也能直接用 MCP 搜索代码，不用你单独配。
+這樣 `/ccg:codex-exec` 的時候 Codex 也能直接用 MCP 搜尋程式碼，不用你單獨配。
 
-## 自动授权
+## 自動授權
 
-CCG 装好后会自动配一个 Hook，让 `codeagent-wrapper` 的命令不用每次都手动确认。需要装 [jq](https://jqlang.github.io/jq/)。
+CCG 裝好後會自動配一個 Hook，讓 `codeagent-wrapper` 的命令不用每次都手動確認。需要裝 [jq](https://jqlang.github.io/jq/)。
 
-::: details v1.7.71 之前需要手动配
+::: details v1.7.71 之前需要手動配
 
 在 `~/.claude/settings.json` 里加：
 
@@ -68,10 +68,10 @@ CCG 装好后会自动配一个 Hook，让 `codeagent-wrapper` 的命令不用�
 ```
 :::
 
-## 出问题了？
+## 出問題了？
 
 ```bash
 npx ccg-workflow diagnose-mcp
 ```
 
-这个命令会检查你的 MCP 配置哪里不对。
+這個命令會檢查你的 MCP 配置哪裡不對。
