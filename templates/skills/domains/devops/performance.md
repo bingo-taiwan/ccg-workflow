@@ -1,22 +1,22 @@
 ---
 name: performance
-description: 性能优化秘典。性能分析方法论、Profiling、火焰图、基准测试、瓶颈优化。当用户提到性能、延迟、吞吐、Profiling、火焰图、基准测试时路由到此。
+description: 效能最佳化秘典。效能分析方法論、Profiling、火焰圖、基準測試、瓶頸最佳化。當使用者提到效能、延遲、吞吐、Profiling、火焰圖、基準測試時路由到此。
 ---
 
-# 🔧 炼器秘典 · 性能优化
+# 🔧 煉器秘典 · 效能最佳化
 
 
-## 性能分析方法论
+## 效能分析方法論
 
 ### USE 方法 (Utilization, Saturation, Errors)
 
-对每个资源检查三个维度：
+對每個資源檢查三個維度：
 
-| 维度 | 含义 | 工具 |
+| 維度 | 含義 | 工具 |
 |------|------|------|
-| Utilization | 资源繁忙时间占比 | `top`, `vmstat`, `iostat` |
-| Saturation | 排队等待的工作量 | `vmstat`(r列), `iostat`(avgqu-sz) |
-| Errors | 错误事件计数 | `dmesg`, 应用日志 |
+| Utilization | 資源繁忙時間佔比 | `top`, `vmstat`, `iostat` |
+| Saturation | 排隊等待的工作量 | `vmstat`(r列), `iostat`(avgqu-sz) |
+| Errors | 錯誤事件計數 | `dmesg`, 應用日誌 |
 
 ```bash
 # CPU USE
@@ -38,13 +38,13 @@ netstat -s | grep -i error  # Errors
 
 ### RED 方法 (Rate, Errors, Duration)
 
-面向服务的性能指标：
+面向服務的效能指標：
 
-| 维度 | 含义 | 示例 |
+| 維度 | 含義 | 示例 |
 |------|------|------|
-| Rate | 每秒请求数 | QPS/RPS |
-| Errors | 每秒错误数 | 5xx/s |
-| Duration | 请求延迟分布 | P50/P95/P99 |
+| Rate | 每秒請求數 | QPS/RPS |
+| Errors | 每秒錯誤數 | 5xx/s |
+| Duration | 請求延遲分佈 | P50/P95/P99 |
 
 ```promql
 # Prometheus PromQL 示例
@@ -59,14 +59,14 @@ histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))  # P99
 
 ### CPU Profiling
 
-| 语言 | 工具 | 命令 |
+| 語言 | 工具 | 命令 |
 |------|------|------|
 | Python | cProfile / py-spy | `py-spy record -o profile.svg -- python app.py` |
 | Go | pprof | `go tool pprof http://localhost:6060/debug/pprof/profile` |
 | Java | async-profiler | `./profiler.sh -d 30 -f flame.html <pid>` |
 | Node.js | clinic.js | `clinic flame -- node app.js` |
 | Rust | cargo-flamegraph | `cargo flamegraph` |
-| 系统级 | perf | `perf record -g -p <pid> -- sleep 30` |
+| 系統級 | perf | `perf record -g -p <pid> -- sleep 30` |
 
 ### Memory Profiling
 
@@ -83,58 +83,58 @@ go tool pprof http://localhost:6060/debug/pprof/heap
 jmap -dump:format=b,file=heap.hprof <pid>
 jhat heap.hprof  # 或用 MAT/VisualVM 分析
 
-# 系统级
+# 系統級
 valgrind --tool=massif ./program
 ```
 
 ### I/O Profiling
 
 ```bash
-# 磁盘 I/O
+# 磁碟 I/O
 iostat -xz 1
 iotop -oP
 strace -e trace=read,write -p <pid>
 
-# 网络 I/O
-ss -tnp                    # 连接状态
+# 網路 I/O
+ss -tnp                    # 連線狀態
 tcpdump -i eth0 -w cap.pcap  # 抓包
 ```
 
 ---
 
-## 火焰图
+## 火焰圖
 
 ### 生成流程
 
 ```bash
-# 1. 采集数据
+# 1. 採集資料
 perf record -F 99 -g -p <pid> -- sleep 30
 
-# 2. 生成火焰图
+# 2. 生成火焰圖
 perf script | stackcollapse-perf.pl | flamegraph.pl > flame.svg
 
-# 3. 解读
-# X轴：函数在采样中出现的比例（越宽=越耗时）
-# Y轴：调用栈深度
-# 颜色：随机，无特殊含义
+# 3. 解讀
+# X軸：函式在取樣中出現的比例（越寬=越耗時）
+# Y軸：呼叫棧深度
+# 顏色：隨機，無特殊含義
 ```
 
-### 解读要点
+### 解讀要點
 
-| 特征 | 含义 | 行动 |
+| 特徵 | 含義 | 行動 |
 |------|------|------|
-| 宽平顶 | 该函数自身耗时大 | 优化该函数逻辑 |
-| 宽塔形 | 调用链深但每层都耗时 | 减少调用层级 |
-| 多个窄尖峰 | 多处小开销累积 | 关注热路径 |
+| 寬平頂 | 該函式自身耗時大 | 最佳化該函式邏輯 |
+| 寬塔形 | 呼叫鏈深但每層都耗時 | 減少呼叫層級 |
+| 多個窄尖峰 | 多處小開銷累積 | 關注熱路徑 |
 
 ---
 
-## 基准测试
+## 基準測試
 
-### HTTP 基准测试
+### HTTP 基準測試
 
 ```bash
-# wrk (推荐)
+# wrk (推薦)
 wrk -t12 -c400 -d30s http://localhost:8080/api
 
 # ab (Apache Bench)
@@ -143,11 +143,11 @@ ab -n 10000 -c 100 http://localhost:8080/api
 # hey
 hey -n 10000 -c 100 http://localhost:8080/api
 
-# k6 (脚本化)
+# k6 (指令碼化)
 k6 run --vus 100 --duration 30s script.js
 ```
 
-### 代码级基准测试
+### 程式碼級基準測試
 
 ```python
 # Python - pytest-benchmark
@@ -169,75 +169,75 @@ fn bench_sort(b: &mut Bencher) {
 }
 ```
 
-### 基准测试原则
+### 基準測試原則
 
-1. **隔离环境** — 独占机器，关闭无关进程
-2. **预热** — 丢弃前 N 次结果
-3. **统计显著** — 多次运行取中位数
-4. **对比基线** — 优化前后对比，而非绝对值
+1. **隔離環境** — 獨佔機器，關閉無關程序
+2. **預熱** — 丟棄前 N 次結果
+3. **統計顯著** — 多次執行取中位數
+4. **對比基線** — 最佳化前後對比，而非絕對值
 
 ---
 
-## 常见瓶颈优化
+## 常見瓶頸最佳化
 
 ### CPU 密集型
 
-| 问题 | 优化 |
+| 問題 | 最佳化 |
 |------|------|
-| 热循环 | 算法优化、减少分支 |
-| 序列化/反序列化 | 换用高效格式(protobuf/msgpack) |
-| 正则表达式 | 预编译、简化模式 |
-| 加密运算 | 硬件加速(AES-NI) |
+| 熱迴圈 | 演算法最佳化、減少分支 |
+| 序列化/反序列化 | 換用高效格式(protobuf/msgpack) |
+| 正規表示式 | 預編譯、簡化模式 |
+| 加密運算 | 硬體加速(AES-NI) |
 
 ### I/O 密集型
 
-| 问题 | 优化 |
+| 問題 | 最佳化 |
 |------|------|
-| 同步阻塞 I/O | 异步 I/O (asyncio/epoll) |
-| 频繁小文件读写 | 批量合并、缓冲区 |
-| 网络往返 | 连接池、批量请求、Pipeline |
-| DNS 解析 | 本地缓存 |
+| 同步阻塞 I/O | 非同步 I/O (asyncio/epoll) |
+| 頻繁小檔案讀寫 | 批次合併、緩衝區 |
+| 網路往返 | 連線池、批次請求、Pipeline |
+| DNS 解析 | 本地快取 |
 
-### 内存相关
+### 記憶體相關
 
-| 问题 | 优化 |
+| 問題 | 最佳化 |
 |------|------|
-| 内存泄漏 | Profiling 定位 + 修复引用 |
-| GC 压力 | 减少分配、对象池 |
-| 缓存未命中 | 数据局部性、紧凑布局 |
-| 大对象 | 流式处理、分片 |
+| 記憶體洩漏 | Profiling 定位 + 修復引用 |
+| GC 壓力 | 減少分配、物件池 |
+| 快取未命中 | 資料區域性性、緊湊佈局 |
+| 大物件 | 流式處理、分片 |
 
 ---
 
-## 数据库性能
+## 資料庫效能
 
-### 查询优化
+### 查詢最佳化
 
 ```sql
 -- 1. EXPLAIN 分析
 EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 123;
 
--- 2. 索引优化
+-- 2. 索引最佳化
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_composite ON orders(user_id, created_at DESC);
 
 -- 3. 避免 N+1
--- 差：循环查询
--- 好：JOIN 或 IN 批量查询
+-- 差：迴圈查詢
+-- 好：JOIN 或 IN 批次查詢
 SELECT o.*, u.name FROM orders o JOIN users u ON o.user_id = u.id;
 
--- 4. 分页优化
--- 差：OFFSET 大数值
+-- 4. 分頁最佳化
+-- 差：OFFSET 大數值
 SELECT * FROM orders ORDER BY id LIMIT 20 OFFSET 100000;
--- 好：游标分页
+-- 好：遊標分頁
 SELECT * FROM orders WHERE id > 100000 ORDER BY id LIMIT 20;
 ```
 
-### 连接池配置
+### 連線池配置
 
 ```yaml
 # HikariCP (Java)
-maximumPoolSize: 10        # CPU核数 * 2 + 磁盘数
+maximumPoolSize: 10        # CPU核數 * 2 + 磁碟數
 minimumIdle: 5
 connectionTimeout: 30000
 idleTimeout: 600000
@@ -248,46 +248,46 @@ pool_size = (core_count * 2) + effective_spindle_count
 
 ---
 
-## 性能优化清单
+## 效能最佳化清單
 
 ```yaml
-应用层:
-  - [ ] 热路径 Profiling 完成
-  - [ ] 算法复杂度 ≤ O(n log n)
-  - [ ] 无 N+1 查询
-  - [ ] 连接池配置合理
-  - [ ] 异步 I/O 用于 I/O 密集操作
+應用層:
+  - [ ] 熱路徑 Profiling 完成
+  - [ ] 演算法複雜度 ≤ O(n log n)
+  - [ ] 無 N+1 查詢
+  - [ ] 連線池配置合理
+  - [ ] 非同步 I/O 用於 I/O 密集操作
 
-数据库:
-  - [ ] 慢查询 < 100ms (P95)
-  - [ ] 索引覆盖高频查询
-  - [ ] 无全表扫描
-  - [ ] 连接池大小合理
+資料庫:
+  - [ ] 慢查詢 < 100ms (P95)
+  - [ ] 索引覆蓋高頻查詢
+  - [ ] 無全表掃描
+  - [ ] 連線池大小合理
 
-基础设施:
+基礎設施:
   - [ ] CPU 利用率 < 70% (P95)
-  - [ ] 内存利用率 < 80%
-  - [ ] 磁盘 I/O 无饱和
-  - [ ] 网络无丢包
+  - [ ] 記憶體利用率 < 80%
+  - [ ] 磁碟 I/O 無飽和
+  - [ ] 網路無丟包
 ```
 
 ---
 
-## 性能测试（源自 performance-testing）
+## 效能測試（源自 performance-testing）
 
-### 测试类型
+### 測試型別
 
-| 类型 | 用户数 | 持续时间 | 目标 |
+| 型別 | 使用者數 | 持續時間 | 目標 |
 |------|--------|----------|------|
-| 负载测试 | 预期峰值 | 30min-2h | 验证性能指标 |
-| 压力测试 | 超出峰值 | 1-3h | 找到崩溃点 |
-| 浸泡测试 | 正常负载 | 8-72h | 检测内存泄漏 |
-| 峰值测试 | 瞬间激增 | 短时间 | 测试弹性 |
+| 負載測試 | 預期峰值 | 30min-2h | 驗證效能指標 |
+| 壓力測試 | 超出峰值 | 1-3h | 找到崩潰點 |
+| 浸泡測試 | 正常負載 | 8-72h | 檢測記憶體洩漏 |
+| 峰值測試 | 瞬間激增 | 短時間 | 測試彈性 |
 
 ### k6 核心模式
 
 ```javascript
-// 阶梯式负载
+// 階梯式負載
 export const options = {
   stages: [
     { duration: '2m', target: 100 },
@@ -301,36 +301,36 @@ export const options = {
 };
 ```
 
-### 性能基准阈值
+### 效能基準閾值
 
-| 场景 | P95响应时间 | 错误率 | 吞吐量 |
+| 場景 | P95響應時間 | 錯誤率 | 吞吐量 |
 |------|-------------|--------|--------|
-| API查询 | <200ms | <0.1% | >1000 RPS |
-| API写入 | <500ms | <0.5% | >500 RPS |
-| 页面加载 | <2s | <1% | >100 RPS |
+| API查詢 | <200ms | <0.1% | >1000 RPS |
+| API寫入 | <500ms | <0.5% | >500 RPS |
+| 頁面載入 | <2s | <1% | >100 RPS |
 
-### 工具选型
+### 工具選型
 
-| 工具 | 语言 | 适用场景 |
+| 工具 | 語言 | 適用場景 |
 |------|------|----------|
-| k6 | JavaScript | 现代化、DevOps集成、云原生 |
-| JMeter | Java/GUI | 功能全面、插件丰富 |
-| Gatling | Scala | 高性能、大规模测试 |
-| Locust | Python | Python生态、分布式 |
+| k6 | JavaScript | 現代化、DevOps整合、雲原生 |
+| JMeter | Java/GUI | 功能全面、外掛豐富 |
+| Gatling | Scala | 高效能、大規模測試 |
+| Locust | Python | Python生態、分散式 |
 
-### 渐进式测试流程
+### 漸進式測試流程
 
 ```
-1. 基准测试 → 单用户建立基准
-2. 负载测试 → 预期负载验证性能
-3. 压力测试 → 超出负载找极限
-4. 浸泡测试 → 长时间检测泄漏
+1. 基準測試 → 單使用者建立基準
+2. 負載測試 → 預期負載驗證效能
+3. 壓力測試 → 超出負載找極限
+4. 浸泡測試 → 長時間檢測洩漏
 ```
 
-### 测试环境要求
+### 測試環境要求
 
-- 独立环境，配置与生产一致
-- 数据分布模拟真实：70%轻度 / 20%中度 / 10%重度用户
-- 数据隔离：`user_${__VU}_${__ITER}`
-- CI集成：k6 GitHub Action + 阈值门禁
+- 獨立環境，配置與生產一致
+- 資料分佈模擬真實：70%輕度 / 20%中度 / 10%重度使用者
+- 資料隔離：`user_${__VU}_${__ITER}`
+- CI整合：k6 GitHub Action + 閾值門禁
 

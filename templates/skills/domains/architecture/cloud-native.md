@@ -1,16 +1,16 @@
 ---
 name: cloud-native
-description: 云原生架构。容器、Kubernetes、Serverless、微服务。当用户提到云原生、容器、Docker、Kubernetes、K8s、Serverless时使用。
+description: 雲原生架構。容器、Kubernetes、Serverless、微服務。當使用者提到雲原生、容器、Docker、Kubernetes、K8s、Serverless時使用。
 ---
 
-# 🏗 阵法秘典 · 云原生架构
+# 🏗 陣法秘典 · 雲原生架構
 
 
 ## Docker
 
 ### Dockerfile
 ```dockerfile
-# 多阶段构建
+# 多階段構建
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -57,24 +57,24 @@ volumes:
   postgres_data:
 ```
 
-### 安全最佳实践
+### 安全最佳實踐
 ```yaml
-镜像安全:
-  - 使用官方基础镜像
-  - 最小化镜像 (alpine/distroless)
-  - 扫描漏洞 (Trivy)
-  - 固定版本标签
+映象安全:
+  - 使用官方基礎映象
+  - 最小化映象 (alpine/distroless)
+  - 掃描漏洞 (Trivy)
+  - 固定版本標籤
 
-运行时安全:
-  - 非 root 用户运行
-  - 只读文件系统
-  - 限制资源
-  - 禁用特权模式
+執行時安全:
+  - 非 root 使用者執行
+  - 只讀檔案系統
+  - 限制資源
+  - 禁用特權模式
 ```
 
 ## Kubernetes
 
-### 基础资源
+### 基礎資源
 ```yaml
 # Deployment
 apiVersion: apps/v1
@@ -204,7 +204,7 @@ spec:
     ports:
     - port: 5432
 ---
-# PodSecurityPolicy (已废弃，使用 Pod Security Standards)
+# PodSecurityPolicy (已廢棄，使用 Pod Security Standards)
 # Pod Security Admission
 apiVersion: v1
 kind: Namespace
@@ -261,25 +261,25 @@ resources:
       Type: AWS::SQS::Queue
 ```
 
-## 微服务模式
+## 微服務模式
 
 ```yaml
-服务发现:
+服務發現:
   - DNS (Kubernetes Service)
   - Service Mesh (Istio)
 
-负载均衡:
-  - 客户端负载均衡
-  - 服务端负载均衡
+負載均衡:
+  - 客戶端負載均衡
+  - 服務端負載均衡
 
-熔断器:
+熔斷器:
   - Circuit Breaker
   - Retry with backoff
   - Timeout
 
-可观测性:
-  - 日志聚合 (ELK)
-  - 指标监控 (Prometheus)
-  - 分布式追踪 (Jaeger)
+可觀測性:
+  - 日誌聚合 (ELK)
+  - 指標監控 (Prometheus)
+  - 分散式追蹤 (Jaeger)
 ```
 

@@ -1,5 +1,5 @@
 ---
-description: '按规范执行 + 多模型协作 + 归档'
+description: '按規範執行 + 多模型協作 + 歸檔'
 ---
 <!-- CCG:SPEC:IMPL:START -->
 **Core Philosophy**
@@ -43,7 +43,7 @@ description: '按规范执行 + 多模型协作 + 归档'
    - **Route A: Gemini** — Frontend/UI/styling (CSS, React, Vue, HTML, components)
    - **Route B: Codex** — Backend/logic/algorithm (API, data processing, business logic)
 
-   **工作目录**：`{{WORKDIR}}` **必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断。如果用户通过 `/add-dir` 添加了多个工作区，先确定任务相关的工作区。
+   **工作目錄**：`{{WORKDIR}}` **必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷。如果使用者透過 `/add-dir` 新增了多個工作區，先確定任務相關的工作區。
 
    For each task:
    ```
@@ -55,7 +55,7 @@ description: '按规范执行 + 多模型协作 + 归档'
    EOF
    ```
 
-   **会话复用**：保存返回的 `SESSION_ID:`（Codex → `CODEX_PROTO_SESSION`，Gemini → `GEMINI_PROTO_SESSION`），Step 7 审查时复用。
+   **會話複用**：儲存返回的 `SESSION_ID:`（Codex → `CODEX_PROTO_SESSION`，Gemini → `GEMINI_PROTO_SESSION`），Step 7 審查時複用。
 
 5. **Rewrite Prototype to Production Code**
    Upon receiving diff patch, **NEVER apply directly**. Rewrite by:
@@ -106,8 +106,8 @@ description: '按规范执行 + 多模型协作 + 归档'
    TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
    ```
 
-   ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败，最多重试 2 次（间隔 5 秒）。3 次全败才跳过。
-   ⛔ **Codex 结果必须等待**：Codex 执行 5-15 分钟属正常，超时后继续轮询，禁止跳过。
+   ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗，最多重試 2 次（間隔 5 秒）。3 次全敗才跳過。
+   ⛔ **Codex 結果必須等待**：Codex 執行 5-15 分鐘屬正常，超時後繼續輪詢，禁止跳過。
 
    Address any critical findings before proceeding.
 

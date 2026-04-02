@@ -1,5 +1,5 @@
 // 支持的语言
-export type SupportedLang = 'zh-CN' | 'en'
+export type SupportedLang = 'zh-TW' | 'zh-CN' | 'en'
 
 // 模型类型
 export type ModelType = 'codex' | 'gemini' | 'claude'

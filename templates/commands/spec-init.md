@@ -1,5 +1,5 @@
 ---
-description: '初始化 OpenSpec (OPSX) 环境 + 验证多模型 MCP 工具'
+description: '初始化 OpenSpec (OPSX) 環境 + 驗證多模型 MCP 工具'
 ---
 <!-- CCG:SPEC:INIT:START -->
 **Core Philosophy**
@@ -39,7 +39,7 @@ description: '初始化 OpenSpec (OPSX) 环境 + 验证多模型 MCP 工具'
    - **Note**: Always use `openspec` (not `opsx`) for CLI commands.
 
 3. **Initialize OPSX for Current Project**
-   - **重要**：所有命令必须在当前工作目录下执行，禁止 `cd` 到其他路径。如不确定当前目录，先执行 `pwd` 确认。
+   - **重要**：所有命令必須在當前工作目錄下執行，禁止 `cd` 到其他路徑。如不確定當前目錄，先執行 `pwd` 確認。
    - Check if already initialized:
      ```bash
      ls -la openspec/ .claude/skills/openspec-* 2>/dev/null || echo "Not initialized"
@@ -60,7 +60,7 @@ description: '初始化 OpenSpec (OPSX) 环境 + 验证多模型 MCP 工具'
 
 4. **Validate Multi-Model MCP Tools**
    - Check `codeagent-wrapper` availability: `~/.claude/bin/codeagent-wrapper --version`
-   - **工作目录**：`{{WORKDIR}}` **必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断。如果用户通过 `/add-dir` 添加了多个工作区，先确定任务相关的工作区。
+   - **工作目錄**：`{{WORKDIR}}` **必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷。如果使用者透過 `/add-dir` 新增了多個工作區，先確定任務相關的工作區。
    - Test Codex backend:
      ```bash
      echo "echo test" | ~/.claude/bin/codeagent-wrapper --backend {{BACKEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- "{{WORKDIR}}"

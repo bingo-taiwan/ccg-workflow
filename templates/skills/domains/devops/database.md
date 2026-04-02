@@ -1,16 +1,16 @@
 ---
 name: database
-description: 数据库设计与优化。SQL、NoSQL、索引、查询优化。当用户提到数据库、SQL、PostgreSQL、MySQL、MongoDB、Redis时使用。
+description: 資料庫設計與最佳化。SQL、NoSQL、索引、查詢最佳化。當使用者提到資料庫、SQL、PostgreSQL、MySQL、MongoDB、Redis時使用。
 ---
 
-# 🔧 炼器秘典 · 数据库
+# 🔧 煉器秘典 · 資料庫
 
 
-## SQL 基础
+## SQL 基礎
 
-### 查询
+### 查詢
 ```sql
--- 基础查询
+-- 基礎查詢
 SELECT id, name, email
 FROM users
 WHERE status = 'active'
@@ -23,13 +23,13 @@ FROM employees
 GROUP BY department
 HAVING COUNT(*) > 5;
 
--- 连接
+-- 連線
 SELECT u.name, o.total
 FROM users u
 INNER JOIN orders o ON u.id = o.user_id
 WHERE o.created_at > '2024-01-01';
 
--- 子查询
+-- 子查詢
 SELECT * FROM users
 WHERE id IN (
     SELECT user_id FROM orders
@@ -42,7 +42,7 @@ WITH active_users AS (
 )
 SELECT * FROM active_users WHERE created_at > '2024-01-01';
 
--- 窗口函数
+-- 視窗函式
 SELECT name, salary,
     RANK() OVER (PARTITION BY department ORDER BY salary DESC) as rank
 FROM employees;
@@ -50,7 +50,7 @@ FROM employees;
 
 ### 索引
 ```sql
--- 创建索引
+-- 建立索引
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
 CREATE UNIQUE INDEX idx_users_email_unique ON users(email);
@@ -58,42 +58,42 @@ CREATE UNIQUE INDEX idx_users_email_unique ON users(email);
 -- 部分索引
 CREATE INDEX idx_active_users ON users(email) WHERE status = 'active';
 
--- 查看执行计划
+-- 檢視執行計劃
 EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';
 ```
 
 ### 索引策略
 ```yaml
-适合索引:
-  - WHERE 条件列
-  - JOIN 关联列
+適合索引:
+  - WHERE 條件列
+  - JOIN 關聯列
   - ORDER BY 排序列
-  - 高选择性列
+  - 高選擇性列
 
-不适合索引:
-  - 频繁更新的列
-  - 低选择性列 (如性别)
+不適合索引:
+  - 頻繁更新的列
+  - 低選擇性列 (如性別)
   - 小表
 
-复合索引:
-  - 最左前缀原则
-  - 选择性高的列在前
+複合索引:
+  - 最左字首原則
+  - 選擇性高的列在前
 ```
 
 ## PostgreSQL
 
 ### 特性
 ```sql
--- JSON 支持
+-- JSON 支援
 SELECT data->>'name' as name
 FROM users
 WHERE data @> '{"status": "active"}';
 
--- 数组
+-- 陣列
 SELECT * FROM posts
 WHERE tags @> ARRAY['python', 'web'];
 
--- 全文搜索
+-- 全文搜尋
 SELECT * FROM articles
 WHERE to_tsvector('english', content) @@ to_tsquery('python & web');
 
@@ -108,7 +108,7 @@ DO UPDATE SET name = EXCLUDED.name;
 
 ### 特性
 ```sql
--- 全文搜索
+-- 全文搜尋
 SELECT * FROM articles
 WHERE MATCH(title, content) AGAINST('python web' IN NATURAL LANGUAGE MODE);
 
@@ -117,7 +117,7 @@ SELECT JSON_EXTRACT(data, '$.name') as name
 FROM users
 WHERE JSON_EXTRACT(data, '$.status') = 'active';
 
--- 分区表
+-- 分割槽表
 CREATE TABLE orders (
     id INT,
     created_at DATE
@@ -131,7 +131,7 @@ CREATE TABLE orders (
 
 ### MongoDB
 ```javascript
-// 查询
+// 查詢
 db.users.find({ status: "active" })
 db.users.find({ age: { $gt: 18 } })
 db.users.find({ tags: { $in: ["python", "web"] } })
@@ -151,12 +151,12 @@ db.users.createIndex({ location: "2dsphere" })
 
 ### Redis
 ```bash
-# 字符串
+# 字串
 SET key value
 GET key
-SETEX key 3600 value  # 带过期时间
+SETEX key 3600 value  # 帶過期時間
 
-# 哈希
+# 雜湊
 HSET user:1 name "Alice" email "alice@example.com"
 HGET user:1 name
 HGETALL user:1
@@ -174,44 +174,44 @@ SINTER tags1 tags2
 ZADD leaderboard 100 user1
 ZRANGE leaderboard 0 9 WITHSCORES
 
-# 过期
+# 過期
 EXPIRE key 3600
 TTL key
 ```
 
-## 查询优化
+## 查詢最佳化
 
 ```yaml
-原则:
-  - 只查询需要的列
+原則:
+  - 只查詢需要的列
   - 避免 SELECT *
   - 使用索引
-  - 避免全表扫描
-  - 分页查询
+  - 避免全表掃描
+  - 分頁查詢
 
 技巧:
-  - EXPLAIN 分析执行计划
-  - 避免在索引列上使用函数
-  - 使用覆盖索引
-  - 批量操作代替循环
-  - 合理使用缓存
+  - EXPLAIN 分析執行計劃
+  - 避免在索引列上使用函式
+  - 使用覆蓋索引
+  - 批次操作代替迴圈
+  - 合理使用快取
 ```
 
-## 数据库设计
+## 資料庫設計
 
 ```yaml
-范式:
+正規化:
   - 1NF: 原子性
-  - 2NF: 消除部分依赖
-  - 3NF: 消除传递依赖
+  - 2NF: 消除部分依賴
+  - 3NF: 消除傳遞依賴
 
-反范式:
-  - 适当冗余提高查询性能
-  - 读多写少场景
+反正規化:
+  - 適當冗餘提高查詢效能
+  - 讀多寫少場景
 
-命名规范:
-  - 表名: 复数小写 (users, orders)
-  - 列名: 小写下划线 (created_at)
+命名規範:
+  - 表名: 複數小寫 (users, orders)
+  - 列名: 小寫下劃線 (created_at)
   - 索引: idx_表名_列名
 ```
 

@@ -1,82 +1,82 @@
 ---
 name: shell
-description: Shell 脚本开发。Bash、自动化、系统管理。当用户提到 Shell、Bash、脚本、自动化、Linux命令时使用。
+description: Shell 指令碼開發。Bash、自動化、系統管理。當使用者提到 Shell、Bash、指令碼、自動化、Linux命令時使用。
 ---
 
-# 📜 符箓秘典 · Shell
+# 📜 符籙秘典 · Shell
 
 
-## Bash 基础
+## Bash 基礎
 
-### 变量与字符串
+### 變數與字串
 ```bash
 #!/bin/bash
 
-# 变量
+# 變數
 name="Alice"
 age=25
 readonly PI=3.14
 
-# 字符串操作
+# 字串操作
 str="Hello World"
-echo ${#str}           # 长度: 11
-echo ${str:0:5}        # 截取: Hello
-echo ${str/World/Bash} # 替换: Hello Bash
-echo ${str,,}          # 小写: hello world
-echo ${str^^}          # 大写: HELLO WORLD
+echo ${#str}           # 長度: 11
+echo ${str:0:5}        # 擷取: Hello
+echo ${str/World/Bash} # 替換: Hello Bash
+echo ${str,,}          # 小寫: hello world
+echo ${str^^}          # 大寫: HELLO WORLD
 
-# 默认值
-echo ${var:-default}   # 如果 var 未设置，返回 default
-echo ${var:=default}   # 如果 var 未设置，设置并返回 default
+# 預設值
+echo ${var:-default}   # 如果 var 未設定，返回 default
+echo ${var:=default}   # 如果 var 未設定，設定並返回 default
 ```
 
-### 数组
+### 陣列
 ```bash
-# 索引数组
+# 索引陣列
 arr=("a" "b" "c")
-echo ${arr[0]}         # 第一个元素
+echo ${arr[0]}         # 第一個元素
 echo ${arr[@]}         # 所有元素
-echo ${#arr[@]}        # 数组长度
+echo ${#arr[@]}        # 陣列長度
 
-# 遍历
+# 遍歷
 for item in "${arr[@]}"; do
     echo "$item"
 done
 
-# 关联数组 (Bash 4+)
+# 關聯陣列 (Bash 4+)
 declare -A map
 map[name]="Alice"
 map[age]=25
 echo ${map[name]}
 ```
 
-### 条件判断
+### 條件判斷
 ```bash
-# 字符串比较
+# 字串比較
 if [[ "$str1" == "$str2" ]]; then
     echo "Equal"
 fi
 
-# 数值比较
+# 數值比較
 if [[ $a -eq $b ]]; then echo "Equal"; fi
 if [[ $a -lt $b ]]; then echo "Less"; fi
 if [[ $a -gt $b ]]; then echo "Greater"; fi
 
-# 文件测试
+# 檔案測試
 if [[ -f "$file" ]]; then echo "File exists"; fi
 if [[ -d "$dir" ]]; then echo "Directory exists"; fi
 if [[ -r "$file" ]]; then echo "Readable"; fi
 if [[ -w "$file" ]]; then echo "Writable"; fi
 if [[ -x "$file" ]]; then echo "Executable"; fi
 
-# 逻辑运算
+# 邏輯運算
 if [[ $a -gt 0 && $b -gt 0 ]]; then echo "Both positive"; fi
 if [[ $a -gt 0 || $b -gt 0 ]]; then echo "At least one positive"; fi
 ```
 
-### 循环
+### 迴圈
 ```bash
-# for 循环
+# for 迴圈
 for i in {1..5}; do
     echo $i
 done
@@ -85,12 +85,12 @@ for file in *.txt; do
     echo "Processing $file"
 done
 
-# while 循环
+# while 迴圈
 while read -r line; do
     echo "$line"
 done < file.txt
 
-# until 循环
+# until 迴圈
 count=0
 until [[ $count -ge 5 ]]; do
     echo $count
@@ -98,29 +98,29 @@ until [[ $count -ge 5 ]]; do
 done
 ```
 
-### 函数
+### 函式
 ```bash
-# 定义函数
+# 定義函式
 greet() {
     local name="$1"
     echo "Hello, $name!"
     return 0
 }
 
-# 调用
+# 呼叫
 greet "Alice"
-result=$?  # 获取返回值
+result=$?  # 獲取返回值
 
-# 返回字符串
+# 返回字串
 get_date() {
     echo "$(date +%Y-%m-%d)"
 }
 today=$(get_date)
 ```
 
-## 实用脚本模板
+## 實用指令碼模板
 
-### 带参数的脚本
+### 帶引數的指令碼
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -137,11 +137,11 @@ EOF
     exit 1
 }
 
-# 默认值
+# 預設值
 OUTPUT=""
 VERBOSE=false
 
-# 解析参数
+# 解析引數
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -o|--output)
@@ -166,28 +166,28 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 检查必需参数
+# 檢查必需引數
 if [[ -z "${INPUT:-}" ]]; then
     echo "Error: Input is required"
     usage
 fi
 
-# 主逻辑
+# 主邏輯
 main() {
     if $VERBOSE; then
         echo "Processing $INPUT..."
     fi
-    # 处理逻辑
+    # 處理邏輯
 }
 
 main
 ```
 
-### 日志函数
+### 日誌函式
 ```bash
 #!/bin/bash
 
-# 颜色定义
+# 顏色定義
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -211,15 +211,15 @@ die() {
 }
 ```
 
-### 错误处理
+### 錯誤處理
 ```bash
 #!/bin/bash
 set -euo pipefail
 
-# 错误处理
+# 錯誤處理
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 
-# 清理函数
+# 清理函式
 cleanup() {
     rm -f "$TEMP_FILE"
 }
@@ -228,84 +228,84 @@ trap cleanup EXIT
 TEMP_FILE=$(mktemp)
 ```
 
-## 常用命令组合
+## 常用命令組合
 
-### 文本处理
+### 文字處理
 ```bash
-# grep - 搜索
+# grep - 搜尋
 grep -r "pattern" .
 grep -v "exclude"          # 排除
-grep -i "case insensitive" # 忽略大小写
-grep -E "regex"            # 正则
+grep -i "case insensitive" # 忽略大小寫
+grep -E "regex"            # 正則
 
-# sed - 替换
+# sed - 替換
 sed 's/old/new/g' file
 sed -i 's/old/new/g' file  # 原地修改
-sed -n '10,20p' file       # 打印行
+sed -n '10,20p' file       # 列印行
 
-# awk - 处理
+# awk - 處理
 awk '{print $1}' file      # 第一列
 awk -F: '{print $1}' /etc/passwd
 awk 'NR>1 {sum+=$1} END {print sum}' file
 
-# 组合
+# 組合
 cat file | grep "pattern" | awk '{print $2}' | sort | uniq -c
 ```
 
-### 文件操作
+### 檔案操作
 ```bash
-# 查找
+# 查詢
 find . -name "*.txt"
-find . -type f -mtime -7   # 7天内修改
-find . -size +100M         # 大于100M
+find . -type f -mtime -7   # 7天內修改
+find . -size +100M         # 大於100M
 find . -name "*.log" -exec rm {} \;
 
-# 批量重命名
+# 批次重新命名
 for f in *.txt; do
     mv "$f" "${f%.txt}.md"
 done
 
-# 批量处理
+# 批次處理
 find . -name "*.py" | xargs grep "TODO"
 ```
 
-### 网络
+### 網路
 ```bash
 # curl
 curl -s https://api.example.com/data
 curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' URL
 curl -o output.file URL
 
-# 端口检查
+# 埠檢查
 nc -zv host 80
 ss -tulpn | grep :80
 ```
 
-## 最佳实践
+## 最佳實踐
 
 ```bash
 #!/bin/bash
-# 1. 使用 set 选项
+# 1. 使用 set 選項
 set -euo pipefail
 
-# 2. 引用变量
+# 2. 引用變數
 echo "$variable"
 
 # 3. 使用 [[ ]] 而非 [ ]
 if [[ -f "$file" ]]; then
 
-# 4. 使用 $() 而非反引号
+# 4. 使用 $() 而非反引號
 result=$(command)
 
-# 5. 使用 local 声明局部变量
+# 5. 使用 local 宣告區域性變數
 func() {
     local var="value"
 }
 
-# 6. 检查命令是否存在
+# 6. 檢查命令是否存在
 command -v git &>/dev/null || die "git not found"
 
-# 7. 使用 shellcheck 检查
+# 7. 使用 shellcheck 檢查
 # shellcheck script.sh
 ```
 

@@ -1,9 +1,9 @@
 ---
 name: go
-description: Go 开发。高并发、微服务、云原生、CLI工具。当用户提到 Go、Golang、Gin、Echo、goroutine 时使用。
+description: Go 開發。高併發、微服務、雲原生、CLI工具。當使用者提到 Go、Golang、Gin、Echo、goroutine 時使用。
 ---
 
-# 📜 符箓秘典 · Go
+# 📜 符籙秘典 · Go
 
 
 ## Web 框架
@@ -26,11 +26,11 @@ type User struct {
 func main() {
     r := gin.Default()
 
-    // 中间件
+    // 中介軟體
     r.Use(gin.Logger())
     r.Use(gin.Recovery())
 
-    // 路由组
+    // 路由組
     api := r.Group("/api")
     {
         api.GET("/users/:id", getUser)
@@ -85,7 +85,7 @@ func getUser(c echo.Context) error {
 }
 ```
 
-## 并发编程
+## 併發程式設計
 
 ### Goroutine & Channel
 ```go
@@ -96,7 +96,7 @@ import (
     "sync"
 )
 
-// 基础并发
+// 基礎併發
 func worker(id int, jobs <-chan int, results chan<- int) {
     for j := range jobs {
         results <- j * 2
@@ -107,18 +107,18 @@ func main() {
     jobs := make(chan int, 100)
     results := make(chan int, 100)
 
-    // 启动 worker
+    // 啟動 worker
     for w := 1; w <= 3; w++ {
         go worker(w, jobs, results)
     }
 
-    // 发送任务
+    // 傳送任務
     for j := 1; j <= 9; j++ {
         jobs <- j
     }
     close(jobs)
 
-    // 收集结果
+    // 收集結果
     for a := 1; a <= 9; a++ {
         <-results
     }
@@ -158,7 +158,7 @@ func fetchWithTimeout(ctx context.Context, url string) (string, error) {
 }
 ```
 
-## 错误处理
+## 錯誤處理
 
 ```go
 package main
@@ -168,7 +168,7 @@ import (
     "fmt"
 )
 
-// 自定义错误
+// 自定義錯誤
 var ErrNotFound = errors.New("not found")
 
 type ValidationError struct {
@@ -180,7 +180,7 @@ func (e *ValidationError) Error() string {
     return fmt.Sprintf("%s: %s", e.Field, e.Message)
 }
 
-// 错误包装
+// 錯誤包裝
 func getUser(id int) (*User, error) {
     user, err := db.FindUser(id)
     if err != nil {
@@ -189,7 +189,7 @@ func getUser(id int) (*User, error) {
     return user, nil
 }
 
-// 错误检查
+// 錯誤檢查
 func handleUser(id int) error {
     user, err := getUser(id)
     if err != nil {
@@ -198,12 +198,12 @@ func handleUser(id int) error {
         }
         return err
     }
-    // 处理 user
+    // 處理 user
     return nil
 }
 ```
 
-## 测试
+## 測試
 
 ```go
 package main
@@ -218,7 +218,7 @@ func TestAdd(t *testing.T) {
     assert.Equal(t, 3, result)
 }
 
-// 表驱动测试
+// 表驅動測試
 func TestAddTable(t *testing.T) {
     tests := []struct {
         name     string
@@ -250,7 +250,7 @@ go test ./...
 go test -v
 go test -cover
 go test -bench=.
-go test -race  # 竞态检测
+go test -race  # 競態檢測
 ```
 
 ## CLI 工具
@@ -288,7 +288,7 @@ func main() {
 }
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
@@ -307,17 +307,17 @@ myproject/
 └── tests/
 ```
 
-## 常用库
+## 常用庫
 
-| 库 | 用途 |
+| 庫 | 用途 |
 |---|------|
 | gin/echo | Web 框架 |
 | gorm | ORM |
 | cobra | CLI |
 | viper | 配置 |
-| zap/zerolog | 日志 |
-| testify | 测试 |
-| wire | 依赖注入 |
+| zap/zerolog | 日誌 |
+| testify | 測試 |
+| wire | 依賴注入 |
 
 ---
 

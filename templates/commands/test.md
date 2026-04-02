@@ -1,169 +1,169 @@
 ---
-description: '多模型测试生成：智能路由 {{BACKEND_PRIMARY}} 后端测试 / {{FRONTEND_PRIMARY}} 前端测试'
+description: '多模型測試生成：智慧路由 {{BACKEND_PRIMARY}} 後端測試 / {{FRONTEND_PRIMARY}} 前端測試'
 ---
 
-# Test - 多模型测试生成
+# Test - 多模型測試生成
 
-根据代码类型智能路由，生成高质量测试用例。
+根據程式碼型別智慧路由，生成高質量測試用例。
 
 ## 使用方法
 
 ```bash
-/test <测试目标>
+/test <測試目標>
 ```
 
 ## 上下文
 
-- 测试目标：$ARGUMENTS
-- 智能路由：后端 → {{BACKEND_PRIMARY}}，前端 → {{FRONTEND_PRIMARY}}，全栈 → 并行
-- 遵循项目现有测试框架和风格
+- 測試目標：$ARGUMENTS
+- 智慧路由：後端 → {{BACKEND_PRIMARY}}，前端 → {{FRONTEND_PRIMARY}}，全棧 → 並行
+- 遵循專案現有測試框架和風格
 
 ## 你的角色
 
-你是**测试工程师**，编排测试生成流程：
-- **{{BACKEND_PRIMARY}}** – 后端测试生成（**后端权威**）
-- **{{FRONTEND_PRIMARY}}** – 前端测试生成（**前端权威**）
-- **Claude (自己)** – 整合测试、验证运行
+你是**測試工程師**，編排測試生成流程：
+- **{{BACKEND_PRIMARY}}** – 後端測試生成（**後端權威**）
+- **{{FRONTEND_PRIMARY}}** – 前端測試生成（**前端權威**）
+- **Claude (自己)** – 整合測試、驗證執行
 
 ---
 
-## 多模型调用规范
+## 多模型呼叫規範
 
-**工作目录**：
-- `{{WORKDIR}}`：**必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断
-- 如果用户通过 `/add-dir` 添加了多个工作区，先用 Glob/Grep 确定任务相关的工作区
-- 如果无法确定，用 `AskUserQuestion` 询问用户选择目标工作区
+**工作目錄**：
+- `{{WORKDIR}}`：**必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷
+- 如果使用者透過 `/add-dir` 新增了多個工作區，先用 Glob/Grep 確定任務相關的工作區
+- 如果無法確定，用 `AskUserQuestion` 詢問使用者選擇目標工作區
 
-**调用语法**（并行用 `run_in_background: true`）：
+**呼叫語法**（並行用 `run_in_background: true`）：
 
 ```
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
-需求：为以下代码生成测试
-<代码内容>
-需求描述：<增强后的需求（如未增强则用 $ARGUMENTS）>
+需求：為以下程式碼生成測試
+<程式碼內容>
+需求描述：<增強後的需求（如未增強則用 $ARGUMENTS）>
 要求：
-1. 使用项目现有测试框架
-2. 覆盖正常路径、边界条件、异常处理
+1. 使用專案現有測試框架
+2. 覆蓋正常路徑、邊界條件、異常處理
 </TASK>
-OUTPUT: 完整测试代码
+OUTPUT: 完整測試程式碼
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 ```
 
-**角色提示词**：
+**角色提示詞**：
 
-| 模型 | 提示词 |
+| 模型 | 提示詞 |
 |------|--------|
 | Codex | `~/.claude/.ccg/prompts/codex/tester.md` |
 | Gemini | `~/.claude/.ccg/prompts/gemini/tester.md` |
 
-**智能路由**：
+**智慧路由**：
 
-| 代码类型 | 路由 |
+| 程式碼型別 | 路由 |
 |---------|------|
-| 后端 | {{BACKEND_PRIMARY}} |
+| 後端 | {{BACKEND_PRIMARY}} |
 | 前端 | {{FRONTEND_PRIMARY}} |
-| 全栈 | 并行执行两者 |
+| 全棧 | 並行執行兩者 |
 
-**并行调用**：使用 `run_in_background: true` 启动，用 `TaskOutput` 等待结果。**必须等所有模型返回后才能进入下一阶段**。
+**並行呼叫**：使用 `run_in_background: true` 啟動，用 `TaskOutput` 等待結果。**必須等所有模型返回後才能進入下一階段**。
 
-**等待后台任务**（使用最大超时 600000ms = 10 分钟）：
+**等待後臺任務**（使用最大超時 600000ms = 10 分鐘）：
 
 ```
 TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 ```
 
 **重要**：
-- 必须指定 `timeout: 600000`，否则默认只有 30 秒会导致提前超时。
-如果 10 分钟后仍未完成，继续用 `TaskOutput` 轮询，**绝对不要 Kill 进程**。
-- 若因等待时间过长跳过了等待 TaskOutput 结果，则**必须调用 `AskUserQuestion` 工具询问用户选择继续等待还是 Kill Task。禁止直接 Kill Task。**
-- ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败（非零退出码或输出包含错误信息），最多重试 2 次（间隔 5 秒）。仅当 3 次全部失败时才跳过 Gemini 结果并使用单模型结果继续。
-- ⛔ **Codex 结果必须等待**：Codex 执行时间较长（5-15 分钟）属于正常。TaskOutput 超时后必须继续用 TaskOutput 轮询，**绝对禁止在 Codex 未返回结果时直接跳过或继续下一阶段**。已启动的 Codex 任务若被跳过 = 浪费 token + 丢失结果。
+- 必須指定 `timeout: 600000`，否則預設只有 30 秒會導致提前超時。
+如果 10 分鐘後仍未完成，繼續用 `TaskOutput` 輪詢，**絕對不要 Kill 程序**。
+- 若因等待時間過長跳過了等待 TaskOutput 結果，則**必須呼叫 `AskUserQuestion` 工具詢問使用者選擇繼續等待還是 Kill Task。禁止直接 Kill Task。**
+- ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗（非零退出碼或輸出包含錯誤資訊），最多重試 2 次（間隔 5 秒）。僅當 3 次全部失敗時才跳過 Gemini 結果並使用單模型結果繼續。
+- ⛔ **Codex 結果必須等待**：Codex 執行時間較長（5-15 分鐘）屬於正常。TaskOutput 超時後必須繼續用 TaskOutput 輪詢，**絕對禁止在 Codex 未返回結果時直接跳過或繼續下一階段**。已啟動的 Codex 任務若被跳過 = 浪費 token + 丟失結果。
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-**测试目标**：$ARGUMENTS
+**測試目標**：$ARGUMENTS
 
-### 🔍 阶段 0：Prompt 增强（可选）
+### 🔍 階段 0：Prompt 增強（可選）
 
-`[模式：准备]` - **Prompt 增强**（按 `/ccg:enhance` 的逻辑执行）：分析 $ARGUMENTS 的意图、缺失信息、隐含假设，补全为结构化需求（明确目标、技术约束、范围边界、验收标准），**用增强结果替代原始 $ARGUMENTS，后续调用 Codex/Gemini 时传入增强后的需求**
+`[模式：準備]` - **Prompt 增強**（按 `/ccg:enhance` 的邏輯執行）：分析 $ARGUMENTS 的意圖、缺失資訊、隱含假設，補全為結構化需求（明確目標、技術約束、範圍邊界、驗收標準），**用增強結果替代原始 $ARGUMENTS，後續呼叫 Codex/Gemini 時傳入增強後的需求**
 
-### 🔍 阶段 1：测试分析
+### 🔍 階段 1：測試分析
 
 `[模式：研究]`
 
-1. 检索目标代码的完整实现
-2. 查找现有测试文件和测试框架配置
-3. 识别代码类型：[后端/前端/全栈]
-4. 评估当前测试覆盖率和缺口
+1. 檢索目的碼的完整實現
+2. 查詢現有測試檔案和測試框架配置
+3. 識別程式碼型別：[後端/前端/全棧]
+4. 評估當前測試覆蓋率和缺口
 
-### 🔬 阶段 2：智能路由测试生成
+### 🔬 階段 2：智慧路由測試生成
 
 `[模式：生成]`
 
-**⚠️ 根据代码类型必须调用对应模型**（参照上方调用规范）：
+**⚠️ 根據程式碼型別必須呼叫對應模型**（參照上方呼叫規範）：
 
-- **后端代码** → `Bash({ command: "...--backend {{BACKEND_PRIMARY}}...", run_in_background: false })`
+- **後端程式碼** → `Bash({ command: "...--backend {{BACKEND_PRIMARY}}...", run_in_background: false })`
   - ROLE_FILE: `~/.claude/.ccg/prompts/codex/tester.md`
-- **前端代码** → `Bash({ command: "...--backend {{FRONTEND_PRIMARY}}...", run_in_background: false })`
+- **前端程式碼** → `Bash({ command: "...--backend {{FRONTEND_PRIMARY}}...", run_in_background: false })`
   - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/tester.md`
-- **全栈代码** → 并行调用两者：
+- **全棧程式碼** → 並行呼叫兩者：
   1. `Bash({ command: "...--backend {{BACKEND_PRIMARY}}...", run_in_background: true })`
      - ROLE_FILE: `~/.claude/.ccg/prompts/codex/tester.md`
   2. `Bash({ command: "...--backend {{FRONTEND_PRIMARY}}...", run_in_background: true })`
      - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/tester.md`
-  用 `TaskOutput` 等待结果
+  用 `TaskOutput` 等待結果
 
-OUTPUT：完整测试代码（使用项目现有测试框架，覆盖正常路径、边界条件、异常处理）
+OUTPUT：完整測試程式碼（使用專案現有測試框架，覆蓋正常路徑、邊界條件、異常處理）
 
-**必须等所有模型返回后才能进入下一阶段**。
+**必須等所有模型返回後才能進入下一階段**。
 
-**务必遵循上方 `多模型调用规范` 的 `重要` 指示**
+**務必遵循上方 `多模型呼叫規範` 的 `重要` 指示**
 
-### 🔀 阶段 3：测试整合
+### 🔀 階段 3：測試整合
 
-`[模式：计划]`
+`[模式：計劃]`
 
-1. 收集模型输出
-2. Claude 重构：统一风格、确保命名一致、优化结构、移除冗余
+1. 收集模型輸出
+2. Claude 重構：統一風格、確保命名一致、最佳化結構、移除冗餘
 
-### ✅ 阶段 4：测试验证
+### ✅ 階段 4：測試驗證
 
-`[模式：执行]`
+`[模式：執行]`
 
-1. 创建测试文件
-2. 运行生成的测试
-3. 如有失败，分析原因并修复
+1. 建立測試檔案
+2. 執行生成的測試
+3. 如有失敗，分析原因並修復
 
 ---
 
-## 输出格式
+## 輸出格式
 
 ```markdown
-## 🧪 测试生成：<测试目标>
+## 🧪 測試生成：<測試目標>
 
-### 分析结果
-- 代码类型：[后端/前端/全栈]
-- 测试框架：<检测到的框架>
+### 分析結果
+- 程式碼型別：[後端/前端/全棧]
+- 測試框架：<檢測到的框架>
 
-### 生成的测试
-- 测试文件：<文件路径>
-- 测试用例数：<数量>
+### 生成的測試
+- 測試檔案：<檔案路徑>
+- 測試用例數：<數量>
 
-### 运行结果
-- 通过：X / Y
-- 失败：<如有，列出原因>
+### 執行結果
+- 透過：X / Y
+- 失敗：<如有，列出原因>
 ```
 
-## 测试策略金字塔
+## 測試策略金字塔
 
 ```
     /\      E2E (10%)
@@ -173,9 +173,9 @@ OUTPUT：完整测试代码（使用项目现有测试框架，覆盖正常路�
 
 ---
 
-## 关键规则
+## 關鍵規則
 
-1. **测试行为，不测试实现** – 关注输入输出
-2. **智能路由** – 后端测试用 Codex，前端测试用 Gemini
-3. **复用现有模式** – 遵循项目已有的测试风格
-4. 外部模型对文件系统**零写入权限**
+1. **測試行為，不測試實現** – 關注輸入輸出
+2. **智慧路由** – 後端測試用 Codex，前端測試用 Gemini
+3. **複用現有模式** – 遵循專案已有的測試風格
+4. 外部模型對檔案系統**零寫入許可權**

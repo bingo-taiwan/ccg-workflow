@@ -1,10 +1,10 @@
 ---
-description: '管理 Git Worktree：在 ../.ccg/项目名/ 目录创建，支持 IDE 集成和内容迁移'
+description: '管理 Git Worktree：在 ../.ccg/專案名/ 目錄建立，支援 IDE 整合和內容遷移'
 ---
 
 # Worktree - Git Worktree 管理
 
-在结构化目录管理 Git worktree，支持智能默认和 IDE 集成。
+在結構化目錄管理 Git worktree，支援智慧預設和 IDE 整合。
 
 ## 使用方法
 
@@ -14,84 +14,84 @@ description: '管理 Git Worktree：在 ../.ccg/项目名/ 目录创建，支持
 
 ## 子命令
 
-| 命令 | 说明 |
+| 命令 | 說明 |
 |------|------|
-| `add <path>` | 创建新 worktree |
+| `add <path>` | 建立新 worktree |
 | `list` | 列出所有 worktree |
-| `remove <path>` | 删除指定 worktree |
-| `prune` | 清理无效引用 |
-| `migrate <target>` | 迁移内容到目标 worktree |
+| `remove <path>` | 刪除指定 worktree |
+| `prune` | 清理無效引用 |
+| `migrate <target>` | 遷移內容到目標 worktree |
 
-## 选项
+## 選項
 
-| 选项 | 说明 |
+| 選項 | 說明 |
 |------|------|
-| `-b <branch>` | 创建新分支 |
-| `-o, --open` | 创建后用 IDE 打开 |
-| `--from <source>` | 迁移源路径 |
-| `--stash` | 迁移 stash 内容 |
-| `--track` | 跟踪远程分支 |
-| `--detach` | 分离 HEAD |
-| `--lock` | 锁定 worktree |
+| `-b <branch>` | 建立新分支 |
+| `-o, --open` | 建立後用 IDE 開啟 |
+| `--from <source>` | 遷移源路徑 |
+| `--stash` | 遷移 stash 內容 |
+| `--track` | 跟蹤遠端分支 |
+| `--detach` | 分離 HEAD |
+| `--lock` | 鎖定 worktree |
 
 ---
 
-## 目录结构
+## 目錄結構
 
 ```
 parent-directory/
-├── your-project/           # 主项目
+├── your-project/           # 主專案
 │   ├── .git/
 │   └── src/
-└── .ccg/                   # worktree 管理目录
+└── .ccg/                   # worktree 管理目錄
     └── your-project/
         ├── feature-ui/     # 功能分支
-        ├── hotfix/         # 修复分支
-        └── debug/          # 调试 worktree
+        ├── hotfix/         # 修復分支
+        └── debug/          # 除錯 worktree
 ```
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-### Add - 创建 Worktree
+### Add - 建立 Worktree
 
-`[模式：创建]`
+`[模式：建立]`
 
-1. 验证 Git 仓库
-2. 计算路径：`../.ccg/项目名/<path>`
-3. 创建 worktree
-4. 自动复制环境文件（`.env` 等）
-5. 可选：用 IDE 打开
+1. 驗證 Git 倉庫
+2. 計算路徑：`../.ccg/專案名/<path>`
+3. 建立 worktree
+4. 自動複製環境檔案（`.env` 等）
+5. 可選：用 IDE 開啟
 
-### Migrate - 迁移内容
+### Migrate - 遷移內容
 
-`[模式：迁移]`
+`[模式：遷移]`
 
-1. 验证源有未提交内容
-2. 确保目标干净
-3. 显示即将迁移的改动
-4. 安全迁移
-5. 确认结果
+1. 驗證源有未提交內容
+2. 確保目標乾淨
+3. 顯示即將遷移的改動
+4. 安全遷移
+5. 確認結果
 
 ---
 
 ## 示例
 
 ```bash
-# 基本创建
+# 基本建立
 /worktree add feature-ui
 
-# 创建并用 IDE 打开
+# 建立並用 IDE 開啟
 /worktree add feature-ui -o
 
-# 创建指定分支
+# 建立指定分支
 /worktree add hotfix -b fix/login -o
 
-# 迁移未提交内容
+# 遷移未提交內容
 /worktree migrate feature-ui --from main
 
-# 迁移 stash 内容
+# 遷移 stash 內容
 /worktree migrate feature-ui --stash
 
 # 管理操作
@@ -100,29 +100,29 @@ parent-directory/
 /worktree prune
 ```
 
-## 输出示例
+## 輸出示例
 
 ```
-✅ Worktree created at ../.ccg/项目名/feature-ui
-✅ 已复制 .env
-✅ 已复制 .env.local
-📋 已从 .gitignore 复制 2 个环境文件
-🖥️ 是否在 IDE 中打开？[y/n]: y
-🚀 正在用 VS Code 打开...
+✅ Worktree created at ../.ccg/專案名/feature-ui
+✅ 已複製 .env
+✅ 已複製 .env.local
+📋 已從 .gitignore 複製 2 個環境檔案
+🖥️ 是否在 IDE 中開啟？[y/n]: y
+🚀 正在用 VS Code 開啟...
 ```
 
 ---
 
-## 智能特性
+## 智慧特性
 
-1. **智能默认** – 未指定分支时使用路径名
-2. **IDE 集成** – 自动检测 VS Code / Cursor / WebStorm
-3. **环境文件** – 自动复制 `.gitignore` 中的 `.env` 文件
-4. **路径安全** – 始终使用绝对路径防止嵌套问题
-5. **分支保护** – 验证分支未被其他地方使用
+1. **智慧預設** – 未指定分支時使用路徑名
+2. **IDE 整合** – 自動檢測 VS Code / Cursor / WebStorm
+3. **環境檔案** – 自動複製 `.gitignore` 中的 `.env` 檔案
+4. **路徑安全** – 始終使用絕對路徑防止巢狀問題
+5. **分支保護** – 驗證分支未被其他地方使用
 
-## 注意事项
+## 注意事項
 
-- Worktree 共享 `.git` 目录，节省磁盘空间
-- 迁移仅限未提交改动，已提交内容用 `git cherry-pick`
-- 支持 Windows、macOS、Linux
+- Worktree 共享 `.git` 目錄，節省磁碟空間
+- 遷移僅限未提交改動，已提交內容用 `git cherry-pick`
+- 支援 Windows、macOS、Linux

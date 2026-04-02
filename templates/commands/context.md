@@ -1,10 +1,10 @@
 ---
-description: '项目上下文管理：初始化 .context 目录、记录决策日志、压缩归档、查看历史'
+description: '專案上下文管理：初始化 .context 目錄、記錄決策日誌、壓縮歸檔、檢視歷史'
 ---
 
-# Context - 项目上下文管理
+# Context - 專案上下文管理
 
-管理 `.context/` 目录结构，为 LLM 工具提供决策审计链。
+管理 `.context/` 目錄結構，為 LLM 工具提供決策審計鏈。
 
 ## 使用方法
 
@@ -14,30 +14,30 @@ description: '项目上下文管理：初始化 .context 目录、记录决策�
 
 ## 子命令
 
-| 子命令 | 说明 |
+| 子命令 | 說明 |
 |--------|------|
-| `init` | 初始化 `.context/` 目录结构 |
-| `log <message>` | （可选）手动追加备注到 session.log，commit 时会合并 |
-| `show` | 查看当前分支的 session.log |
-| `compress` | 压缩 session.log → uncommit.md（手动预览用） |
-| `history` | 查看 history/commits.md |
-| `squash <ids...>` | 合并多条 history 记录（配合 git squash） |
+| `init` | 初始化 `.context/` 目錄結構 |
+| `log <message>` | （可選）手動追加備註到 session.log，commit 時會合並 |
+| `show` | 檢視當前分支的 session.log |
+| `compress` | 壓縮 session.log → uncommit.md（手動預覽用） |
+| `history` | 檢視 history/commits.md |
+| `squash <ids...>` | 合併多條 history 記錄（配合 git squash） |
 
-> **核心用法**：`init` 一次，之后只管开发。`/ccg:commit` 提交时自动从 git diff 分析决策并归档到 history/。`log` 仅在你想手动补充备注时使用。
+> **核心用法**：`init` 一次，之後只管開發。`/ccg:commit` 提交時自動從 git diff 分析決策並歸檔到 history/。`log` 僅在你想手動補充備註時使用。
 
 ---
 
-## 执行工作流
+## 執行工作流
 
 ### 子命令：init
 
 `[模式：初始化]`
 
-在当前项目根目录创建 `.context/` 结构：
+在當前專案根目錄建立 `.context/` 結構：
 
-1. 检测项目根目录（查找 `.git/`）
-2. 若 `.context/` 已存在，跳过已有文件，仅补全缺失
-3. 创建以下结构：
+1. 檢測專案根目錄（查詢 `.git/`）
+2. 若 `.context/` 已存在，跳過已有檔案，僅補全缺失
+3. 建立以下結構：
 
 ```
 .context/
@@ -56,7 +56,7 @@ description: '项目上下文管理：初始化 .context 目录、记录决策�
         └── .gitkeep
 ```
 
-4. **创建 `.context/.gitignore`**：
+4. **建立 `.context/.gitignore`**：
 
 ```gitignore
 # Ephemeral workspace — never commit
@@ -74,7 +74,7 @@ current/
 **/*.swp
 ```
 
-5. **创建 `.context/.gitattributes`**：
+5. **建立 `.context/.gitattributes`**：
 
 ```
 # JSONL append-only: 'union' merge reduces conflicts
@@ -82,13 +82,13 @@ history/commits.jsonl merge=union
 history/archives/*.jsonl merge=union
 ```
 
-6. **创建 `.context/prefs/coding-style.md`**（团队编码规范模板）：
+6. **建立 `.context/prefs/coding-style.md`**（團隊編碼規範模板）：
 
 ```markdown
 # Coding Style Guide
 
-> 此文件定义团队编码规范，所有 LLM 工具在修改代码时必须遵守。
-> 提交到 Git，团队共享。
+> 此檔案定義團隊編碼規範，所有 LLM 工具在修改程式碼時必須遵守。
+> 提交到 Git，團隊共享。
 
 ## General
 - Prefer small, reviewable changes; avoid unrelated refactors.
@@ -97,7 +97,7 @@ history/archives/*.jsonl merge=union
 - Handle errors explicitly; never swallow errors silently.
 
 ## Language-Specific
-<!-- 根据项目语言补充，例如：-->
+<!-- 根據專案語言補充，例如：-->
 <!-- ### TypeScript -->
 <!-- - Use strict mode; prefer `interface` over `type` for object shapes. -->
 
@@ -115,102 +115,102 @@ history/archives/*.jsonl merge=union
 - Validate inputs at trust boundaries.
 ```
 
-7. **创建 `.context/prefs/workflow.md`**（LLM 工作流规则）：
+7. **建立 `.context/prefs/workflow.md`**（LLM 工作流規則）：
 
 ```markdown
 # Development Workflow Rules
 
-> 此文件定义 LLM 开发工作流的强制规则。
-> 所有 LLM 工具在执行任务时必须遵守，不可跳过任何步骤。
+> 此檔案定義 LLM 開發工作流的強制規則。
+> 所有 LLM 工具在執行任務時必須遵守，不可跳過任何步驟。
 
 ## Full Flow (MUST follow, no exceptions)
 
 ### feat (新功能)
-1. 理解需求，分析影响范围
-2. 读取现有代码，理解模式
-3. 编写实现代码
-4. 编写对应测试
-5. 运行测试，修复失败
-6. 更新文档（若 API 变更）
+1. 理解需求，分析影響範圍
+2. 讀取現有程式碼，理解模式
+3. 編寫實現程式碼
+4. 編寫對應測試
+5. 執行測試，修復失敗
+6. 更新文件（若 API 變更）
 7. 自查 lint / type-check
 
-### fix (缺陷修复)
-1. 复现问题，确认症状
+### fix (缺陷修復)
+1. 復現問題，確認症狀
 2. 定位根因
-3. 编写失败测试（先有红灯）
-4. 修复代码
-5. 验证测试通过（变绿灯）
-6. 回归测试
+3. 編寫失敗測試（先有紅燈）
+4. 修復程式碼
+5. 驗證測試透過（變綠燈）
+6. 迴歸測試
 
-### refactor (重构)
-1. 确保现有测试通过
-2. 小步重构，每步可验证
-3. 重构后测试必须全部通过
-4. 不改变外部行为
+### refactor (重構)
+1. 確保現有測試透過
+2. 小步重構，每步可驗證
+3. 重構後測試必須全部透過
+4. 不改變外部行為
 
-## Context Logging (决策记录)
+## Context Logging (決策記錄)
 
-当你做出以下决策时，MUST 追加到 `.context/current/branches/<当前分支>/session.log`：
+當你做出以下決策時，MUST 追加到 `.context/current/branches/<當前分支>/session.log`：
 
-1. **方案选择**：选 A 不选 B 时，记录原因
-2. **Bug 发现与修复**：根因 + 修复方法 + 教训
-3. **API/架构决策**：接口设计选择
-4. **放弃的方案**：为什么放弃
+1. **方案選擇**：選 A 不選 B 時，記錄原因
+2. **Bug 發現與修復**：根因 + 修復方法 + 教訓
+3. **API/架構決策**：介面設計選擇
+4. **放棄的方案**：為什麼放棄
 
 追加格式：
 
-## <ISO-8601 时间>
-**Decision**: <你选择了什么>
+## <ISO-8601 時間>
+**Decision**: <你選擇了什麼>
 **Alternatives**: <被排除的方案>
-**Reason**: <为什么>
-**Risk**: <潜在风险>
+**Reason**: <為什麼>
+**Risk**: <潛在風險>
 ```
 
-8. **创建 `.context/history/commits.jsonl`**（空文件）
+8. **建立 `.context/history/commits.jsonl`**（空檔案）
 
-9. **创建 `.context/history/commits.md`**（人类视图模板）：
+9. **建立 `.context/history/commits.md`**（人類檢視模板）：
 
 ```markdown
 # Commit Decision History
 
-> 此文件是 `commits.jsonl` 的人类可读视图，可由工具重生成。
+> 此檔案是 `commits.jsonl` 的人類可讀檢視，可由工具重生成。
 > Canonical store: `commits.jsonl` (JSONL, append-only)
 
 | Date | Context-Id | Commit | Summary | Decisions | Bugs | Risk |
 |------|-----------|--------|---------|-----------|------|------|
 ```
 
-10. **注入 CLAUDE.md 引用**（若项目存在 CLAUDE.md）：
+10. **注入 CLAUDE.md 引用**（若專案存在 CLAUDE.md）：
 
-检测项目根目录是否有 `CLAUDE.md`，若有则在末尾追加：
+檢測專案根目錄是否有 `CLAUDE.md`，若有則在末尾追加：
 
 ```markdown
 
-## .context 项目上下文
+## .context 專案上下文
 
-> 项目使用 `.context/` 管理开发决策上下文。
+> 專案使用 `.context/` 管理開發決策上下文。
 
-- 编码规范：`.context/prefs/coding-style.md`
-- 工作流规则：`.context/prefs/workflow.md`
-- 决策历史：`.context/history/commits.md`
+- 編碼規範：`.context/prefs/coding-style.md`
+- 工作流規則：`.context/prefs/workflow.md`
+- 決策歷史：`.context/history/commits.md`
 
-**规则**：修改代码前必读 prefs/，做决策时按 workflow.md 规则记录日志。
+**規則**：修改程式碼前必讀 prefs/，做決策時按 workflow.md 規則記錄日誌。
 ```
 
-11. 输出初始化结果摘要
+11. 輸出初始化結果摘要
 
 ---
 
 ### 子命令：log
 
-`[模式：记录]`
+`[模式：記錄]`
 
-1. 获取当前 Git 分支名：`git branch --show-current`
-2. 确保 `.context/current/branches/<branch>/` 目录存在
-3. 将 `<message>` 以结构化格式追加到 `session.log`：
+1. 獲取當前 Git 分支名：`git branch --show-current`
+2. 確保 `.context/current/branches/<branch>/` 目錄存在
+3. 將 `<message>` 以結構化格式追加到 `session.log`：
 
 ```markdown
-## <ISO-8601 当前时间>
+## <ISO-8601 當前時間>
 <message>
 ```
 
@@ -218,25 +218,25 @@ history/archives/*.jsonl merge=union
 
 ### 子命令：show
 
-`[模式：查看]`
+`[模式：檢視]`
 
-1. 获取当前分支名
-2. 读取 `.context/current/branches/<branch>/session.log`
-3. 若不存在，提示 "当前分支暂无决策日志"
-4. 输出内容
+1. 獲取當前分支名
+2. 讀取 `.context/current/branches/<branch>/session.log`
+3. 若不存在，提示 "當前分支暫無決策日誌"
+4. 輸出內容
 
 ---
 
 ### 子命令：compress
 
-`[模式：压缩]`
+`[模式：壓縮]`
 
-将 `session.log` 压缩为结构化 `uncommit.md`，供提交前审查。
+將 `session.log` 壓縮為結構化 `uncommit.md`，供提交前審查。
 
-1. 读取 `.context/current/branches/<branch>/session.log`
-2. 若为空，提示无内容可压缩
-3. **脱敏**：扫描并替换潜在敏感信息（token/key/password → `[REDACTED]`）
-4. **结构化提取**：从日志中提取 decisions / bugs / alternatives
+1. 讀取 `.context/current/branches/<branch>/session.log`
+2. 若為空，提示無內容可壓縮
+3. **脫敏**：掃描並替換潛在敏感資訊（token/key/password → `[REDACTED]`）
+4. **結構化提取**：從日誌中提取 decisions / bugs / alternatives
 5. **生成 uncommit.md**：
 
 ```markdown
@@ -247,34 +247,34 @@ history/archives/*.jsonl merge=union
 | ... | ... | ... | ... | ... |
 ```
 
-6. 输出压缩结果供用户审查
-7. 提示用户：确认后可执行 `/ccg:commit` 提交
+6. 輸出壓縮結果供使用者審查
+7. 提示使用者：確認後可執行 `/ccg:commit` 提交
 
 ---
 
 ### 子命令：history
 
-`[模式：查看]`
+`[模式：檢視]`
 
-1. 读取 `.context/history/commits.md`
-2. 若不存在，提示 "暂无历史记录，请先使用 /ccg:context init"
-3. 输出内容
-4. 若用户指定文件路径，从 `commits.jsonl` 检索 `changes.files` 包含该路径的条目
+1. 讀取 `.context/history/commits.md`
+2. 若不存在，提示 "暫無歷史記錄，請先使用 /ccg:context init"
+3. 輸出內容
+4. 若使用者指定檔案路徑，從 `commits.jsonl` 檢索 `changes.files` 包含該路徑的條目
 
 ---
 
 ### 子命令：squash
 
-`[模式：合并]`
+`[模式：合併]`
 
-配合 `git squash` 使用，合并多条 ContextEntry。
+配合 `git squash` 使用，合併多條 ContextEntry。
 
 1. 接收 Context-Id 列表
-2. 从 `commits.jsonl` 读取对应条目
+2. 從 `commits.jsonl` 讀取對應條目
 3. 生成新的聚合 ContextEntry：
    - 新 `context_id`（UUIDv7）
    - `Context-Refs` = 所有被 squash 的 ids
-   - 合并 decisions / bugs / changes
+   - 合併 decisions / bugs / changes
 4. 追加到 `commits.jsonl`
 5. 重生成 `commits.md`
 
@@ -282,7 +282,7 @@ history/archives/*.jsonl merge=union
 
 ## ContextEntry Schema (v1.0.0)
 
-每条 JSONL 记录格式：
+每條 JSONL 記錄格式：
 
 ```json
 {
@@ -321,12 +321,12 @@ history/archives/*.jsonl merge=union
 
 ---
 
-## 关键规则
+## 關鍵規則
 
-1. **prefs/ 提交到 Git** — 团队共享编码规范
-2. **current/ 永不提交** — 原始日志仅本地
-3. **history/ 提交到 Git** — 永久决策归档
+1. **prefs/ 提交到 Git** — 團隊共享編碼規範
+2. **current/ 永不提交** — 原始日誌僅本地
+3. **history/ 提交到 Git** — 永久決策歸檔
 4. **commits.jsonl 是 canonical** — commits.md 可重生成
-5. **UUIDv7 为主键** — 不依赖 commit SHA（rebase-safe）
-6. **merge=union** — JSONL append 冲突自动合并
-7. **脱敏先于一切** — 任何写入 history 前必须脱敏
+5. **UUIDv7 為主鍵** — 不依賴 commit SHA（rebase-safe）
+6. **merge=union** — JSONL append 衝突自動合併
+7. **脫敏先於一切** — 任何寫入 history 前必須脫敏

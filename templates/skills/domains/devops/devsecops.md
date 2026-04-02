@@ -1,9 +1,9 @@
 ---
 name: devsecops
-description: DevSecOps。CI/CD安全、供应链安全、合规自动化。当用户提到 DevSecOps、CI/CD、供应链安全、SAST、DAST时使用。
+description: DevSecOps。CI/CD安全、供應鏈安全、合規自動化。當使用者提到 DevSecOps、CI/CD、供應鏈安全、SAST、DAST時使用。
 ---
 
-# 🔧 炼器秘典 · DevSecOps
+# 🔧 煉器秘典 · DevSecOps
 
 
 ## 安全左移
@@ -12,10 +12,10 @@ description: DevSecOps。CI/CD安全、供应链安全、合规自动化。当�
 ┌─────────────────────────────────────────────────────────────┐
 │                    安全左移                                  │
 ├─────────────────────────────────────────────────────────────┤
-│  计划 → 编码 → 构建 → 测试 → 发布 → 部署 → 运维 → 监控     │
+│  計劃 → 編碼 → 構建 → 測試 → 釋出 → 部署 → 運維 → 監控     │
 │    │      │      │      │      │      │      │      │       │
-│  威胁   SAST   SCA   DAST   签名   配置   日志   告警       │
-│  建模   IDE    依赖   渗透   验证   加固   审计   响应       │
+│  威脅   SAST   SCA   DAST   簽名   配置   日誌   告警       │
+│  建模   IDE    依賴   滲透   驗證   加固   審計   響應       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -33,24 +33,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # SAST - 静态分析
+      # SAST - 靜態分析
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: p/security-audit
 
-      # SCA - 依赖扫描
+      # SCA - 依賴掃描
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           severity: 'CRITICAL,HIGH'
 
-      # Secret 扫描
+      # Secret 掃描
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
 
-      # 容器扫描
+      # 容器掃描
       - name: Build and scan image
         run: |
           docker build -t myapp:${{ github.sha }} .
@@ -84,58 +84,58 @@ container_scan:
     - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 ```
 
-## 安全扫描工具
+## 安全掃描工具
 
-### SAST (静态分析)
+### SAST (靜態分析)
 ```yaml
 工具:
-  - Semgrep: 多语言，规则丰富
-  - SonarQube: 企业级
+  - Semgrep: 多語言，規則豐富
+  - SonarQube: 企業級
   - CodeQL: GitHub 原生
-  - Bandit: Python 专用
+  - Bandit: Python 專用
 
-集成:
-  - IDE 插件
+整合:
+  - IDE 外掛
   - Pre-commit hooks
   - CI/CD pipeline
 ```
 
-### SCA (依赖扫描)
+### SCA (依賴掃描)
 ```yaml
 工具:
-  - Trivy: 全能扫描
-  - Snyk: 商业方案
+  - Trivy: 全能掃描
+  - Snyk: 商業方案
   - OWASP Dependency-Check
   - npm audit / pip-audit
 
-检查项:
+檢查項:
   - 已知漏洞 (CVE)
-  - 许可证合规
-  - 过期依赖
+  - 許可證合規
+  - 過期依賴
 ```
 
-### DAST (动态分析)
+### DAST (動態分析)
 ```yaml
 工具:
   - OWASP ZAP
   - Nuclei
   - Burp Suite
 
-集成:
-  - 部署后自动扫描
-  - 定期扫描
-  - PR 环境扫描
+整合:
+  - 部署後自動掃描
+  - 定期掃描
+  - PR 環境掃描
 ```
 
-## 供应链安全
+## 供應鏈安全
 
-### 依赖管理
+### 依賴管理
 ```yaml
-原则:
-  - 锁定依赖版本
+原則:
+  - 鎖定依賴版本
   - 定期更新
-  - 审查新依赖
-  - 使用私有仓库
+  - 審查新依賴
+  - 使用私有倉庫
 
 工具:
   - Dependabot
@@ -143,48 +143,48 @@ container_scan:
   - Snyk
 ```
 
-### 镜像安全
+### 映象安全
 ```yaml
-原则:
-  - 使用官方基础镜像
-  - 最小化镜像
-  - 扫描漏洞
-  - 签名验证
+原則:
+  - 使用官方基礎映象
+  - 最小化映象
+  - 掃描漏洞
+  - 簽名驗證
 
 工具:
   - Trivy
-  - Cosign (签名)
+  - Cosign (簽名)
   - Notary
 ```
 
-### SBOM (软件物料清单)
+### SBOM (軟體物料清單)
 ```bash
 # 生成 SBOM
 syft packages dir:. -o spdx-json > sbom.json
 
-# 扫描 SBOM
+# 掃描 SBOM
 grype sbom:sbom.json
 ```
 
-## 安全门禁
+## 安全門禁
 
 ```yaml
-阻断条件:
+阻斷條件:
   - Critical 漏洞
-  - 高危依赖
-  - Secret 泄露
-  - 许可证违规
+  - 高危依賴
+  - Secret 洩露
+  - 許可證違規
 
-警告条件:
+警告條件:
   - High 漏洞
-  - 中危依赖
-  - 代码质量问题
+  - 中危依賴
+  - 程式碼質量問題
 ```
 
-## 合规自动化
+## 合規自動化
 
 ```yaml
-检查项:
+檢查項:
   - CIS Benchmark
   - PCI DSS
   - SOC 2

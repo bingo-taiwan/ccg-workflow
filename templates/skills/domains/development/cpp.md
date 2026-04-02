@@ -1,33 +1,33 @@
 ---
 name: cpp
-description: C/C++ 开发。系统编程、性能优化、内存管理。当用户提到 C、C++、CMake、内存、指针时使用。
+description: C/C++ 開發。系統程式設計、效能最佳化、記憶體管理。當使用者提到 C、C++、CMake、記憶體、指標時使用。
 ---
 
-# 📜 符箓秘典 · C/C++
+# 📜 符籙秘典 · C/C++
 
 
-## 现代 C++ (C++17/20)
+## 現代 C++ (C++17/20)
 
-### 智能指针
+### 智慧指標
 ```cpp
 #include <memory>
 
-// unique_ptr - 独占所有权
+// unique_ptr - 獨佔所有權
 auto ptr = std::make_unique<MyClass>(args);
 ptr->method();
 
-// shared_ptr - 共享所有权
+// shared_ptr - 共享所有權
 auto shared = std::make_shared<MyClass>(args);
-auto copy = shared;  // 引用计数 +1
+auto copy = shared;  // 引用計數 +1
 
-// weak_ptr - 弱引用，不增加引用计数
+// weak_ptr - 弱引用，不增加引用計數
 std::weak_ptr<MyClass> weak = shared;
 if (auto locked = weak.lock()) {
     locked->method();
 }
 ```
 
-### 容器与算法
+### 容器與演算法
 ```cpp
 #include <vector>
 #include <algorithm>
@@ -35,12 +35,12 @@ if (auto locked = weak.lock()) {
 
 std::vector<int> nums = {1, 2, 3, 4, 5};
 
-// 范围 for
+// 範圍 for
 for (const auto& n : nums) {
     std::cout << n << std::endl;
 }
 
-// 算法
+// 演算法
 auto it = std::find(nums.begin(), nums.end(), 3);
 std::sort(nums.begin(), nums.end());
 
@@ -49,39 +49,39 @@ auto even = nums | std::views::filter([](int n) { return n % 2 == 0; });
 auto squared = nums | std::views::transform([](int n) { return n * n; });
 ```
 
-### Lambda 表达式
+### Lambda 表示式
 ```cpp
-// 基础 lambda
+// 基礎 lambda
 auto add = [](int a, int b) { return a + b; };
 
-// 捕获
+// 捕獲
 int x = 10;
-auto capture_val = [x]() { return x; };      // 值捕获
-auto capture_ref = [&x]() { return x; };     // 引用捕获
-auto capture_all = [=]() { return x; };      // 全部值捕获
-auto capture_all_ref = [&]() { return x; };  // 全部引用捕获
+auto capture_val = [x]() { return x; };      // 值捕獲
+auto capture_ref = [&x]() { return x; };     // 引用捕獲
+auto capture_all = [=]() { return x; };      // 全部值捕獲
+auto capture_all_ref = [&]() { return x; };  // 全部引用捕獲
 
 // 泛型 lambda (C++14)
 auto generic = [](auto a, auto b) { return a + b; };
 ```
 
-### 并发编程
+### 併發程式設計
 ```cpp
 #include <thread>
 #include <mutex>
 #include <future>
 
-// 线程
+// 執行緒
 std::thread t([]() {
     std::cout << "Hello from thread" << std::endl;
 });
 t.join();
 
-// 互斥锁
+// 互斥鎖
 std::mutex mtx;
 {
     std::lock_guard<std::mutex> lock(mtx);
-    // 临界区
+    // 臨界區
 }
 
 // async/future
@@ -90,13 +90,13 @@ auto future = std::async(std::launch::async, []() {
 });
 auto result = future.get();
 
-// 条件变量
+// 條件變數
 std::condition_variable cv;
 std::unique_lock<std::mutex> lock(mtx);
 cv.wait(lock, []() { return ready; });
 ```
 
-## 内存管理
+## 記憶體管理
 
 ### RAII 模式
 ```cpp
@@ -110,11 +110,11 @@ public:
         if (file) fclose(file);
     }
 
-    // 禁止拷贝
+    // 禁止複製
     FileHandle(const FileHandle&) = delete;
     FileHandle& operator=(const FileHandle&) = delete;
 
-    // 允许移动
+    // 允許移動
     FileHandle(FileHandle&& other) noexcept : file(other.file) {
         other.file = nullptr;
     }
@@ -124,7 +124,7 @@ private:
 };
 ```
 
-### 内存安全检查
+### 記憶體安全檢查
 ```bash
 # AddressSanitizer
 g++ -fsanitize=address -g main.cpp -o main
@@ -133,7 +133,7 @@ g++ -fsanitize=address -g main.cpp -o main
 # Valgrind
 valgrind --leak-check=full ./main
 
-# 静态分析
+# 靜態分析
 clang-tidy main.cpp
 cppcheck main.cpp
 ```
@@ -148,42 +148,42 @@ project(MyProject VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加可执行文件
+# 新增可執行檔案
 add_executable(myapp
     src/main.cpp
     src/utils.cpp
 )
 
-# 添加库
+# 新增庫
 add_library(mylib STATIC
     src/lib.cpp
 )
 
-# 链接库
+# 連結庫
 target_link_libraries(myapp PRIVATE mylib)
 
-# 包含目录
+# 包含目錄
 target_include_directories(myapp PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-# 查找外部库
+# 查詢外部庫
 find_package(Threads REQUIRED)
 target_link_libraries(myapp PRIVATE Threads::Threads)
 
-# 测试
+# 測試
 enable_testing()
 add_executable(tests tests/test_main.cpp)
 add_test(NAME MyTests COMMAND tests)
 ```
 
-### 构建
+### 構建
 ```bash
 mkdir build && cd build
 cmake ..
 cmake --build .
-ctest  # 运行测试
+ctest  # 執行測試
 ```
 
-## 测试
+## 測試
 
 ### Google Test
 ```cpp
@@ -214,7 +214,7 @@ TEST_F(UserTest, GetName) {
 }
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
@@ -231,15 +231,15 @@ myproject/
 └── build/
 ```
 
-## 常用库
+## 常用庫
 
-| 库 | 用途 |
+| 庫 | 用途 |
 |---|------|
-| Boost | 通用库集合 |
-| fmt | 格式化输出 |
-| spdlog | 日志 |
+| Boost | 通用庫集合 |
+| fmt | 格式化輸出 |
+| spdlog | 日誌 |
 | nlohmann/json | JSON |
-| Catch2/GTest | 测试 |
+| Catch2/GTest | 測試 |
 | OpenSSL | 加密 |
 
 ---

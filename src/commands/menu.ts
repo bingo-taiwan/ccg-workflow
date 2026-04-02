@@ -131,7 +131,7 @@ export async function showMainMenu(): Promise<void> {
     // Read config for status display
     const config = await readCcgConfig()
     const cmdCount = config?.workflows?.installed?.length || 0
-    const lang = config?.general?.language || 'zh-CN'
+    const lang = config?.general?.language || 'zh-TW'
     const mcpProvider = config?.mcp?.provider || '—'
 
     // Build status parts
@@ -146,7 +146,7 @@ export async function showMainMenu(): Promise<void> {
 
     drawHeader(statusParts)
 
-    const isZh = lang === 'zh-CN'
+    const isZh = lang.startsWith('zh')
 
     // Build menu item helper: "  N. Label  - description"
     const item = (key: string, label: string, desc: string) => ({
@@ -237,7 +237,7 @@ export async function showMainMenu(): Promise<void> {
 
 function showHelp(): void {
   const config = readCcgConfigSync()
-  const isZh = (config?.general?.language || 'zh-CN') === 'zh-CN'
+  const isZh = (config?.general?.language || 'zh-TW').startsWith('zh')
 
   console.log()
   console.log(ansis.cyan.bold(`  ${i18n.t('menu:help.title')}`))
@@ -434,7 +434,7 @@ const OUTPUT_STYLES = [
 
 async function configModelRouting(): Promise<void> {
   const config = await readCcgConfig()
-  const isZh = (config?.general?.language || 'zh-CN') === 'zh-CN'
+  const isZh = (config?.general?.language || 'zh-TW').startsWith('zh')
 
   console.log()
   console.log(ansis.cyan.bold(`  ${i18n.t('init:model.title')}`))

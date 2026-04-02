@@ -1,86 +1,86 @@
-# 站点抓取模式经验库
+# 站點抓取模式經驗庫
 
-每次成功抓取新类型站点后，Agent 应提示用户是否将经验追加到此文件。
+每次成功抓取新型別站點後，Agent 應提示使用者是否將經驗追加到此檔案。
 
 ---
 
-## Discourse 论坛 (linux.do, meta.discourse.org 等)
+## Discourse 論壇 (linux.do, meta.discourse.org 等)
 
-**站点特征**: Cloudflare 保护 + Ember.js SPA + 登录态区分
-**推荐 Fetcher**: StealthyFetcher
-**关键参数**:
-- `solve_cloudflare=True` — 必须
+**站點特徵**: Cloudflare 保護 + Ember.js SPA + 登入態區分
+**推薦 Fetcher**: StealthyFetcher
+**關鍵引數**:
+- `solve_cloudflare=True` — 必須
 - `network_idle=True` — 等待 Ember 渲染完成
-- `timeout=60000` — CF 验证耗时长，至少 60 秒（毫秒单位）
-**登录 cookie 字段**: `_forum_session`, `_t`
-**不需要**: `cf_clearance`（StealthyFetcher 自动获取）
-**JSON API**: `/t/topic/{id}.json`（需过 CF 后才可用）
-**选择器参考**:
+- `timeout=60000` — CF 驗證耗時長，至少 60 秒（毫秒單位）
+**登入 cookie 欄位**: `_forum_session`, `_t`
+**不需要**: `cf_clearance`（StealthyFetcher 自動獲取）
+**JSON API**: `/t/topic/{id}.json`（需過 CF 後才可用）
+**選擇器參考**:
 - 帖子列表: `.topic-post`
 - 作者: `[data-user-card]::attr(data-user-card)`
-- 内容: `.cooked` → `.get_all_text(strip=True)`
+- 內容: `.cooked` → `.get_all_text(strip=True)`
 
 ---
 
-## 静态博客/文档站 (GitHub Pages, Hugo, Jekyll)
+## 靜態部落格/文件站 (GitHub Pages, Hugo, Jekyll)
 
-**站点特征**: 纯静态 HTML，无 JS 渲染依赖，无反爬
-**推荐 Fetcher**: Fetcher（最快）
-**关键参数**: `impersonate='chrome'`, `timeout=30`
-**选择器参考**: `article`, `.content`, `.post-body`
-
----
-
-## SPA 应用 (React/Vue/Next.js)
-
-**站点特征**: JS 渲染，内容不在初始 HTML 中
-**推荐 Fetcher**: DynamicFetcher
-**关键参数**:
-- `network_idle=True` — 等待 API 请求完成
-- `wait_selector='.content-loaded'` — 等待关键元素（按实际调整）
-- `disable_resources=True` — 跳过字体/图片加速
-**备注**: 优先检查是否有 API 端点可直接用 Fetcher 请求（更快更稳定）
+**站點特徵**: 純靜態 HTML，無 JS 渲染依賴，無反爬
+**推薦 Fetcher**: Fetcher（最快）
+**關鍵引數**: `impersonate='chrome'`, `timeout=30`
+**選擇器參考**: `article`, `.content`, `.post-body`
 
 ---
 
-## API 端点 (REST/GraphQL)
+## SPA 應用 (React/Vue/Next.js)
 
-**站点特征**: 返回 JSON，无需解析 HTML
-**推荐 Fetcher**: Fetcher
-**关键参数**: `impersonate='chrome'`, 自定义 `headers`
-**处理方式**: `page.text` 获取 JSON → `json.loads()` 解析
-**备注**: 如果 API 有反爬，可能需要带 Referer/Origin 等 header
-
----
-
-## TAPD 项目管理 (tapd.cn)
-
-**站点特征**: React SPA + 企业登录态 + 分页懒加载（"展开更多"按钮）
-**推荐方案**: Playwright 直接控制（非 scrapling Fetcher）
-**原因**: DynamicFetcher 可渲染首屏但无法点击交互；scrapling Fetcher 调 API 时 `page.text` 始终为空；curl 可达 API 但返回 500（需浏览器环境的 CSRF 校验）
-**关键流程**:
-1. Playwright + cookies 加载页面，`wait_until='networkidle'`
-2. 循环点击"展开更多"按钮加载全部数据
-3. `page.inner_text('body')` 提取纯文本，按行解析
-**Cookie 格式**: `list[dict]`，必填 `name/value/domain/path`，domain 为 `.tapd.cn`
-**API 端点**（参考，浏览器内部使用）: `POST /api/my_worktable/my_worktable/get_my_worktable_by_page`
-**CSRF**: cookie `dsc-token` 的值需作为 `DSC-TOKEN` header 发送（由 axios interceptor 自动添加）
-**已知限制**: scrapling Fetcher 对 TAPD API 返回空响应（`page.text` 为空），需用 Playwright 或 curl
-**数据结构**: 文本按行排列，类型前缀(P/E/PROGRAM/TEST/BUG) → 标题 → 状态 → 优先级 → ...
+**站點特徵**: JS 渲染，內容不在初始 HTML 中
+**推薦 Fetcher**: DynamicFetcher
+**關鍵引數**:
+- `network_idle=True` — 等待 API 請求完成
+- `wait_selector='.content-loaded'` — 等待關鍵元素（按實際調整）
+- `disable_resources=True` — 跳過字型/圖片加速
+**備註**: 優先檢查是否有 API 端點可直接用 Fetcher 請求（更快更穩定）
 
 ---
 
-## 模板：添加新站点模式
+## API 端點 (REST/GraphQL)
 
-复制以下模板，替换具体内容后追加到此文件：
+**站點特徵**: 返回 JSON，無需解析 HTML
+**推薦 Fetcher**: Fetcher
+**關鍵引數**: `impersonate='chrome'`, 自定義 `headers`
+**處理方式**: `page.text` 獲取 JSON → `json.loads()` 解析
+**備註**: 如果 API 有反爬，可能需要帶 Referer/Origin 等 header
+
+---
+
+## TAPD 專案管理 (tapd.cn)
+
+**站點特徵**: React SPA + 企業登入態 + 分頁懶載入（"展開更多"按鈕）
+**推薦方案**: Playwright 直接控制（非 scrapling Fetcher）
+**原因**: DynamicFetcher 可渲染首屏但無法點選互動；scrapling Fetcher 調 API 時 `page.text` 始終為空；curl 可達 API 但返回 500（需瀏覽器環境的 CSRF 校驗）
+**關鍵流程**:
+1. Playwright + cookies 載入頁面，`wait_until='networkidle'`
+2. 迴圈點選"展開更多"按鈕載入全部資料
+3. `page.inner_text('body')` 提取純文字，按行解析
+**Cookie 格式**: `list[dict]`，必填 `name/value/domain/path`，domain 為 `.tapd.cn`
+**API 端點**（參考，瀏覽器內部使用）: `POST /api/my_worktable/my_worktable/get_my_worktable_by_page`
+**CSRF**: cookie `dsc-token` 的值需作為 `DSC-TOKEN` header 傳送（由 axios interceptor 自動新增）
+**已知限制**: scrapling Fetcher 對 TAPD API 返回空響應（`page.text` 為空），需用 Playwright 或 curl
+**資料結構**: 文字按行排列，型別字首(P/E/PROGRAM/TEST/BUG) → 標題 → 狀態 → 優先順序 → ...
+
+---
+
+## 模板：新增新站點模式
+
+複製以下模板，替換具體內容後追加到此檔案：
 
 ```markdown
-## 站点名称/类型 (代表域名)
+## 站點名稱/型別 (代表域名)
 
-**站点特征**: 描述
-**推荐 Fetcher**: Fetcher / StealthyFetcher / DynamicFetcher
-**关键参数**:
-- `参数名=值` — 说明
-**选择器参考**: CSS 选择器示例
-**备注**: 踩坑经验
+**站點特徵**: 描述
+**推薦 Fetcher**: Fetcher / StealthyFetcher / DynamicFetcher
+**關鍵引數**:
+- `引數名=值` — 說明
+**選擇器參考**: CSS 選擇器示例
+**備註**: 踩坑經驗
 ```

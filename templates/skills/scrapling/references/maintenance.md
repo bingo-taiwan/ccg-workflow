@@ -1,61 +1,61 @@
-# Scrapling 安装与维护
+# Scrapling 安裝與維護
 
-## 安装层级
+## 安裝層級
 
-| 安装命令 | 包含内容 |
+| 安裝命令 | 包含內容 |
 |---------|---------|
-| `pip install scrapling` | 仅核心解析器（Selector），无网络抓取能力 |
+| `pip install scrapling` | 僅核心解析器（Selector），無網路抓取能力 |
 | `pip install "scrapling[fetchers]"` | + Fetcher/StealthyFetcher/DynamicFetcher（curl_cffi, Playwright, Camoufox） |
 | `pip install "scrapling[ai]"` | + AI 功能（transformers） |
-| `pip install "scrapling[shell]"` | + 交互式 shell |
+| `pip install "scrapling[shell]"` | + 互動式 shell |
 | `pip install "scrapling[all]"` | 全部功能 |
 
-**推荐**: 大多数场景使用 `scrapling[fetchers]` 即可。
+**推薦**: 大多數場景使用 `scrapling[fetchers]` 即可。
 
-## 检查安装状态
+## 檢查安裝狀態
 
 ```bash
-# 查看版本
+# 檢視版本
 pip show scrapling
 
-# 验证基础包可用
+# 驗證基礎包可用
 python -c "from scrapling.parser import Selector; print('Parser OK')"
 
-# 验证 Fetcher 可用（需要 [fetchers]）
+# 驗證 Fetcher 可用（需要 [fetchers]）
 python -c "from scrapling.fetchers import Fetcher; print('Fetcher OK')"
 
-# 验证 StealthyFetcher 可用
+# 驗證 StealthyFetcher 可用
 python -c "from scrapling.fetchers import StealthyFetcher; print('StealthyFetcher OK')"
 
-# 验证 DynamicFetcher 可用
+# 驗證 DynamicFetcher 可用
 python -c "from scrapling.fetchers import DynamicFetcher; print('DynamicFetcher OK')"
 ```
 
-## 安装浏览器依赖
+## 安裝瀏覽器依賴
 
-StealthyFetcher 和 DynamicFetcher 需要浏览器引擎，安装后需执行:
+StealthyFetcher 和 DynamicFetcher 需要瀏覽器引擎，安裝後需執行:
 
 ```bash
-# 方式 1: 直接命令（PATH 包含 Scripts 目录时）
+# 方式 1: 直接命令（PATH 包含 Scripts 目錄時）
 scrapling install
 
-# 方式 2: 通过 Python 调用（推荐，避免 PATH 问题）
+# 方式 2: 透過 Python 呼叫（推薦，避免 PATH 問題）
 python -c "from scrapling.cli import main; main(['install'])"
 ```
 
-## 升级
+## 升級
 
 ```bash
 pip install --upgrade "scrapling[fetchers]"
 ```
 
-升级后建议重新验证三个 Fetcher 是否可用（见上方检查命令）。
+升級後建議重新驗證三個 Fetcher 是否可用（見上方檢查命令）。
 
-## 三 Fetcher 完整验证脚本
+## 三 Fetcher 完整驗證指令碼
 
 ```python
 #!/usr/bin/env python3
-"""验证 scrapling 三个 Fetcher 均可正常使用"""
+"""驗證 scrapling 三個 Fetcher 均可正常使用"""
 import scrapling
 
 print(f"scrapling version: {scrapling.__version__}")

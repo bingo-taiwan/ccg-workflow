@@ -1,41 +1,41 @@
 ---
 name: api-design
-description: API 设计。RESTful、GraphQL、OpenAPI、版本管理。当用户提到 API设计、RESTful、GraphQL、OpenAPI、接口设计时使用。
+description: API 設計。RESTful、GraphQL、OpenAPI、版本管理。當使用者提到 API設計、RESTful、GraphQL、OpenAPI、介面設計時使用。
 ---
 
-# 🏗 阵法秘典 · API 设计
+# 🏗 陣法秘典 · API 設計
 
 
-## RESTful 设计
+## RESTful 設計
 
-### 资源命名
+### 資源命名
 ```yaml
-# 使用名词复数
-GET    /users          # 获取用户列表
-GET    /users/{id}     # 获取单个用户
-POST   /users          # 创建用户
-PUT    /users/{id}     # 更新用户
+# 使用名詞複數
+GET    /users          # 獲取使用者列表
+GET    /users/{id}     # 獲取單個使用者
+POST   /users          # 建立使用者
+PUT    /users/{id}     # 更新使用者
 PATCH  /users/{id}     # 部分更新
-DELETE /users/{id}     # 删除用户
+DELETE /users/{id}     # 刪除使用者
 
-# 嵌套资源
+# 巢狀資源
 GET    /users/{id}/orders
 POST   /users/{id}/orders
 
 # 避免
-GET    /getUsers       # ❌ 动词
-GET    /user           # ❌ 单数
-POST   /createUser     # ❌ 动词
+GET    /getUsers       # ❌ 動詞
+GET    /user           # ❌ 單數
+POST   /createUser     # ❌ 動詞
 ```
 
-### HTTP 状态码
+### HTTP 狀態碼
 ```yaml
 2xx 成功:
   200: OK
   201: Created
   204: No Content
 
-4xx 客户端错误:
+4xx 客戶端錯誤:
   400: Bad Request
   401: Unauthorized
   403: Forbidden
@@ -43,15 +43,15 @@ POST   /createUser     # ❌ 动词
   409: Conflict
   422: Unprocessable Entity
 
-5xx 服务端错误:
+5xx 服務端錯誤:
   500: Internal Server Error
   502: Bad Gateway
   503: Service Unavailable
 ```
 
-### 响应格式
+### 響應格式
 ```json
-// 成功响应
+// 成功響應
 {
   "data": {
     "id": 1,
@@ -59,7 +59,7 @@ POST   /createUser     # ❌ 动词
   }
 }
 
-// 列表响应
+// 列表響應
 {
   "data": [...],
   "pagination": {
@@ -69,7 +69,7 @@ POST   /createUser     # ❌ 动词
   }
 }
 
-// 错误响应
+// 錯誤響應
 {
   "error": {
     "code": "VALIDATION_ERROR",
@@ -81,7 +81,7 @@ POST   /createUser     # ❌ 动词
 }
 ```
 
-## OpenAPI 规范
+## OpenAPI 規範
 
 ```yaml
 openapi: 3.0.3
@@ -194,32 +194,32 @@ query GetUser($id: ID!) {
 
 ```yaml
 策略:
-  URL路径: /api/v1/users (推荐)
-  请求头: Accept: application/vnd.api+json;version=1
-  查询参数: /api/users?version=1
+  URL路徑: /api/v1/users (推薦)
+  請求頭: Accept: application/vnd.api+json;version=1
+  查詢引數: /api/users?version=1
 
-原则:
-  - 向后兼容
-  - 废弃通知
-  - 迁移指南
+原則:
+  - 向後相容
+  - 廢棄通知
+  - 遷移指南
 ```
 
-## 安全设计
+## 安全設計
 
 ```yaml
-认证:
+認證:
   - API Key
   - JWT
   - OAuth 2.0
 
-授权:
+授權:
   - RBAC
   - ABAC
   - Scope
 
-防护:
+防護:
   - 速率限制
-  - 输入验证
+  - 輸入驗證
   - HTTPS
 ```
 

@@ -1,182 +1,182 @@
 ---
-description: '多模型协作规划 - 上下文检索 + 双模型分析 → 生成 Step-by-step 实施计划'
+description: '多模型協作規劃 - 上下文檢索 + 雙模型分析 → 生成 Step-by-step 實施計劃'
 ---
 
-# Plan - 多模型协作规划
+# Plan - 多模型協作規劃
 
 $ARGUMENTS
 
 ---
 
-## 核心协议
+## 核心協議
 
-- **语言协议**：与工具/模型交互用**英语**，与用户交互用**中文**
-- **强制并行**：Codex/Gemini 调用必须使用 `run_in_background: true`（包含单模型调用，避免阻塞主线程）
-- **代码主权**：外部模型对文件系统**零写入权限**，所有修改由 Claude 执行
-- **止损机制**：当前阶段输出通过验证前，不进入下一阶段
-- **仅规划**：本命令允许读取上下文与写入 `.claude/plan/*` 计划文件，但**禁止修改产品代码**
+- **語言協議**：與工具/模型互動用**英語**，與使用者互動用**中文**
+- **強制並行**：Codex/Gemini 呼叫必須使用 `run_in_background: true`（包含單模型呼叫，避免阻塞主執行緒）
+- **程式碼主權**：外部模型對檔案系統**零寫入許可權**，所有修改由 Claude 執行
+- **止損機制**：當前階段輸出透過驗證前，不進入下一階段
+- **僅規劃**：本命令允許讀取上下文與寫入 `.claude/plan/*` 計劃檔案，但**禁止修改產品程式碼**
 
 ---
 
-## 多模型调用规范
+## 多模型呼叫規範
 
-**工作目录**：
-- `{{WORKDIR}}`：**必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断
-- 如果用户通过 `/add-dir` 添加了多个工作区，先用 Glob/Grep 确定任务相关的工作区
-- 如果无法确定，用 `AskUserQuestion` 询问用户选择目标工作区
+**工作目錄**：
+- `{{WORKDIR}}`：**必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷
+- 如果使用者透過 `/add-dir` 新增了多個工作區，先用 Glob/Grep 確定任務相關的工作區
+- 如果無法確定，用 `AskUserQuestion` 詢問使用者選擇目標工作區
 
-**调用语法**（并行用 `run_in_background: true`）：
+**呼叫語法**（並行用 `run_in_background: true`）：
 
 ```
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
-需求：<增强后的需求>
-上下文：<检索到的项目上下文>
+需求：<增強後的需求>
+上下文：<檢索到的專案上下文>
 </TASK>
 OUTPUT: Step-by-step implementation plan with pseudo-code. DO NOT modify any files.
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 ```
 
-**角色提示词**：
+**角色提示詞**：
 
-| 阶段 | Codex | Gemini |
+| 階段 | Codex | Gemini |
 |------|-------|--------|
 | 分析 | `~/.claude/.ccg/prompts/codex/analyzer.md` | `~/.claude/.ccg/prompts/gemini/analyzer.md` |
-| 规划 | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/architect.md` |
+| 規劃 | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/architect.md` |
 
-**会话复用**：每次调用返回 `SESSION_ID: xxx`（通常由 wrapper 输出），**必须保存**以供后续 `/ccg:execute` 使用。
+**會話複用**：每次呼叫返回 `SESSION_ID: xxx`（通常由 wrapper 輸出），**必須儲存**以供後續 `/ccg:execute` 使用。
 
-**等待后台任务**（最大超时 600000ms = 10 分钟）：
+**等待後臺任務**（最大超時 600000ms = 10 分鐘）：
 
 ```
 TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 ```
 
 **重要**：
-- 必须指定 `timeout: 600000`，否则默认只有 30 秒会导致提前超时
-- 若 10 分钟后仍未完成，继续用 `TaskOutput` 轮询，**绝对不要 Kill 进程**
-- 若因等待时间过长跳过了等待，**必须调用 `AskUserQuestion` 询问用户选择继续等待还是 Kill Task**
-- ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败（非零退出码或输出包含错误信息），最多重试 2 次（间隔 5 秒）。仅当 3 次全部失败时才跳过 Gemini 结果并使用单模型结果继续。
-- ⛔ **Codex 结果必须等待**：Codex 执行时间较长（5-15 分钟）属于正常。TaskOutput 超时后必须继续用 TaskOutput 轮询，**绝对禁止在 Codex 未返回结果时直接跳过或继续下一阶段**。已启动的 Codex 任务若被跳过 = 浪费 token + 丢失结果。
+- 必須指定 `timeout: 600000`，否則預設只有 30 秒會導致提前超時
+- 若 10 分鐘後仍未完成，繼續用 `TaskOutput` 輪詢，**絕對不要 Kill 程序**
+- 若因等待時間過長跳過了等待，**必須呼叫 `AskUserQuestion` 詢問使用者選擇繼續等待還是 Kill Task**
+- ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗（非零退出碼或輸出包含錯誤資訊），最多重試 2 次（間隔 5 秒）。僅當 3 次全部失敗時才跳過 Gemini 結果並使用單模型結果繼續。
+- ⛔ **Codex 結果必須等待**：Codex 執行時間較長（5-15 分鐘）屬於正常。TaskOutput 超時後必須繼續用 TaskOutput 輪詢，**絕對禁止在 Codex 未返回結果時直接跳過或繼續下一階段**。已啟動的 Codex 任務若被跳過 = 浪費 token + 丟失結果。
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-**规划任务**：$ARGUMENTS
+**規劃任務**：$ARGUMENTS
 
-### 🔍 Phase 1：上下文全量检索
+### 🔍 Phase 1：上下文全量檢索
 
 `[模式：研究]`
 
-#### 1.1 Prompt 增强（必须首先执行）
+#### 1.1 Prompt 增強（必須首先執行）
 
-**Prompt 增强**（按 `/ccg:enhance` 的逻辑执行）：分析 $ARGUMENTS 的意图、缺失信息、隐含假设，补全为结构化需求（明确目标、技术约束、范围边界、验收标准），**用增强结果替代原始 $ARGUMENTS** 用于后续所有阶段。
+**Prompt 增強**（按 `/ccg:enhance` 的邏輯執行）：分析 $ARGUMENTS 的意圖、缺失資訊、隱含假設，補全為結構化需求（明確目標、技術約束、範圍邊界、驗收標準），**用增強結果替代原始 $ARGUMENTS** 用於後續所有階段。
 
-#### 1.2 上下文检索
+#### 1.2 上下文檢索
 
-**调用 `{{MCP_SEARCH_TOOL}}` 工具**：
+**呼叫 `{{MCP_SEARCH_TOOL}}` 工具**：
 
 ```
 {{MCP_SEARCH_TOOL}}({
-  query: "<基于增强后需求构建的语义查询>",
+  query: "<基於增強後需求構建的語義查詢>",
   project_root_path: "{{WORKDIR}}"
 })
 ```
 
-- 使用自然语言构建语义查询（Where/What/How）
-- **禁止基于假设回答**
-- 若 MCP 不可用：回退到 Glob + Grep 进行文件发现与关键符号定位
+- 使用自然語言構建語義查詢（Where/What/How）
+- **禁止基於假設回答**
+- 若 MCP 不可用：回退到 Glob + Grep 進行檔案發現與關鍵符號定位
 
-#### 1.3 完整性检查
+#### 1.3 完整性檢查
 
-- 必须获取相关类、函数、变量的**完整定义与签名**
-- 若上下文不足，触发**递归检索**
-- 优先输出：入口文件 + 行号 + 关键符号名；必要时补充最小代码片段（仅用于消除歧义）
+- 必須獲取相關類、函式、變數的**完整定義與簽名**
+- 若上下文不足，觸發**遞迴檢索**
+- 優先輸出：入口檔案 + 行號 + 關鍵符號名；必要時補充最小程式碼片段（僅用於消除歧義）
 
-#### 1.4 需求对齐
+#### 1.4 需求對齊
 
-- 若需求仍有模糊空间，**必须**向用户输出引导性问题列表
-- 直至需求边界清晰（无遗漏、无冗余）
+- 若需求仍有模糊空間，**必須**向使用者輸出引導性問題列表
+- 直至需求邊界清晰（無遺漏、無冗餘）
 
-### 💡 Phase 2：多模型协作分析
+### 💡 Phase 2：多模型協作分析
 
 `[模式：分析]`
 
-#### 2.1 分发输入
+#### 2.1 分發輸入
 
-**并行调用** Codex 和 Gemini（`run_in_background: true`）：
+**並行呼叫** Codex 和 Gemini（`run_in_background: true`）：
 
-将**原始需求**（不带预设观点）分发给两个模型：
+將**原始需求**（不帶預設觀點）分發給兩個模型：
 
-1. **{{BACKEND_PRIMARY}} 后端分析**：
+1. **{{BACKEND_PRIMARY}} 後端分析**：
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/analyzer.md`
-   - 关注：技术可行性、架构影响、性能考量、潜在风险
-   - OUTPUT: 多角度解决方案 + 优劣势分析
+   - 關注：技術可行性、架構影響、效能考量、潛在風險
+   - OUTPUT: 多角度解決方案 + 優劣勢分析
 
 2. **{{FRONTEND_PRIMARY}} 前端分析**：
    - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/analyzer.md`
-   - 关注：UI/UX 影响、用户体验、视觉设计
-   - OUTPUT: 多角度解决方案 + 优劣势分析
+   - 關注：UI/UX 影響、使用者體驗、視覺設計
+   - OUTPUT: 多角度解決方案 + 優劣勢分析
 
-用 `TaskOutput` 等待两个模型的完整结果。**📌 保存 SESSION_ID**（`CODEX_SESSION` 和 `GEMINI_SESSION`）。
+用 `TaskOutput` 等待兩個模型的完整結果。**📌 儲存 SESSION_ID**（`CODEX_SESSION` 和 `GEMINI_SESSION`）。
 
-#### 2.2 交叉验证
+#### 2.2 交叉驗證
 
-整合各方思路，进行迭代优化：
+整合各方思路，進行迭代最佳化：
 
-1. **识别一致观点**（强信号）
-2. **识别分歧点**（需权衡）
-3. **互补优势**：后端逻辑以 Codex 为准，前端设计以 Gemini 为准
-4. **逻辑推演**：消除方案中的逻辑漏洞
+1. **識別一致觀點**（強訊號）
+2. **識別分歧點**（需權衡）
+3. **互補優勢**：後端邏輯以 Codex 為準，前端設計以 Gemini 為準
+4. **邏輯推演**：消除方案中的邏輯漏洞
 
-#### 2.3（可选但推荐）双模型产出“计划草案”
+#### 2.3（可選但推薦）雙模型產出“計劃草案”
 
-为降低 Claude 合成计划的遗漏风险，可并行让两个模型输出“计划草案”（仍然**不允许**修改文件）：
+為降低 Claude 合成計劃的遺漏風險，可並行讓兩個模型輸出“計劃草案”（仍然**不允許**修改檔案）：
 
-1. **{{BACKEND_PRIMARY}} 计划草案**（后端权威）：
+1. **{{BACKEND_PRIMARY}} 計劃草案**（後端權威）：
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/architect.md`
-   - OUTPUT: Step-by-step plan + pseudo-code（重点：数据流/边界条件/错误处理/测试策略）
+   - OUTPUT: Step-by-step plan + pseudo-code（重點：資料流/邊界條件/錯誤處理/測試策略）
 
-2. **{{FRONTEND_PRIMARY}} 计划草案**（前端权威）：
+2. **{{FRONTEND_PRIMARY}} 計劃草案**（前端權威）：
    - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/architect.md`
-   - OUTPUT: Step-by-step plan + pseudo-code（重点：信息架构/交互/可访问性/视觉一致性）
+   - OUTPUT: Step-by-step plan + pseudo-code（重點：資訊架構/互動/可訪問性/視覺一致性）
 
-用 `TaskOutput` 等待两个模型的完整结果，并记录其建议的关键差异点。
+用 `TaskOutput` 等待兩個模型的完整結果，並記錄其建議的關鍵差異點。
 
-#### 2.4 生成实施计划（Claude 最终版）
+#### 2.4 生成實施計劃（Claude 最終版）
 
-综合双方分析，生成 **Step-by-step 实施计划**：
+綜合雙方分析，生成 **Step-by-step 實施計劃**：
 
 ```markdown
-## 📋 实施计划：<任务名称>
+## 📋 實施計劃：<任務名稱>
 
-### 任务类型
+### 任務型別
 - [ ] 前端 (→ Gemini)
-- [ ] 后端 (→ Codex)
-- [ ] 全栈 (→ 并行)
+- [ ] 後端 (→ Codex)
+- [ ] 全棧 (→ 並行)
 
-### 技术方案
-<综合 Codex + Gemini 分析的最优方案>
+### 技術方案
+<綜合 Codex + Gemini 分析的最優方案>
 
-### 实施步骤
-1. <步骤 1> - 预期产物
-2. <步骤 2> - 预期产物
+### 實施步驟
+1. <步驟 1> - 預期產物
+2. <步驟 2> - 預期產物
 ...
 
-### 关键文件
-| 文件 | 操作 | 说明 |
+### 關鍵檔案
+| 檔案 | 操作 | 說明 |
 |------|------|------|
 | path/to/file.ts:L10-L50 | 修改 | 描述 |
 
-### 风险与缓解
-| 风险 | 缓解措施 |
+### 風險與緩解
+| 風險 | 緩解措施 |
 |------|----------|
 
 ### SESSION_ID（供 /ccg:execute 使用）
@@ -184,63 +184,63 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 - GEMINI_SESSION: <session_id>
 ```
 
-### ⛔ Phase 2 结束：计划交付（非执行）
+### ⛔ Phase 2 結束：計劃交付（非執行）
 
-**`/ccg:plan` 的职责到此结束，必须执行以下动作**：
+**`/ccg:plan` 的職責到此結束，必須執行以下動作**：
 
-1. 向用户展示完整实施计划（含伪代码）
-2. 将计划保存至 `.claude/plan/<功能名>.md`（功能名从需求中提取，如 `user-auth`、`payment-module` 等）
-3. 以**加粗文本**输出提示（必须使用实际保存的文件路径）：
+1. 向使用者展示完整實施計劃（含虛擬碼）
+2. 將計劃儲存至 `.claude/plan/<功能名>.md`（功能名從需求中提取，如 `user-auth`、`payment-module` 等）
+3. 以**加粗文字**輸出提示（必須使用實際儲存的檔案路徑）：
 
    ---
-   **📋 计划已生成并保存至 `.claude/plan/实际功能名.md`**
+   **📋 計劃已生成並儲存至 `.claude/plan/實際功能名.md`**
 
-   **请审查上述计划，您可以：**
-   - 🔧 **修改计划**：告诉我需要调整的部分，我会更新计划
-   - ▶️ **执行计划**：复制以下命令到新会话执行
+   **請審查上述計劃，您可以：**
+   - 🔧 **修改計劃**：告訴我需要調整的部分，我會更新計劃
+   - ▶️ **執行計劃**：複製以下命令到新會話執行
 
    ```
-   /ccg:execute .claude/plan/实际功能名.md
+   /ccg:execute .claude/plan/實際功能名.md
    ```
    ---
 
-   **⚠️ 注意**：上面的 `实际功能名.md` 必须替换为你实际保存的文件名！
+   **⚠️ 注意**：上面的 `實際功能名.md` 必須替換為你實際儲存的檔名！
 
-4. **立即终止当前回复**（Stop here. No more tool calls.）
+4. **立即終止當前回覆**（Stop here. No more tool calls.）
 
-**⚠️ 绝对禁止**：
-- ❌ 问用户 "Y/N" 然后自动执行（执行是 `/ccg:execute` 的职责）
-- ❌ 对产品代码进行任何写操作
-- ❌ 自动调用 `/ccg:execute` 或任何实施动作
-- ❌ 在用户未明确要求修改时继续触发模型调用
+**⚠️ 絕對禁止**：
+- ❌ 問使用者 "Y/N" 然後自動執行（執行是 `/ccg:execute` 的職責）
+- ❌ 對產品程式碼進行任何寫操作
+- ❌ 自動呼叫 `/ccg:execute` 或任何實施動作
+- ❌ 在使用者未明確要求修改時繼續觸發模型呼叫
 
 ---
 
-## 计划保存
+## 計劃儲存
 
-规划完成后，将计划保存至：
+規劃完成後，將計劃儲存至：
 
-- **首次规划**：`.claude/plan/<功能名>.md`
+- **首次規劃**：`.claude/plan/<功能名>.md`
 - **迭代版本**：`.claude/plan/<功能名>-v2.md`、`.claude/plan/<功能名>-v3.md`...
 
-计划文件写入应在向用户展示计划前完成。
+計劃檔案寫入應在向使用者展示計劃前完成。
 
 ---
 
-## 计划修改流程
+## 計劃修改流程
 
-如果用户要求修改计划：
+如果使用者要求修改計劃：
 
-1. 根据用户反馈调整计划内容
-2. 更新 `.claude/plan/<功能名>.md` 文件
-3. 重新展示修改后的计划
-4. 再次提示用户审查或执行
+1. 根據使用者反饋調整計劃內容
+2. 更新 `.claude/plan/<功能名>.md` 檔案
+3. 重新展示修改後的計劃
+4. 再次提示使用者審查或執行
 
 ---
 
-## 后续步骤
+## 後續步驟
 
-用户审查满意后，**手动**执行：
+使用者審查滿意後，**手動**執行：
 
 ```bash
 /ccg:execute .claude/plan/<功能名>.md
@@ -248,10 +248,10 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 ---
 
-## 关键规则
+## 關鍵規則
 
-1. **仅规划不实施** – 本命令不执行任何代码变更
-2. **不问 Y/N** – 只展示计划，让用户决定下一步
-3. **信任规则** – 后端以 Codex 为准，前端以 Gemini 为准
-4. 外部模型对文件系统**零写入权限**
-5. **SESSION_ID 交接** – 计划末尾必须包含 `CODEX_SESSION` / `GEMINI_SESSION`（供 `/ccg:execute resume <SESSION_ID>` 使用）
+1. **僅規劃不實施** – 本命令不執行任何程式碼變更
+2. **不問 Y/N** – 只展示計劃，讓使用者決定下一步
+3. **信任規則** – 後端以 Codex 為準，前端以 Gemini 為準
+4. 外部模型對檔案系統**零寫入許可權**
+5. **SESSION_ID 交接** – 計劃末尾必須包含 `CODEX_SESSION` / `GEMINI_SESSION`（供 `/ccg:execute resume <SESSION_ID>` 使用）

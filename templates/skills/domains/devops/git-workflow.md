@@ -1,12 +1,12 @@
 ---
 name: git-workflow
-description: Git 版本控制。分支管理、合并策略、GitHub工作流。当用户提到 Git、分支、merge、rebase、PR、GitHub时使用。
+description: Git 版本控制。分支管理、合併策略、GitHub工作流。當使用者提到 Git、分支、merge、rebase、PR、GitHub時使用。
 ---
 
-# 🔧 炼器秘典 · Git 工作流
+# 🔧 煉器秘典 · Git 工作流
 
 
-## 基础命令
+## 基礎命令
 
 ```bash
 # 初始化
@@ -19,7 +19,7 @@ git commit -m "message"
 git push origin main
 git pull origin main
 
-# 状态查看
+# 狀態檢視
 git status
 git log --oneline -10
 git diff
@@ -29,19 +29,19 @@ git diff --staged
 ## 分支管理
 
 ```bash
-# 创建切换
+# 建立切換
 git branch feature-x
 git checkout feature-x
-git checkout -b feature-x  # 创建并切换
+git checkout -b feature-x  # 建立並切換
 
-# 查看
+# 檢視
 git branch -a   # 所有分支
-git branch -vv  # 详细信息
+git branch -vv  # 詳細資訊
 
-# 删除
-git branch -d feature-x     # 已合并
-git branch -D feature-x     # 强制删除
-git push origin --delete feature-x  # 远程
+# 刪除
+git branch -d feature-x     # 已合併
+git branch -D feature-x     # 強制刪除
+git push origin --delete feature-x  # 遠端
 ```
 
 ## 分支策略
@@ -68,78 +68,78 @@ main ─────────────────────────
 ```
 main ─────────────────────────────────────────
   │    ↑    ↑    ↑
-  └────┴────┴────┘ (短生命周期分支)
+  └────┴────┴────┘ (短生命週期分支)
 ```
 
-## 合并策略
+## 合併策略
 
 ```bash
-# Merge (保留历史)
+# Merge (保留歷史)
 git checkout main
 git merge feature-x
 
-# Rebase (线性历史)
+# Rebase (線性歷史)
 git checkout feature-x
 git rebase main
 git checkout main
 git merge feature-x
 
-# Squash (压缩提交)
+# Squash (壓縮提交)
 git merge --squash feature-x
 git commit -m "Feature X"
 ```
 
-## 冲突解决
+## 衝突解決
 
 ```bash
 # 1. 拉取最新
 git fetch origin
 git rebase origin/main
 
-# 2. 解决冲突
-# 编辑冲突文件，删除 <<<< ==== >>>> 标记
+# 2. 解決衝突
+# 編輯衝突檔案，刪除 <<<< ==== >>>> 標記
 
-# 3. 继续
+# 3. 繼續
 git add .
 git rebase --continue
 
-# 放弃
+# 放棄
 git rebase --abort
 ```
 
-## 撤销操作
+## 撤銷操作
 
 ```bash
-# 撤销工作区修改
+# 撤銷工作區修改
 git checkout -- <file>
 git restore <file>
 
-# 撤销暂存
+# 撤銷暫存
 git reset HEAD <file>
 git restore --staged <file>
 
-# 撤销提交
+# 撤銷提交
 git reset --soft HEAD~1   # 保留修改
-git reset --hard HEAD~1   # 丢弃修改
-git revert <commit>       # 新提交撤销
+git reset --hard HEAD~1   # 丟棄修改
+git revert <commit>       # 新提交撤銷
 
-# 修改最后提交
+# 修改最後提交
 git commit --amend
 ```
 
-## Commit 规范
+## Commit 規範
 
 ```yaml
 格式: <type>(<scope>): <subject>
 
-类型:
+型別:
   - feat: 新功能
-  - fix: 修复
-  - docs: 文档
+  - fix: 修復
+  - docs: 文件
   - style: 格式
-  - refactor: 重构
-  - test: 测试
-  - chore: 构建/工具
+  - refactor: 重構
+  - test: 測試
+  - chore: 構建/工具
 
 示例:
   - feat(auth): add JWT authentication
@@ -151,13 +151,13 @@ git commit --amend
 
 ```bash
 # Fork 工作流
-1. Fork 仓库
+1. Fork 倉庫
 2. git clone <your-fork>
 3. git remote add upstream <original>
 4. git checkout -b feature
-5. 开发 & 提交
+5. 開發 & 提交
 6. git push origin feature
-7. 创建 PR
+7. 建立 PR
 
 # 同步上游
 git fetch upstream
@@ -165,17 +165,17 @@ git rebase upstream/main
 git push origin main
 ```
 
-## 安全规范
+## 安全規範
 
 ```yaml
 禁止:
-  - git push --force (除非明确要求)
-  - git reset --hard (除非明确要求)
+  - git push --force (除非明確要求)
+  - git reset --hard (除非明確要求)
   - git clean -f
 
-必须:
-  - commit 前 git status 确认
-  - 使用具体文件名 add
-  - 每次 commit 聚焦单一变更
+必須:
+  - commit 前 git status 確認
+  - 使用具體檔名 add
+  - 每次 commit 聚焦單一變更
 ```
 

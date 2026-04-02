@@ -1,36 +1,36 @@
 ---
 name: message-queue
-description: 消息队列秘典。Kafka、RabbitMQ、Redis Streams、事件驱动架构。当用户提到消息队列、Kafka、RabbitMQ、事件驱动、CQRS、Saga时路由到此。
+description: 訊息佇列秘典。Kafka、RabbitMQ、Redis Streams、事件驅動架構。當使用者提到訊息佇列、Kafka、RabbitMQ、事件驅動、CQRS、Saga時路由到此。
 ---
 
-# 🏗 阵法秘典 · 消息队列
+# 🏗 陣法秘典 · 訊息佇列
 
 
 ## 核心概念
 
 ```
 Producer → Broker → Consumer
-  发送       存储       消费
+  傳送       儲存       消費
   
 模式:
-  点对点 (Queue):  1 Producer → 1 Consumer
-  发布订阅 (Topic): 1 Producer → N Consumers
+  點對點 (Queue):  1 Producer → 1 Consumer
+  釋出訂閱 (Topic): 1 Producer → N Consumers
 ```
 
-| 概念 | 含义 | 类比 |
+| 概念 | 含義 | 類比 |
 |------|------|------|
-| Producer | 消息生产者 | 发令者 |
-| Consumer | 消息消费者 | 执行者 |
-| Broker | 消息中间件 | 传令阵 |
-| Topic/Queue | 消息通道 | 传音符 |
-| Partition | 分区（并行单元） | 阵眼 |
-| Offset | 消费位置 | 修行进度 |
+| Producer | 訊息生產者 | 發令者 |
+| Consumer | 訊息消費者 | 執行者 |
+| Broker | 訊息中介軟體 | 傳令陣 |
+| Topic/Queue | 訊息通道 | 傳音符 |
+| Partition | 分割槽（並行單元） | 陣眼 |
+| Offset | 消費位置 | 修行進度 |
 
 ---
 
 ## Kafka
 
-### 架构
+### 架構
 
 ```
 Producer ──→ Broker Cluster ──→ Consumer Group
@@ -41,23 +41,23 @@ Producer ──→ Broker Cluster ──→ Consumer Group
           └──────────┘
           
 Replication: Leader + Followers
-ZooKeeper/KRaft: 元数据管理
+ZooKeeper/KRaft: 後設資料管理
 ```
 
-### 生产者
+### 生產者
 
 ```python
 from confluent_kafka import Producer
 
 conf = {
     'bootstrap.servers': 'kafka:9092',
-    'acks': 'all',                    # 等待所有副本确认
+    'acks': 'all',                    # 等待所有副本確認
     'retries': 3,
     'retry.backoff.ms': 1000,
-    'enable.idempotence': True,       # 幂等生产者
-    'linger.ms': 5,                   # 批量发送延迟
-    'batch.size': 16384,              # 批量大小
-    'compression.type': 'snappy',     # 压缩
+    'enable.idempotence': True,       # 冪等生產者
+    'linger.ms': 5,                   # 批次傳送延遲
+    'batch.size': 16384,              # 批次大小
+    'compression.type': 'snappy',     # 壓縮
 }
 
 producer = Producer(conf)
@@ -75,7 +75,7 @@ producer.produce(
 producer.flush()
 ```
 
-### 消费者
+### 消費者
 
 ```python
 from confluent_kafka import Consumer
@@ -84,7 +84,7 @@ conf = {
     'bootstrap.servers': 'kafka:9092',
     'group.id': 'order-processor',
     'auto.offset.reset': 'earliest',
-    'enable.auto.commit': False,      # 手动提交
+    'enable.auto.commit': False,      # 手動提交
     'max.poll.interval.ms': 300000,
 }
 
@@ -101,39 +101,39 @@ try:
             continue
         
         process_message(msg.value())
-        consumer.commit(asynchronous=False)  # 处理成功后提交
+        consumer.commit(asynchronous=False)  # 處理成功後提交
 finally:
     consumer.close()
 ```
 
-### Kafka 关键配置
+### Kafka 關鍵配置
 
 ```yaml
 Broker:
-  num.partitions: 6                # 默认分区数
-  default.replication.factor: 3    # 副本数
+  num.partitions: 6                # 預設分割槽數
+  default.replication.factor: 3    # 副本數
   min.insync.replicas: 2           # 最小同步副本
   log.retention.hours: 168         # 保留 7 天
-  log.segment.bytes: 1073741824    # 1GB 段文件
+  log.segment.bytes: 1073741824    # 1GB 段檔案
 
-Topic 设计:
-  分区数 = max(生产吞吐/单分区写入能力, 消费者数)
-  副本数 = 3 (生产环境)
-  Key 选择: 业务ID (保证同一实体有序)
+Topic 設計:
+  分割槽數 = max(生產吞吐/單分割槽寫入能力, 消費者數)
+  副本數 = 3 (生產環境)
+  Key 選擇: 業務ID (保證同一實體有序)
 ```
 
 ---
 
 ## RabbitMQ
 
-### Exchange 类型
+### Exchange 型別
 
-| 类型 | 路由规则 | 适用场景 |
+| 型別 | 路由規則 | 適用場景 |
 |------|----------|----------|
-| Direct | 精确匹配 routing key | 点对点 |
-| Fanout | 广播到所有绑定队列 | 发布订阅 |
-| Topic | 通配符匹配 routing key | 灵活路由 |
-| Headers | 匹配消息头 | 复杂路由 |
+| Direct | 精確匹配 routing key | 點對點 |
+| Fanout | 廣播到所有繫結佇列 | 釋出訂閱 |
+| Topic | 萬用字元匹配 routing key | 靈活路由 |
+| Headers | 匹配訊息頭 | 複雜路由 |
 
 ```
 Producer → Exchange → Binding → Queue → Consumer
@@ -141,31 +141,31 @@ Producer → Exchange → Binding → Queue → Consumer
          routing_key 匹配
 ```
 
-### 可靠性保证
+### 可靠性保證
 
 ```yaml
-生产者:
-  - Publisher Confirms (确认模式)
-  - 持久化消息 (delivery_mode=2)
-  - 事务模式 (性能差，不推荐)
+生產者:
+  - Publisher Confirms (確認模式)
+  - 持久化訊息 (delivery_mode=2)
+  - 事務模式 (效能差，不推薦)
 
 Broker:
-  - 持久化队列 (durable=True)
-  - 镜像队列 / Quorum Queue
-  - 磁盘持久化
+  - 持久化佇列 (durable=True)
+  - 映象佇列 / Quorum Queue
+  - 磁碟持久化
 
-消费者:
-  - 手动 ACK (auto_ack=False)
-  - 预取限制 (prefetch_count)
-  - 死信队列 (DLX) 处理失败消息
+消費者:
+  - 手動 ACK (auto_ack=False)
+  - 預取限制 (prefetch_count)
+  - 死信佇列 (DLX) 處理失敗訊息
 ```
 
-### 死信队列 (DLQ)
+### 死信佇列 (DLQ)
 
 ```
-正常队列 ──(消费失败/TTL过期/队列满)──→ 死信交换机 → 死信队列
+正常佇列 ──(消費失敗/TTL過期/佇列滿)──→ 死信交換機 → 死信佇列
                                                         │
-                                              人工处理 / 重试
+                                              人工處理 / 重試
 ```
 
 ---
@@ -173,37 +173,37 @@ Broker:
 ## Redis Streams
 
 ```bash
-# 生产
+# 生產
 XADD orders * user_id "123" amount "99.99"
 
-# 消费组
+# 消費組
 XGROUP CREATE orders order-group $ MKSTREAM
 XREADGROUP GROUP order-group consumer-1 COUNT 10 BLOCK 5000 STREAMS orders >
 
-# 确认
+# 確認
 XACK orders order-group <message-id>
 
-# 查看待处理
+# 檢視待處理
 XPENDING orders order-group
 ```
 
-| 特性 | 适用 | 不适用 |
+| 特性 | 適用 | 不適用 |
 |------|------|--------|
-| 轻量级 | 中小规模、低延迟 | 海量数据持久化 |
-| 消费组 | 多消费者并行 | 复杂路由 |
-| 内存存储 | 实时处理 | 长期存储 |
+| 輕量級 | 中小規模、低延遲 | 海量資料持久化 |
+| 消費組 | 多消費者並行 | 複雜路由 |
+| 記憶體儲存 | 實時處理 | 長期儲存 |
 
 ---
 
-## 事件驱动架构
+## 事件驅動架構
 
 ### Event Sourcing
 
 ```
-传统: 只存最终状态
+傳統: 只存最終狀態
   Account { balance: 100 }
 
-Event Sourcing: 存储所有事件
+Event Sourcing: 儲存所有事件
   AccountCreated { initial: 0 }
   MoneyDeposited { amount: 200 }
   MoneyWithdrawn { amount: 100 }
@@ -213,117 +213,117 @@ Event Sourcing: 存储所有事件
 ### CQRS (Command Query Responsibility Segregation)
 
 ```
-Command (写) ──→ Write Model ──→ Event Store
+Command (寫) ──→ Write Model ──→ Event Store
                                     │
                               Event Bus
                                     │
-Query (读) ←── Read Model ←── Projection
+Query (讀) ←── Read Model ←── Projection
 ```
 
 ### Saga 模式
 
 ```
-分布式事务编排:
+分散式事務編排:
 
-Choreography (编舞):
+Choreography (編舞):
   Order → Payment → Inventory → Shipping
-    每个服务监听事件，自主决策
+    每個服務監聽事件，自主決策
 
-Orchestration (编排):
+Orchestration (編排):
   Saga Orchestrator
-    ├→ Order Service: 创建订单
+    ├→ Order Service: 建立訂單
     ├→ Payment Service: 扣款
-    ├→ Inventory Service: 扣库存
-    └→ Shipping Service: 发货
+    ├→ Inventory Service: 扣庫存
+    └→ Shipping Service: 發貨
     
-  失败补偿:
-    Shipping失败 → 补偿Inventory → 补偿Payment → 补偿Order
+  失敗補償:
+    Shipping失敗 → 補償Inventory → 補償Payment → 補償Order
 ```
 
 ---
 
-## 选型对比
+## 選型對比
 
-| 维度 | Kafka | RabbitMQ | Redis Streams |
+| 維度 | Kafka | RabbitMQ | Redis Streams |
 |------|-------|----------|---------------|
-| 吞吐量 | 极高 (百万/s) | 高 (万/s) | 高 (十万/s) |
-| 延迟 | ms 级 | μs-ms 级 | μs 级 |
-| 持久化 | 磁盘 | 磁盘/内存 | 内存+AOF |
-| 消息顺序 | 分区内有序 | 队列内有序 | 流内有序 |
-| 消息回溯 | ✅ 支持 | ❌ 不支持 | ✅ 支持 |
-| 协议 | 自有协议 | AMQP | Redis协议 |
-| 适用 | 大数据/日志/流处理 | 业务消息/RPC | 轻量级实时 |
+| 吞吐量 | 極高 (百萬/s) | 高 (萬/s) | 高 (十萬/s) |
+| 延遲 | ms 級 | μs-ms 級 | μs 級 |
+| 持久化 | 磁碟 | 磁碟/記憶體 | 記憶體+AOF |
+| 訊息順序 | 分割槽內有序 | 佇列內有序 | 流內有序 |
+| 訊息回溯 | ✅ 支援 | ❌ 不支援 | ✅ 支援 |
+| 協議 | 自有協議 | AMQP | Redis協議 |
+| 適用 | 大資料/日誌/流處理 | 業務訊息/RPC | 輕量級實時 |
 
-### 选型决策树
+### 選型決策樹
 
 ```
-需要消息回溯？
+需要訊息回溯？
   ├─ 是 → Kafka / Redis Streams
-  └─ 否 → 需要复杂路由？
+  └─ 否 → 需要複雜路由？
        ├─ 是 → RabbitMQ
        └─ 否 → 吞吐量要求？
-            ├─ 极高 (>10万/s) → Kafka
+            ├─ 極高 (>10萬/s) → Kafka
             ├─ 中等 → RabbitMQ
-            └─ 轻量 → Redis Streams
+            └─ 輕量 → Redis Streams
 ```
 
 ---
 
-## 常见问题
+## 常見問題
 
-### 消息丢失
+### 訊息丟失
 
 ```yaml
-防丢三板斧:
-  生产端: acks=all + retries + 幂等
+防丟三板斧:
+  生產端: acks=all + retries + 冪等
   Broker: replication + 持久化 + min.insync.replicas
-  消费端: 手动提交 + 处理后确认
+  消費端: 手動提交 + 處理後確認
 ```
 
-### 消息重复
+### 訊息重複
 
 ```yaml
-幂等处理:
-  - 数据库唯一约束 (message_id)
+冪等處理:
+  - 資料庫唯一約束 (message_id)
   - Redis SETNX 去重
-  - 业务层幂等设计 (状态机)
+  - 業務層冪等設計 (狀態機)
 ```
 
-### 消息积压
+### 訊息積壓
 
 ```yaml
-应急:
-  - 增加消费者实例
-  - 临时扩大分区 (Kafka)
-  - 跳过非关键消息
+應急:
+  - 增加消費者例項
+  - 臨時擴大分割槽 (Kafka)
+  - 跳過非關鍵訊息
 
 根治:
-  - 优化消费者处理速度
-  - 合理设置分区数
-  - 监控消费 lag 告警
+  - 最佳化消費者處理速度
+  - 合理設定分割槽數
+  - 監控消費 lag 告警
 ```
 
 ---
 
-## 最佳实践
+## 最佳實踐
 
 ```yaml
-设计:
-  - 消息体尽量小，大数据用引用
-  - 消息必须包含唯一ID和时间戳
-  - 定义清晰的消息 Schema (Avro/Protobuf)
-  - 版本兼容 (向后兼容)
+設計:
+  - 訊息體儘量小，大資料用引用
+  - 訊息必須包含唯一ID和時間戳
+  - 定義清晰的訊息 Schema (Avro/Protobuf)
+  - 版本相容 (向後相容)
 
-运维:
-  - 监控消费 lag
-  - 死信队列告警
-  - 定期清理过期消息
-  - 容量规划 (磁盘/内存)
+運維:
+  - 監控消費 lag
+  - 死信佇列告警
+  - 定期清理過期訊息
+  - 容量規劃 (磁碟/記憶體)
 
 安全:
-  - TLS 加密传输
-  - SASL 认证
-  - ACL 授权
-  - 审计日志
+  - TLS 加密傳輸
+  - SASL 認證
+  - ACL 授權
+  - 審計日誌
 ```
 

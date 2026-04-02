@@ -1,16 +1,16 @@
 ---
-description: '需求 → 约束集（并行探索 + OPSX 提案）'
+description: '需求 → 約束集（並行探索 + OPSX 提案）'
 ---
 <!-- CCG:SPEC:RESEARCH:START -->
 **Core Philosophy**
 - Research produces **constraint sets**, not information dumps. Each constraint narrows the solution space.
 - Constraints tell subsequent stages "don't consider this direction," enabling mechanical execution without decisions.
-- Output: 约束集合 + 可验证的成功判据 (constraint sets + verifiable success criteria).
+- Output: 約束集合 + 可驗證的成功判據 (constraint sets + verifiable success criteria).
 - Strictly adhere to OPSX rules when writing spec-structured documents.
 
 **Guardrails**
 - **STOP! BEFORE ANY OTHER ACTION**: You MUST perform Prompt Enhancement FIRST. This is NON-NEGOTIABLE.
-- **NEVER** divide subagent tasks by roles (e.g., "架构师agent", "安全专家agent").
+- **NEVER** divide subagent tasks by roles (e.g., "架構師agent", "安全專家agent").
 - **ALWAYS** divide by context boundaries (e.g., "user-related code", "authentication logic").
 - Each subagent context must be self-contained with independent output.
 - Use `{{MCP_SEARCH_TOOL}}` to minimize grep/find operations.
@@ -21,7 +21,7 @@ description: '需求 → 约束集（并行探索 + OPSX 提案）'
 **Steps**
 0. **MANDATORY: Enhance Requirement FIRST**
    - **DO THIS IMMEDIATELY. DO NOT SKIP.**
-   - **Prompt 增强**（按 `/ccg:enhance` 的逻辑执行）：分析 $ARGUMENTS 的意图、缺失信息、隐含假设，补全为结构化需求（明确目标、技术约束、范围边界、验收标准）。
+   - **Prompt 增強**（按 `/ccg:enhance` 的邏輯執行）：分析 $ARGUMENTS 的意圖、缺失資訊、隱含假設，補全為結構化需求（明確目標、技術約束、範圍邊界、驗收標準）。
    - Use enhanced prompt for ALL subsequent steps.
 
 1. **Generate OPSX Change**
@@ -51,7 +51,7 @@ description: '需求 → 约束集（并行探索 + OPSX 提案）'
 4. **Parallel Multi-Model Exploration**
    - **CRITICAL**: You MUST launch BOTH Codex AND Gemini in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
-   - **工作目录**：`{{WORKDIR}}` **必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断。如果用户通过 `/add-dir` 添加了多个工作区，先确定任务相关的工作区。
+   - **工作目錄**：`{{WORKDIR}}` **必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷。如果使用者透過 `/add-dir` 新增了多個工作區，先確定任務相關的工作區。
 
    **Output Template** (instruct both models to use this format):
    ```json
@@ -95,8 +95,8 @@ description: '需求 → 约束集（并行探索 + OPSX 提案）'
    TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
    ```
 
-   ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败，最多重试 2 次（间隔 5 秒）。3 次全败才跳过。
-   ⛔ **Codex 结果必须等待**：Codex 执行 5-15 分钟属正常，超时后继续轮询，禁止跳过。
+   ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗，最多重試 2 次（間隔 5 秒）。3 次全敗才跳過。
+   ⛔ **Codex 結果必須等待**：Codex 執行 5-15 分鐘屬正常，超時後繼續輪詢，禁止跳過。
 
 5. **Aggregate and Synthesize**
    - Collect all subagent outputs.

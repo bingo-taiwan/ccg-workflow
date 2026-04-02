@@ -1,14 +1,14 @@
 ---
 name: python
-description: Python 开发。Web框架、数据处理、自动化脚本、测试。当用户提到 Python、Django、Flask、FastAPI、pytest、pandas 时使用。
+description: Python 開發。Web框架、資料處理、自動化指令碼、測試。當使用者提到 Python、Django、Flask、FastAPI、pytest、pandas 時使用。
 ---
 
-# 📜 符箓秘典 · Python
+# 📜 符籙秘典 · Python
 
 
 ## Web 框架
 
-### FastAPI (推荐)
+### FastAPI (推薦)
 ```python
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
@@ -29,7 +29,7 @@ async def get_user(user_id: int):
 async def create_user(user: User):
     return user
 
-# 依赖注入
+# 依賴注入
 async def get_db():
     db = Database()
     try:
@@ -85,7 +85,7 @@ urlpatterns = [
 ]
 ```
 
-## 异步编程
+## 非同步程式設計
 
 ```python
 import asyncio
@@ -100,26 +100,26 @@ async def fetch_all(urls: list[str]) -> list[str]:
     tasks = [fetch(url) for url in urls]
     return await asyncio.gather(*tasks)
 
-# 运行
+# 執行
 asyncio.run(fetch_all(['http://example.com', 'http://example.org']))
 ```
 
-## 数据处理
+## 資料處理
 
 ### Pandas
 ```python
 import pandas as pd
 
-# 读取数据
+# 讀取資料
 df = pd.read_csv('data.csv')
 df = pd.read_json('data.json')
 
-# 数据清洗
+# 資料清洗
 df = df.dropna()
 df = df.drop_duplicates()
 df['column'] = df['column'].str.strip()
 
-# 数据转换
+# 資料轉換
 df['date'] = pd.to_datetime(df['date'])
 df['category'] = df['category'].astype('category')
 
@@ -128,23 +128,23 @@ result = df.groupby('category').agg({
     'value': ['sum', 'mean', 'count']
 })
 
-# 导出
+# 匯出
 df.to_csv('output.csv', index=False)
 df.to_json('output.json', orient='records')
 ```
 
-## 测试
+## 測試
 
 ### pytest
 ```python
 import pytest
 from myapp import calculate, UserService
 
-# 基础测试
+# 基礎測試
 def test_add():
     assert calculate.add(1, 2) == 3
 
-# 参数化
+# 引數化
 @pytest.mark.parametrize("a,b,expected", [
     (1, 2, 3),
     (0, 0, 0),
@@ -173,26 +173,26 @@ def test_fetch(mock_get):
     result = fetch_user(1)
     assert result["id"] == 1
 
-# 异步测试
+# 非同步測試
 @pytest.mark.asyncio
 async def test_async_fetch():
     result = await async_fetch()
     assert result is not None
 ```
 
-### 运行测试
+### 執行測試
 ```bash
-pytest                      # 运行所有
-pytest test_file.py         # 指定文件
-pytest -k "test_add"        # 匹配名称
-pytest -v                   # 详细输出
-pytest --cov=myapp          # 覆盖率
-pytest -x                   # 失败即停
+pytest                      # 執行所有
+pytest test_file.py         # 指定檔案
+pytest -k "test_add"        # 匹配名稱
+pytest -v                   # 詳細輸出
+pytest --cov=myapp          # 覆蓋率
+pytest -x                   # 失敗即停
 ```
 
 ## CLI 工具
 
-### Typer (推荐)
+### Typer (推薦)
 ```python
 import typer
 
@@ -227,11 +227,11 @@ parser.add_argument('-v', '--verbose', action='store_true')
 args = parser.parse_args()
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
-├── pyproject.toml          # 项目配置
+├── pyproject.toml          # 專案配置
 ├── README.md
 ├── src/
 │   └── myproject/
@@ -271,18 +271,18 @@ line-length = 120
 select = ["E", "F", "I"]
 ```
 
-## 常用库
+## 常用庫
 
-| 库 | 用途 |
+| 庫 | 用途 |
 |---|------|
-| requests/httpx | HTTP 客户端 |
-| aiohttp | 异步 HTTP |
+| requests/httpx | HTTP 客戶端 |
+| aiohttp | 非同步 HTTP |
 | SQLAlchemy | ORM |
-| Pydantic | 数据验证 |
+| Pydantic | 資料驗證 |
 | Click/Typer | CLI |
-| pytest | 测试 |
-| pandas | 数据处理 |
-| loguru | 日志 |
+| pytest | 測試 |
+| pandas | 資料處理 |
+| loguru | 日誌 |
 
 ---
 

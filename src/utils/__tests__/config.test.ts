@@ -28,7 +28,7 @@ describe('createDefaultRouting', () => {
 
 describe('createDefaultConfig', () => {
   const baseOptions = {
-    language: 'zh-CN' as const,
+    language: 'zh-TW' as const,
     routing: createDefaultRouting(),
     installedWorkflows: ['workflow', 'plan'],
   }
@@ -41,7 +41,7 @@ describe('createDefaultConfig', () => {
 
   it('sets language correctly', () => {
     const config = createDefaultConfig(baseOptions)
-    expect(config.general.language).toBe('zh-CN')
+    expect(config.general.language).toBe('zh-TW')
   })
 
   it('sets createdAt as ISO string', () => {

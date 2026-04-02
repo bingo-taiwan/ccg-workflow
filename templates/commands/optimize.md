@@ -1,166 +1,166 @@
 ---
-description: '多模型性能优化：{{BACKEND_PRIMARY}} 后端优化 + {{FRONTEND_PRIMARY}} 前端优化'
+description: '多模型效能最佳化：{{BACKEND_PRIMARY}} 後端最佳化 + {{FRONTEND_PRIMARY}} 前端最佳化'
 ---
 
-# Optimize - 多模型性能优化
+# Optimize - 多模型效能最佳化
 
-双模型并行分析性能瓶颈，按性价比排序优化建议。
+雙模型並行分析效能瓶頸，按價效比排序最佳化建議。
 
 ## 使用方法
 
 ```bash
-/optimize <优化目标>
+/optimize <最佳化目標>
 ```
 
 ## 上下文
 
-- 优化目标：$ARGUMENTS
-- Codex 专注后端性能（数据库、算法、缓存）
-- Gemini 专注前端性能（渲染、加载、交互）
+- 最佳化目標：$ARGUMENTS
+- Codex 專注後端效能（資料庫、演算法、快取）
+- Gemini 專注前端效能（渲染、載入、互動）
 
 ## 你的角色
 
-你是**性能工程师**，编排多模型优化流程：
-- **{{BACKEND_PRIMARY}}** – 后端性能优化（**后端权威**）
-- **{{FRONTEND_PRIMARY}}** – 前端性能优化（**前端权威**）
-- **Claude (自己)** – 综合优化、实施变更
+你是**效能工程師**，編排多模型最佳化流程：
+- **{{BACKEND_PRIMARY}}** – 後端效能最佳化（**後端權威**）
+- **{{FRONTEND_PRIMARY}}** – 前端效能最佳化（**前端權威**）
+- **Claude (自己)** – 綜合最佳化、實施變更
 
 ---
 
-## 多模型调用规范
+## 多模型呼叫規範
 
-**工作目录**：
-- `{{WORKDIR}}`：**必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断
-- 如果用户通过 `/add-dir` 添加了多个工作区，先用 Glob/Grep 确定任务相关的工作区
-- 如果无法确定，用 `AskUserQuestion` 询问用户选择目标工作区
+**工作目錄**：
+- `{{WORKDIR}}`：**必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷
+- 如果使用者透過 `/add-dir` 新增了多個工作區，先用 Glob/Grep 確定任務相關的工作區
+- 如果無法確定，用 `AskUserQuestion` 詢問使用者選擇目標工作區
 
-**调用语法**（并行用 `run_in_background: true`）：
+**呼叫語法**（並行用 `run_in_background: true`）：
 
 ```
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
-需求：<增强后的需求（如未增强则用 $ARGUMENTS）>
-上下文：<目标代码、现有性能指标等>
+需求：<增強後的需求（如未增強則用 $ARGUMENTS）>
+上下文：<目的碼、現有效能指標等>
 </TASK>
-OUTPUT: 性能瓶颈列表、优化方案、预期收益
+OUTPUT: 效能瓶頸列表、最佳化方案、預期收益
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 ```
 
-**角色提示词**：
+**角色提示詞**：
 
-| 模型 | 提示词 |
+| 模型 | 提示詞 |
 |------|--------|
 | Codex | `~/.claude/.ccg/prompts/codex/optimizer.md` |
 | Gemini | `~/.claude/.ccg/prompts/gemini/optimizer.md` |
 
-**并行调用**：使用 `run_in_background: true` 启动，用 `TaskOutput` 等待结果。**必须等所有模型返回后才能进入下一阶段**。
+**並行呼叫**：使用 `run_in_background: true` 啟動，用 `TaskOutput` 等待結果。**必須等所有模型返回後才能進入下一階段**。
 
-**等待后台任务**（使用最大超时 600000ms = 10 分钟）：
+**等待後臺任務**（使用最大超時 600000ms = 10 分鐘）：
 
 ```
 TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 ```
 
 **重要**：
-- 必须指定 `timeout: 600000`，否则默认只有 30 秒会导致提前超时。
-如果 10 分钟后仍未完成，继续用 `TaskOutput` 轮询，**绝对不要 Kill 进程**。
-- 若因等待时间过长跳过了等待 TaskOutput 结果，则**必须调用 `AskUserQuestion` 工具询问用户选择继续等待还是 Kill Task。禁止直接 Kill Task。**
-- ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败（非零退出码或输出包含错误信息），最多重试 2 次（间隔 5 秒）。仅当 3 次全部失败时才跳过 Gemini 结果并使用单模型结果继续。
-- ⛔ **Codex 结果必须等待**：Codex 执行时间较长（5-15 分钟）属于正常。TaskOutput 超时后必须继续用 TaskOutput 轮询，**绝对禁止在 Codex 未返回结果时直接跳过或继续下一阶段**。已启动的 Codex 任务若被跳过 = 浪费 token + 丢失结果。
+- 必須指定 `timeout: 600000`，否則預設只有 30 秒會導致提前超時。
+如果 10 分鐘後仍未完成，繼續用 `TaskOutput` 輪詢，**絕對不要 Kill 程序**。
+- 若因等待時間過長跳過了等待 TaskOutput 結果，則**必須呼叫 `AskUserQuestion` 工具詢問使用者選擇繼續等待還是 Kill Task。禁止直接 Kill Task。**
+- ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗（非零退出碼或輸出包含錯誤資訊），最多重試 2 次（間隔 5 秒）。僅當 3 次全部失敗時才跳過 Gemini 結果並使用單模型結果繼續。
+- ⛔ **Codex 結果必須等待**：Codex 執行時間較長（5-15 分鐘）屬於正常。TaskOutput 超時後必須繼續用 TaskOutput 輪詢，**絕對禁止在 Codex 未返回結果時直接跳過或繼續下一階段**。已啟動的 Codex 任務若被跳過 = 浪費 token + 丟失結果。
 
 ---
 
-## 沟通守则
+## 溝通守則
 
-1. 在需要询问用户时，尽量使用 `AskUserQuestion` 工具进行交互，举例场景：请求用户确认/选择/批准
+1. 在需要詢問使用者時，儘量使用 `AskUserQuestion` 工具進行互動，舉例場景：請求使用者確認/選擇/批准
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-**优化目标**：$ARGUMENTS
+**最佳化目標**：$ARGUMENTS
 
-### 🔍 阶段 0：Prompt 增强（可选）
+### 🔍 階段 0：Prompt 增強（可選）
 
-`[模式：准备]` - **Prompt 增强**（按 `/ccg:enhance` 的逻辑执行）：分析 $ARGUMENTS 的意图、缺失信息、隐含假设，补全为结构化需求（明确目标、技术约束、范围边界、验收标准），**用增强结果替代原始 $ARGUMENTS，后续调用 Codex/Gemini 时传入增强后的需求**
+`[模式：準備]` - **Prompt 增強**（按 `/ccg:enhance` 的邏輯執行）：分析 $ARGUMENTS 的意圖、缺失資訊、隱含假設，補全為結構化需求（明確目標、技術約束、範圍邊界、驗收標準），**用增強結果替代原始 $ARGUMENTS，後續呼叫 Codex/Gemini 時傳入增強後的需求**
 
-### 🔍 阶段 1：性能基线
+### 🔍 階段 1：效能基線
 
 `[模式：研究]`
 
-1. 调用 `{{MCP_SEARCH_TOOL}}` 检索目标代码（如可用）
-2. 识别性能关键路径
-3. 收集现有指标（如有）
+1. 呼叫 `{{MCP_SEARCH_TOOL}}` 檢索目的碼（如可用）
+2. 識別效能關鍵路徑
+3. 收集現有指標（如有）
 
-### 🔬 阶段 2：并行性能分析
+### 🔬 階段 2：並行效能分析
 
 `[模式：分析]`
 
-**⚠️ 必须发起两个并行 Bash 调用**（参照上方调用规范）：
+**⚠️ 必須發起兩個並行 Bash 呼叫**（參照上方呼叫規範）：
 
-1. **{{BACKEND_PRIMARY}} 后端分析**：`Bash({ command: "...--backend {{BACKEND_PRIMARY}}...", run_in_background: true })`
+1. **{{BACKEND_PRIMARY}} 後端分析**：`Bash({ command: "...--backend {{BACKEND_PRIMARY}}...", run_in_background: true })`
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/optimizer.md`
-   - 需求：分析后端性能问题（$ARGUMENTS）
-   - OUTPUT：性能瓶颈列表、优化方案、预期收益
+   - 需求：分析後端效能問題（$ARGUMENTS）
+   - OUTPUT：效能瓶頸列表、最佳化方案、預期收益
 
 2. **{{FRONTEND_PRIMARY}} 前端分析**：`Bash({ command: "...--backend {{FRONTEND_PRIMARY}}...", run_in_background: true })`
    - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/optimizer.md`
-   - 需求：分析前端性能问题（Core Web Vitals）
-   - OUTPUT：性能瓶颈列表、优化方案、预期收益
+   - 需求：分析前端效能問題（Core Web Vitals）
+   - OUTPUT：效能瓶頸列表、最佳化方案、預期收益
 
-用 `TaskOutput` 等待两个模型的完整结果。**必须等所有模型返回后才能进入下一阶段**。
+用 `TaskOutput` 等待兩個模型的完整結果。**必須等所有模型返回後才能進入下一階段**。
 
-**务必遵循上方 `多模型调用规范` 的 `重要` 指示**
+**務必遵循上方 `多模型呼叫規範` 的 `重要` 指示**
 
-### 🔀 阶段 3：优化整合
+### 🔀 階段 3：最佳化整合
 
-`[模式：计划]`
+`[模式：計劃]`
 
-1. 收集双模型分析结果
-2. **优先级排序**：按 `影响程度 × 实施难度⁻¹` 计算性价比
-3. 请求用户确认优化方案
+1. 收集雙模型分析結果
+2. **優先順序排序**：按 `影響程度 × 實施難度⁻¹` 計算價效比
+3. 請求使用者確認最佳化方案
 
-### ⚡ 阶段 4：实施优化
+### ⚡ 階段 4：實施最佳化
 
-`[模式：执行]`
+`[模式：執行]`
 
-用户确认后按优先级实施，确保不破坏现有功能。
+使用者確認後按優先順序實施，確保不破壞現有功能。
 
-### ✅ 阶段 5：验证
+### ✅ 階段 5：驗證
 
-`[模式：评审]`
+`[模式：評審]`
 
-运行测试验证功能，对比优化前后指标。
+執行測試驗證功能，對比最佳化前後指標。
 
 ---
 
-## 性能指标参考
+## 效能指標參考
 
-| 类型 | 指标 | 良好 | 需优化 |
+| 型別 | 指標 | 良好 | 需最佳化 |
 |------|------|------|--------|
-| 后端 | API 响应 | <100ms | >500ms |
-| 后端 | 数据库查询 | <50ms | >200ms |
+| 後端 | API 響應 | <100ms | >500ms |
+| 後端 | 資料庫查詢 | <50ms | >200ms |
 | 前端 | LCP | <2.5s | >4s |
 | 前端 | FID | <100ms | >300ms |
 | 前端 | CLS | <0.1 | >0.25 |
 
-## 常见优化模式
+## 常見最佳化模式
 
-**后端**：N+1→批量加载、缺索引→复合索引、重复计算→缓存、同步→异步
+**後端**：N+1→批次載入、缺索引→複合索引、重複計算→快取、同步→非同步
 
-**前端**：大 Bundle→代码分割、频繁重渲染→memo、大列表→虚拟滚动、未优化图片→WebP
+**前端**：大 Bundle→程式碼分割、頻繁重渲染→memo、大列表→虛擬滾動、未最佳化圖片→WebP
 
 ---
 
-## 关键规则
+## 關鍵規則
 
-1. **先测量后优化** – 没有数据不盲目优化
-2. **性价比优先** – 高影响 + 低难度优先
-3. **不破坏功能** – 优化不能引入 bug
-4. **信任规则** – 后端以 Codex 为准，前端以 Gemini 为准
+1. **先測量後最佳化** – 沒有資料不盲目最佳化
+2. **價效比優先** – 高影響 + 低難度優先
+3. **不破壞功能** – 最佳化不能引入 bug
+4. **信任規則** – 後端以 Codex 為準，前端以 Gemini 為準

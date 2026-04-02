@@ -1,10 +1,10 @@
 ---
-description: '清理 Git 分支：安全清理已合并或过期分支，默认 dry-run 模式'
+description: '清理 Git 分支：安全清理已合併或過期分支，預設 dry-run 模式'
 ---
 
 # Clean-Branches - 清理 Git 分支
 
-安全识别并清理已合并或长期未更新的分支。
+安全識別並清理已合併或長期未更新的分支。
 
 ## 使用方法
 
@@ -12,84 +12,84 @@ description: '清理 Git 分支：安全清理已合并或过期分支，默认 
 /clean-branches [options]
 ```
 
-## 选项
+## 選項
 
-| 选项 | 说明 |
+| 選項 | 說明 |
 |------|------|
-| `--base <branch>` | 基准分支（默认 main/master） |
-| `--stale <days>` | 清理超过 N 天未更新的分支 |
-| `--remote` | 同时清理远程分支 |
-| `--dry-run` | 只预览，不执行（**默认**） |
-| `--yes` | 跳过确认直接删除 |
-| `--force` | 强制删除未合并分支 |
+| `--base <branch>` | 基準分支（預設 main/master） |
+| `--stale <days>` | 清理超過 N 天未更新的分支 |
+| `--remote` | 同時清理遠端分支 |
+| `--dry-run` | 只預覽，不執行（**預設**） |
+| `--yes` | 跳過確認直接刪除 |
+| `--force` | 強制刪除未合併分支 |
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-### 🔍 阶段 1：预检
+### 🔍 階段 1：預檢
 
-`[模式：准备]`
+`[模式：準備]`
 
-1. 同步远端：`git fetch --all --prune`
-2. 读取保护分支配置
-3. 确定基准分支
+1. 同步遠端：`git fetch --all --prune`
+2. 讀取保護分支配置
+3. 確定基準分支
 
-### 📋 阶段 2：分析识别
+### 📋 階段 2：分析識別
 
 `[模式：分析]`
 
-**已合并分支**：
-- 已完全合并到 `--base` 的分支
+**已合併分支**：
+- 已完全合併到 `--base` 的分支
 
-**过期分支**（如指定 `--stale`）：
-- 最后提交在 N 天前的分支
+**過期分支**（如指定 `--stale`）：
+- 最後提交在 N 天前的分支
 
 **排除**：
-- 从待清理列表中移除保护分支
+- 從待清理列表中移除保護分支
 
-### 📊 阶段 3：报告预览
+### 📊 階段 3：報告預覽
 
-`[模式：报告]`
+`[模式：報告]`
 
 ```markdown
-## 将要删除的分支
+## 將要刪除的分支
 
-### 已合并分支
-- feature/old-feature (合并于 3 天前)
-- bugfix/fixed-issue (合并于 7 天前)
+### 已合併分支
+- feature/old-feature (合併於 3 天前)
+- bugfix/fixed-issue (合併於 7 天前)
 
-### 过期分支
-- experiment/old-test (最后更新 90 天前)
+### 過期分支
+- experiment/old-test (最後更新 90 天前)
 ```
 
-### ✅ 阶段 4：执行清理
+### ✅ 階段 4：執行清理
 
-`[模式：执行]`
+`[模式：執行]`
 
-仅在不带 `--dry-run` 且确认后执行：
+僅在不帶 `--dry-run` 且確認後執行：
 
 ```bash
 # 本地分支
 git branch -d <branch>
 
-# 远程分支（如果 --remote）
+# 遠端分支（如果 --remote）
 git push origin --delete <branch>
 
-# 强制删除（如果 --force）
+# 強制刪除（如果 --force）
 git branch -D <branch>
 ```
 
 ---
 
-## 保护分支配置
+## 保護分支配置
 
 ```bash
-# 添加保护分支
+# 新增保護分支
 git config --add branch.cleanup.protected develop
 git config --add branch.cleanup.protected 'release/*'
 
-# 查看保护分支
+# 檢視保護分支
 git config --get-all branch.cleanup.protected
 ```
 
@@ -98,20 +98,20 @@ git config --get-all branch.cleanup.protected
 ## 示例
 
 ```bash
-# 预览将清理的分支
+# 預覽將清理的分支
 /clean-branches --dry-run
 
-# 清理已合并且超过 90 天未动的分支
+# 清理已合併且超過 90 天未動的分支
 /clean-branches --stale 90
 
-# 清理已合并到 release/v2.1 的分支
+# 清理已合併到 release/v2.1 的分支
 /clean-branches --base release/v2.1 --remote --yes
 ```
 
-## 最佳实践
+## 最佳實踐
 
-1. **优先 dry-run** – 先预览再执行
-2. **活用 --base** – 适配 release 工作流
-3. **谨慎 --force** – 除非确定无用
-4. **团队协作** – 清理远程分支前先通知
-5. **定期运行** – 每月/季度一次保持清爽
+1. **優先 dry-run** – 先預覽再執行
+2. **活用 --base** – 適配 release 工作流
+3. **謹慎 --force** – 除非確定無用
+4. **團隊協作** – 清理遠端分支前先通知
+5. **定期執行** – 每月/季度一次保持清爽

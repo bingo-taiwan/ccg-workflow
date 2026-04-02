@@ -1,48 +1,48 @@
 ---
 name: prompt-and-eval
-description: Prompt 工程与模型评估。Prompt 模式（Zero-shot、Few-shot、CoT、ReAct、ToT）、模板设计、RAGAS、LLM-as-Judge、基准测试、A/B 测试、持续监控。当用户提到 Prompt 工程、Few-shot、CoT、模型评估、RAGAS、LLM-as-Judge、基准测试时使用。
+description: Prompt 工程與模型評估。Prompt 模式（Zero-shot、Few-shot、CoT、ReAct、ToT）、模板設計、RAGAS、LLM-as-Judge、基準測試、A/B 測試、持續監控。當使用者提到 Prompt 工程、Few-shot、CoT、模型評估、RAGAS、LLM-as-Judge、基準測試時使用。
 ---
 
-# Prompt 工程与模型评估
+# Prompt 工程與模型評估
 
 ## 一、Prompt 模式
 
-### 模式对比
+### 模式對比
 
-| 模式 | 复杂度 | 准确性 | Token 消耗 | 适用场景 |
+| 模式 | 複雜度 | 準確性 | Token 消耗 | 適用場景 |
 |------|--------|--------|------------|----------|
-| Zero-shot | 低 | 中 | 低 | 简单任务、通用问题 |
-| Few-shot | 中 | 高 | 中 | 格式化输出、分类 |
-| CoT | 中 | 高 | 中 | 推理、数学、逻辑 |
-| Self-Consistency | 高 | 极高 | 高 | 关键决策 |
-| ToT | 极高 | 极高 | 极高 | 复杂规划 |
-| ReAct | 高 | 高 | 高 | 工具调用、Agent |
+| Zero-shot | 低 | 中 | 低 | 簡單任務、通用問題 |
+| Few-shot | 中 | 高 | 中 | 格式化輸出、分類 |
+| CoT | 中 | 高 | 中 | 推理、數學、邏輯 |
+| Self-Consistency | 高 | 極高 | 高 | 關鍵決策 |
+| ToT | 極高 | 極高 | 極高 | 複雜規劃 |
+| ReAct | 高 | 高 | 高 | 工具呼叫、Agent |
 
 ### Zero-shot
 
 ```python
-# 关键：清晰指令 + 角色设定 + 输出格式
+# 關鍵：清晰指令 + 角色設定 + 輸出格式
 prompt = """
-你是一位资深安全工程师。
-任务: 将以下文本分类为正面、负面或中性。
-输入: {text}
-输出格式: JSON {"sentiment": "...", "confidence": 0.0-1.0}
+你是一位資深安全工程師。
+任務: 將以下文字分類為正面、負面或中性。
+輸入: {text}
+輸出格式: JSON {"sentiment": "...", "confidence": 0.0-1.0}
 """
 ```
 
 ### Few-shot
 
 ```python
-# 关键：2-5 个高质量示例 + 语义相似度选择
+# 關鍵：2-5 個高質量示例 + 語義相似度選擇
 prompt = """
-将评论分类:
+將評論分類:
 
-评论: 音质很棒，佩戴舒适。 → 正面
-评论: 电池续航太差。 → 负面
-评论: {new_review} →
+評論: 音質很棒，佩戴舒適。 → 正面
+評論: 電池續航太差。 → 負面
+評論: {new_review} →
 """
 
-# 动态示例选择（LangChain）
+# 動態示例選擇（LangChain）
 selector = SemanticSimilarityExampleSelector.from_examples(
     examples, OpenAIEmbeddings(), Chroma, k=2
 )
@@ -51,8 +51,8 @@ selector = SemanticSimilarityExampleSelector.from_examples(
 ### Chain-of-Thought (CoT)
 
 ```python
-# Zero-shot CoT — 魔法咒语
-prompt = f"问题: {question}\n\n让我们一步步思考:"
+# Zero-shot CoT — 魔法咒語
+prompt = f"問題: {question}\n\n讓我們一步步思考:"
 
 # Self-Consistency — 多路投票
 answers = [extract_answer(llm.predict(prompt, temperature=0.7)) for _ in range(5)]
@@ -62,14 +62,14 @@ final = Counter(answers).most_common(1)[0][0]
 ### ReAct
 
 ```python
-# Thought → Action → Observation 循环
+# Thought → Action → Observation 迴圈
 prompt = """
 工具: Search[query], Calculate[expr], Finish[answer]
 
-Thought: 我需要查询埃菲尔铁塔高度
-Action: Search[埃菲尔铁塔高度]
+Thought: 我需要查詢埃菲爾鐵塔高度
+Action: Search[埃菲爾鐵塔高度]
 Observation: 330 米
-Thought: 现在知道答案了
+Thought: 現在知道答案了
 Action: Finish[330 米]
 """
 ```
@@ -77,67 +77,67 @@ Action: Finish[330 米]
 ### Tree-of-Thoughts (ToT)
 
 ```python
-# 生成多条思路 → 评估打分 → Beam Search 选最优 → 递归扩展
+# 生成多條思路 → 評估打分 → Beam Search 選最優 → 遞迴擴充套件
 class TreeOfThoughts:
     def solve(self, problem):
         thoughts = self._generate(problem, n=3)
         scored = self._evaluate(problem, thoughts)
         best = sorted(scored, key=lambda x: x[1], reverse=True)[:self.beam_width]
-        # 递归深入最佳路径
+        # 遞迴深入最佳路徑
 ```
 
-## 二、Prompt 设计技巧
+## 二、Prompt 設計技巧
 
-### 模板结构
+### 模板結構
 
 ```python
 messages = [
-    {"role": "system", "content": "角色 + 能力边界 + 输出约束"},
-    {"role": "user", "content": "### 指令\n{task}\n### 输入\n{input}\n### 输出格式\n{format}"},
+    {"role": "system", "content": "角色 + 能力邊界 + 輸出約束"},
+    {"role": "user", "content": "### 指令\n{task}\n### 輸入\n{input}\n### 輸出格式\n{format}"},
 ]
 ```
 
-### 优化原则
+### 最佳化原則
 
-| 原则 | 做 | 不做 |
+| 原則 | 做 | 不做 |
 |------|-----|------|
-| 清晰性 | 具体、可执行、有约束 | 模糊指令 |
-| 结构化 | 分隔符、编号、格式 | 大段文字 |
-| 示例驱动 | 2-5 个高质量示例 | 无示例 |
-| 分步指令 | 步骤 1/2/3 | 一句话包办 |
-| 约束边界 | 说明要做和不做什么 | 无限制 |
+| 清晰性 | 具體、可執行、有約束 | 模糊指令 |
+| 結構化 | 分隔符、編號、格式 | 大段文字 |
+| 示例驅動 | 2-5 個高質量示例 | 無示例 |
+| 分步指令 | 步驟 1/2/3 | 一句話包辦 |
+| 約束邊界 | 說明要做和不做什麼 | 無限制 |
 
-### 高级技巧
+### 高階技巧
 
 ```python
 # 元提示 — 用 LLM 生成 Prompt
-meta = "你是 Prompt 专家。为以下任务生成最优 Prompt: {task}"
+meta = "你是 Prompt 專家。為以下任務生成最優 Prompt: {task}"
 
-# 自我批评 — 生成 → 批评 → 改进
+# 自我批評 — 生成 → 批評 → 改進
 answer = llm(question)
-critique = llm(f"批评: {answer}")
-improved = llm(f"基于批评改进: {critique}")
+critique = llm(f"批評: {answer}")
+improved = llm(f"基於批評改進: {critique}")
 ```
 
 ### Prompt 模板速查
 
 ```yaml
-代码生成: "生成 {lang} 代码: {desc}。要求: 最佳实践 + 注释 + 异常处理"
-文本摘要: "总结为 {n} 字: {text}。保留关键信息，语言简洁"
-数据提取: "从文本提取 {fields}，输出 JSON: {text}"
-NL2SQL: "将自然语言转 SQL: {query}。表结构: {schema}"
+程式碼生成: "生成 {lang} 程式碼: {desc}。要求: 最佳實踐 + 註釋 + 異常處理"
+文字摘要: "總結為 {n} 字: {text}。保留關鍵資訊，語言簡潔"
+資料提取: "從文字提取 {fields}，輸出 JSON: {text}"
+NL2SQL: "將自然語言轉 SQL: {query}。表結構: {schema}"
 ```
 
-## 三、模型评估
+## 三、模型評估
 
-### 评估维度
+### 評估維度
 
-| 维度 | 指标 | 适用场景 |
+| 維度 | 指標 | 適用場景 |
 |------|------|----------|
-| 准确性 | Accuracy, F1, Precision, Recall | 分类、NER |
-| 相关性 | Relevance, Context Precision | RAG、检索 |
-| 忠实性 | Faithfulness, Hallucination Rate | 生成任务 |
-| 效率 | Latency P95, Throughput, Cost/1K | 生产部署 |
+| 準確性 | Accuracy, F1, Precision, Recall | 分類、NER |
+| 相關性 | Relevance, Context Precision | RAG、檢索 |
+| 忠實性 | Faithfulness, Hallucination Rate | 生成任務 |
+| 效率 | Latency P95, Throughput, Cost/1K | 生產部署 |
 
 ### RAGAS 框架
 
@@ -153,10 +153,10 @@ dataset = Dataset.from_dict({
 })
 
 result = evaluate(dataset, metrics=[
-    faithfulness,        # 答案是否基于上下文（0-1）
-    answer_relevancy,    # 答案与问题相关度（0-1）
-    context_precision,   # 检索上下文中相关信息比例（0-1）
-    context_recall,      # 上下文是否包含所需全部信息（0-1）
+    faithfulness,        # 答案是否基於上下文（0-1）
+    answer_relevancy,    # 答案與問題相關度（0-1）
+    context_precision,   # 檢索上下文中相關資訊比例（0-1）
+    context_recall,      # 上下文是否包含所需全部資訊（0-1）
 ])
 ```
 
@@ -166,53 +166,53 @@ result = evaluate(dataset, metrics=[
 class LLMJudge:
     def evaluate(self, question, answer, criteria):
         prompt = f"""
-评估答案质量（1-5 分）:
-问题: {question}
+評估答案質量（1-5 分）:
+問題: {question}
 答案: {answer}
-标准: {criteria}
+標準: {criteria}
 
-输出 JSON: {{"accuracy": N, "completeness": N, "clarity": N, "overall": N, "feedback": "..."}}
+輸出 JSON: {{"accuracy": N, "completeness": N, "clarity": N, "overall": N, "feedback": "..."}}
 """
         return json.loads(self.llm.predict(prompt))
 
-# 成对比较 + ELO 排名
+# 成對比較 + ELO 排名
 def pairwise(q, a, b):
     # 返回 {"winner": "A"|"B", "confidence": 0-1}
     ...
 ```
 
-### 基准测试速查
+### 基準測試速查
 
-| 基准 | 评估能力 | 核心指标 |
+| 基準 | 評估能力 | 核心指標 |
 |------|----------|----------|
-| MMLU | 多任务语言理解 | Accuracy |
-| HumanEval | 代码生成 | Pass@k |
-| GSM8K | 数学推理 | Accuracy (CoT) |
-| 自定义 | 业务场景 | 加权评分 + 延迟 |
+| MMLU | 多工語言理解 | Accuracy |
+| HumanEval | 程式碼生成 | Pass@k |
+| GSM8K | 數學推理 | Accuracy (CoT) |
+| 自定義 | 業務場景 | 加權評分 + 延遲 |
 
-### 检索指标
+### 檢索指標
 
 ```python
 def evaluate_retrieval(retrieved, relevant, k=5):
     precision_at_k = len(set(retrieved[:k]) & set(relevant)) / k
     recall_at_k = len(set(retrieved[:k]) & set(relevant)) / len(relevant)
-    # MRR: 第一个相关文档的倒数排名
-    # NDCG: 归一化折损累积增益
+    # MRR: 第一個相關文件的倒數排名
+    # NDCG: 歸一化折損累積增益
     return {"precision@k": precision_at_k, "recall@k": recall_at_k, "mrr": mrr, "ndcg": ndcg}
 ```
 
-### 生成指标
+### 生成指標
 
 ```python
-# ROUGE: 摘要质量（rouge-1, rouge-2, rouge-l）
-# BLEU: 翻译质量
+# ROUGE: 摘要質量（rouge-1, rouge-2, rouge-l）
+# BLEU: 翻譯質量
 from rouge import Rouge
 rouge_scores = Rouge().get_scores(predictions, references, avg=True)
 ```
 
-## 四、A/B 测试与监控
+## 四、A/B 測試與監控
 
-### A/B 测试
+### A/B 測試
 
 ```python
 class ABTest:
@@ -220,7 +220,7 @@ class ABTest:
         self.variants = variants
 
     def get_variant(self, user_id):
-        # 一致性哈希分流
+        # 一致性雜湊分流
         return self.variants[hash(user_id) % 100 < cumulative_ratio]
 
     def check_significance(self, a_scores, b_scores, alpha=0.05):
@@ -229,7 +229,7 @@ class ABTest:
         return {"p_value": p_value, "significant": p_value < alpha, "effect": cohens_d}
 ```
 
-### 持续监控
+### 持續監控
 
 ```python
 from prometheus_client import Counter, Histogram, Gauge
@@ -238,7 +238,7 @@ request_count = Counter('llm_requests_total', 'Total', ['model', 'status'])
 latency = Histogram('llm_latency_seconds', 'Latency', ['model'])
 quality = Gauge('llm_quality_score', 'Quality', ['model'])
 
-# 异常检测: Z-score > 2.0 触发告警
+# 異常檢測: Z-score > 2.0 觸發告警
 class AnomalyDetector:
     def check(self, value):
         z = abs((value - mean(self.window)) / std(self.window))
@@ -249,31 +249,31 @@ class AnomalyDetector:
 
 ### Prompt 工程
 
-- 清晰指令 + 角色设定 + 输出格式约束
-- 复杂任务用 CoT / ReAct
-- 关键决策用 Self-Consistency 多路投票
-- 版本管理 Prompt，A/B 测试对比效果
-- 迭代优化：测试 → 分析 → 改进
+- 清晰指令 + 角色設定 + 輸出格式約束
+- 複雜任務用 CoT / ReAct
+- 關鍵決策用 Self-Consistency 多路投票
+- 版本管理 Prompt，A/B 測試對比效果
+- 迭代最佳化：測試 → 分析 → 改進
 
-### 模型评估
+### 模型評估
 
-- 多维度评估：准确性 + 相关性 + 忠实性 + 效率
-- RAG 用 RAGAS 四指标
-- 自动评估 LLM-as-Judge + 定期人工抽检
-- 标准基准（MMLU/HumanEval）+ 业务自定义基准
-- 上线前 A/B 测试，上线后持续监控 + 异常告警
-- 反馈闭环：收集用户反馈持续改进
+- 多維度評估：準確性 + 相關性 + 忠實性 + 效率
+- RAG 用 RAGAS 四指標
+- 自動評估 LLM-as-Judge + 定期人工抽檢
+- 標準基準（MMLU/HumanEval）+ 業務自定義基準
+- 上線前 A/B 測試，上線後持續監控 + 異常告警
+- 反饋閉環：收集使用者反饋持續改進
 
 ## 工具速查
 
 | 工具 | 用途 |
 |------|------|
-| RAGAS | RAG 专用评估 |
-| LangSmith | LLM 应用监控 |
-| Phoenix | 可观测性平台 |
+| RAGAS | RAG 專用評估 |
+| LangSmith | LLM 應用監控 |
+| Phoenix | 可觀測性平臺 |
 | LangChain | Prompt 模板管理 |
-| Guidance | 结构化生成 |
-| OpenAI Evals | 模型评估框架 |
-| W&B | 实验追踪 |
+| Guidance | 結構化生成 |
+| OpenAI Evals | 模型評估框架 |
+| W&B | 實驗追蹤 |
 
 ---

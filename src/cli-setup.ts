@@ -32,7 +32,7 @@ function customizeHelp(sections: any[]): any[] {
   sections.push({
     title: ansis.yellow(i18n.t('cli:help.options')),
     body: [
-      `  ${ansis.green('--lang, -l')} <lang>         ${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-CN, en)`,
+      `  ${ansis.green('--lang, -l')} <lang>         ${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-TW, zh-CN, en)`,
       `  ${ansis.green('--force, -f')}               ${i18n.t('cli:help.optionDescriptions.forceOverwrite')}`,
       `  ${ansis.green('--help, -h')}                ${i18n.t('cli:help.optionDescriptions.displayHelp')}`,
       `  ${ansis.green('--version, -v')}             ${i18n.t('cli:help.optionDescriptions.displayVersion')}`,
@@ -72,17 +72,17 @@ function customizeHelp(sections: any[]): any[] {
 export async function setupCommands(cli: CAC): Promise<void> {
   try {
     const config = await readCcgConfig()
-    const defaultLang = config?.general?.language || 'zh-CN'
+    const defaultLang = config?.general?.language || 'zh-TW'
     await initI18n(defaultLang)
   }
   catch {
-    await initI18n('zh-CN')
+    await initI18n('zh-TW')
   }
 
   // Default command - show menu
   cli
     .command('', i18n.t('cli:help.commandDescriptions.showMenu'))
-    .option('--lang, -l <lang>', `${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-CN, en)`)
+    .option('--lang, -l <lang>', `${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-TW, zh-CN, en)`)
     .action(async (options: CliOptions) => {
       if (options.lang) {
         await initI18n(options.lang)
@@ -94,7 +94,7 @@ export async function setupCommands(cli: CAC): Promise<void> {
   cli
     .command('init', i18n.t('cli:help.commandDescriptions.initConfig'))
     .alias('i')
-    .option('--lang, -l <lang>', `${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-CN, en)`)
+    .option('--lang, -l <lang>', `${i18n.t('cli:help.optionDescriptions.displayLanguage')} (zh-TW, zh-CN, en)`)
     .option('--force, -f', i18n.t('cli:help.optionDescriptions.forceOverwrite'))
     .option('--skip-prompt, -s', i18n.t('cli:help.optionDescriptions.skipAllPrompts'))
     .option('--skip-mcp', 'Skip MCP configuration (used during update)')

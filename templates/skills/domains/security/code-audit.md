@@ -1,41 +1,41 @@
 ---
 name: code-audit
-description: 代码安全审计。危险函数识别、污点分析、漏洞挖掘、安全审计。当用户提到代码审计、安全审计、漏洞挖掘、危险函数、sink点、source点、污点分析时使用。
+description: 程式碼安全審計。危險函式識別、汙點分析、漏洞挖掘、安全審計。當使用者提到程式碼審計、安全審計、漏洞挖掘、危險函式、sink點、source點、汙點分析時使用。
 ---
 
-# 🔥 赤焰秘典 · 代码安全审计 (Code Audit)
+# 🔥 赤焰秘典 · 程式碼安全審計 (Code Audit)
 
 
-## 审计流程
+## 審計流程
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    代码审计流程                               │
+│                    程式碼審計流程                               │
 ├─────────────────────────────────────────────────────────────┤
-│  1. 信息收集                                                 │
-│  ├─ 识别语言、框架、依赖                                     │
-│  ├─ 定位入口点（路由、API、用户输入）                        │
-│  └─ 梳理数据流向                                             │
+│  1. 資訊收集                                                 │
+│  ├─ 識別語言、框架、依賴                                     │
+│  ├─ 定位入口點（路由、API、使用者輸入）                        │
+│  └─ 梳理資料流向                                             │
 │                        ↓                                     │
-│  2. 危险函数扫描                                             │
-│  ├─ 命令执行 Sink                                            │
+│  2. 危險函式掃描                                             │
+│  ├─ 命令執行 Sink                                            │
 │  ├─ SQL 注入 Sink                                            │
-│  ├─ 文件操作 Sink                                            │
+│  ├─ 檔案操作 Sink                                            │
 │  └─ 反序列化 Sink                                            │
 │                        ↓                                     │
-│  3. 污点分析                                                 │
-│  └─ Source (用户输入) → 传播路径 → Sink (危险函数)          │
+│  3. 汙點分析                                                 │
+│  └─ Source (使用者輸入) → 傳播路徑 → Sink (危險函式)          │
 │                        ↓                                     │
-│  4. 漏洞验证 & 报告                                          │
-│  └─ PoC 编写 → 影响评估 → 修复建议                          │
+│  4. 漏洞驗證 & 報告                                          │
+│  └─ PoC 編寫 → 影響評估 → 修復建議                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 危险函数速查
+## 危險函式速查
 
 ### Python
 ```python
-# 🔴 命令执行
+# 🔴 命令執行
 os.system(cmd)
 os.popen(cmd)
 subprocess.call(cmd, shell=True)
@@ -52,8 +52,8 @@ pickle.loads(user_data)
 yaml.load(user_data)  # 不安全
 marshal.loads(user_data)
 
-# 🔴 文件操作
-open(user_path, 'r')  # 路径穿越
+# 🔴 檔案操作
+open(user_path, 'r')  # 路徑穿越
 shutil.copy(user_src, user_dst)
 
 # 🔴 SSRF
@@ -68,7 +68,7 @@ yaml.safe_load(user_data)
 
 ### Java
 ```java
-// 🔴 命令执行
+// 🔴 命令執行
 Runtime.getRuntime().exec(userInput);
 new ProcessBuilder(userInput).start();
 
@@ -94,12 +94,12 @@ pstmt.setInt(1, userId);
 
 ### JavaScript/Node.js
 ```javascript
-// 🔴 命令执行
+// 🔴 命令執行
 child_process.exec(userInput);
 eval(userInput);
 new Function(userInput)();
 
-// 🔴 原型污染
+// 🔴 原型汙染
 Object.assign(target, userInput);
 _.merge(target, userInput);
 JSON.parse(userInput);  // 配合 __proto__
@@ -119,14 +119,14 @@ element.textContent = userInput;
 
 ### Go
 ```go
-// 🔴 命令执行
+// 🔴 命令執行
 exec.Command("sh", "-c", userInput).Run()
 
 // 🔴 SQL 注入
 db.Query("SELECT * FROM users WHERE id = " + userId)
 
-// 🔴 路径穿越
-filepath.Join(baseDir, userPath)  // 未校验 ..
+// 🔴 路徑穿越
+filepath.Join(baseDir, userPath)  // 未校驗 ..
 
 // 🔴 SSTI
 template.HTML(userInput)
@@ -136,84 +136,84 @@ exec.Command(cmd, arg1, arg2).Run()
 db.Query("SELECT * FROM users WHERE id = ?", userId)
 ```
 
-## 污点分析
+## 汙點分析
 
 ### 概念
 ```
-Source (污点源)     →    传播路径    →    Sink (汇聚点)
-用户可控输入              数据流转          危险函数调用
+Source (汙點源)     →    傳播路徑    →    Sink (匯聚點)
+使用者可控輸入              資料流轉          危險函式呼叫
 ```
 
-### Source 识别
+### Source 識別
 ```python
-# HTTP 请求参数
+# HTTP 請求引數
 request.args.get('param')
 request.form.get('param')
 request.json.get('param')
 request.headers.get('header')
 request.cookies.get('cookie')
 
-# 文件输入
+# 檔案輸入
 open(file).read()
 sys.stdin.read()
 
-# 环境变量
+# 環境變數
 os.environ.get('VAR')
 
-# 数据库查询结果（二次注入）
+# 資料庫查詢結果（二次注入）
 cursor.fetchone()
 ```
 
-### 传播追踪
+### 傳播追蹤
 ```python
-# 示例：追踪污点传播
+# 示例：追蹤汙點傳播
 user_input = request.args.get('id')  # Source
-processed = user_input.strip()        # 传播
-query = f"SELECT * FROM users WHERE id = {processed}"  # 传播
+processed = user_input.strip()        # 傳播
+query = f"SELECT * FROM users WHERE id = {processed}"  # 傳播
 cursor.execute(query)                  # Sink!
 ```
 
-## 快速扫描命令
+## 快速掃描命令
 
 ```bash
-# Python 危险函数
+# Python 危險函式
 grep -rn "eval\|exec\|os.system\|subprocess\|pickle.loads" --include="*.py" .
 
-# Java 危险函数
+# Java 危險函式
 grep -rn "Runtime.exec\|ProcessBuilder\|ObjectInputStream\|Statement.execute" --include="*.java" .
 
-# JavaScript 危险函数
+# JavaScript 危險函式
 grep -rn "eval\|child_process\|innerHTML\|document.write" --include="*.js" .
 
-# Go 危险函数
+# Go 危險函式
 grep -rn "exec.Command\|template.HTML" --include="*.go" .
 
 # SQL 注入模式
 grep -rn "execute.*+\|execute.*f\"\|Query.*+" --include="*.py" --include="*.java" .
 ```
 
-## 漏洞报告格式
+## 漏洞報告格式
 
 ```markdown
-## [漏洞类型] - [严重程度: Critical/High/Medium/Low]
+## [漏洞型別] - [嚴重程度: Critical/High/Medium/Low]
 
-**文件:** `path/to/file.py:行号`
+**檔案:** `path/to/file.py:行號`
 
-**漏洞代码:**
+**漏洞程式碼:**
 ```python
-# 有问题的代码片段
+# 有問題的程式碼片段
 user_id = request.args.get('id')
 cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 ```
 
 **漏洞原理:**
-用户输入直接拼接到 SQL 语句中，未经过滤或参数化，导致 SQL 注入。
+使用者輸入直接拼接到 SQL 語句中，未經過濾或引數化，導致 SQL 注入。
 
-**污点追踪:**
+**汙點追蹤:**
 ```
 request.args.get('id')  [Source]
     ↓
-f"SELECT ... {user_id}" [传播]
+f"SELECT ... {user_id}" [傳播]
     ↓
 cursor.execute(query)   [Sink]
 ```
@@ -223,43 +223,43 @@ cursor.execute(query)   [Sink]
 GET /api/users?id=1' OR '1'='1
 ```
 
-**修复建议:**
+**修復建議:**
 ```python
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 ```
 ```
 
-## 审计检查清单
+## 審計檢查清單
 
-### 输入验证
-- [ ] 所有用户输入是否经过验证
-- [ ] 是否使用白名单验证
-- [ ] 是否有长度限制
+### 輸入驗證
+- [ ] 所有使用者輸入是否經過驗證
+- [ ] 是否使用白名單驗證
+- [ ] 是否有長度限制
 
 ### SQL 注入
-- [ ] 是否使用参数化查询
-- [ ] 是否有 ORM 保护
-- [ ] 动态表名/列名是否白名单
+- [ ] 是否使用引數化查詢
+- [ ] 是否有 ORM 保護
+- [ ] 動態表名/列名是否白名單
 
 ### 命令注入
 - [ ] 是否避免 shell=True
-- [ ] 参数是否正确转义
-- [ ] 是否使用白名单命令
+- [ ] 引數是否正確轉義
+- [ ] 是否使用白名單命令
 
-### 文件操作
-- [ ] 路径是否规范化
-- [ ] 是否检查路径穿越
-- [ ] 文件类型是否验证
+### 檔案操作
+- [ ] 路徑是否規範化
+- [ ] 是否檢查路徑穿越
+- [ ] 檔案型別是否驗證
 
-### 认证授权
-- [ ] 敏感操作是否验证身份
-- [ ] 是否有越权检查
-- [ ] 会话管理是否安全
+### 認證授權
+- [ ] 敏感操作是否驗證身份
+- [ ] 是否有越權檢查
+- [ ] 會話管理是否安全
 
 ### 加密
-- [ ] 是否使用安全算法
-- [ ] 密钥管理是否安全
-- [ ] 是否有硬编码密钥
+- [ ] 是否使用安全演算法
+- [ ] 金鑰管理是否安全
+- [ ] 是否有硬編碼金鑰
 
 ---
 

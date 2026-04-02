@@ -158,7 +158,7 @@ export async function init(options: InitOptions = {}): Promise<void> {
   // ═══════════════════════════════════════════════════════
   // Step 0: Language selection (FIRST interactive step)
   // ═══════════════════════════════════════════════════════
-  let language: SupportedLang = 'zh-CN'
+  let language: SupportedLang = 'zh-TW'
 
   if (!options.skipPrompt) {
     // Check if user already has a language preference
@@ -175,12 +175,13 @@ export async function init(options: InitOptions = {}): Promise<void> {
       const { selectedLang } = await inquirer.prompt([{
         type: 'list',
         name: 'selectedLang',
-        message: '选择语言 / Select language',
+        message: '選擇語言 / Select language',
         choices: [
+          { name: `正體中文（台灣）`, value: 'zh-TW' },
           { name: `简体中文`, value: 'zh-CN' },
           { name: `English`, value: 'en' },
         ],
-        default: 'zh-CN',
+        default: 'zh-TW',
       }])
       language = selectedLang
       await initI18n(language)

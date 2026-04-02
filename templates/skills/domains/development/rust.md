@@ -1,27 +1,27 @@
 ---
 name: rust
-description: Rust 开发。系统编程、内存安全、高性能、WebAssembly。当用户提到 Rust、Cargo、tokio、内存安全时使用。
+description: Rust 開發。系統程式設計、記憶體安全、高效能、WebAssembly。當使用者提到 Rust、Cargo、tokio、記憶體安全時使用。
 ---
 
-# 📜 符箓秘典 · Rust
+# 📜 符籙秘典 · Rust
 
 
-## 基础语法
+## 基礎語法
 
-### 所有权系统
+### 所有權系統
 ```rust
 fn main() {
-    // 所有权转移
+    // 所有權轉移
     let s1 = String::from("hello");
     let s2 = s1;  // s1 不再有效
-    // println!("{}", s1);  // 编译错误
+    // println!("{}", s1);  // 編譯錯誤
 
     // 借用
     let s3 = String::from("world");
     let len = calculate_length(&s3);  // 借用
     println!("{} has length {}", s3, len);  // s3 仍有效
 
-    // 可变借用
+    // 可變借用
     let mut s4 = String::from("hello");
     change(&mut s4);
 }
@@ -35,9 +35,9 @@ fn change(s: &mut String) {
 }
 ```
 
-### 结构体与枚举
+### 結構體與列舉
 ```rust
-// 结构体
+// 結構體
 struct User {
     name: String,
     email: String,
@@ -54,7 +54,7 @@ impl User {
     }
 }
 
-// 枚举
+// 列舉
 enum Result<T, E> {
     Ok(T),
     Err(E),
@@ -76,20 +76,20 @@ fn handle_message(msg: Message) {
 }
 ```
 
-### 错误处理
+### 錯誤處理
 ```rust
 use std::fs::File;
 use std::io::{self, Read};
 
-// Result 处理
+// Result 處理
 fn read_file(path: &str) -> Result<String, io::Error> {
-    let mut file = File::open(path)?;  // ? 操作符
+    let mut file = File::open(path)?;  // ? 運算子
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     Ok(contents)
 }
 
-// 自定义错误
+// 自定義錯誤
 #[derive(Debug)]
 enum AppError {
     IoError(io::Error),
@@ -103,7 +103,7 @@ impl From<io::Error> for AppError {
 }
 ```
 
-## 异步编程
+## 非同步程式設計
 
 ### Tokio
 ```rust
@@ -123,7 +123,7 @@ async fn fetch_data() -> Result<String, reqwest::Error> {
     Ok(resp)
 }
 
-// 并发执行
+// 併發執行
 async fn fetch_all(urls: Vec<&str>) -> Vec<String> {
     let futures: Vec<_> = urls.iter()
         .map(|url| fetch_url(url))
@@ -247,7 +247,7 @@ fn main() {
 }
 ```
 
-## 测试
+## 測試
 
 ```rust
 #[cfg(test)]
@@ -276,10 +276,10 @@ mod tests {
 ```bash
 cargo test
 cargo test --release
-cargo test -- --nocapture  # 显示输出
+cargo test -- --nocapture  # 顯示輸出
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
@@ -297,17 +297,17 @@ myproject/
     └── benchmark.rs
 ```
 
-## 常用库
+## 常用庫
 
-| 库 | 用途 |
+| 庫 | 用途 |
 |---|------|
-| tokio | 异步运行时 |
+| tokio | 非同步執行時 |
 | axum/actix-web | Web 框架 |
 | serde | 序列化 |
-| reqwest | HTTP 客户端 |
-| sqlx | 数据库 |
+| reqwest | HTTP 客戶端 |
+| sqlx | 資料庫 |
 | clap | CLI |
-| tracing | 日志 |
+| tracing | 日誌 |
 
 ---
 

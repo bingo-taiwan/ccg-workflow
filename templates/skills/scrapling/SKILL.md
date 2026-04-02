@@ -1,98 +1,98 @@
 ---
 name: scrapling
-description: "使用 scrapling 进行网页抓取和数据提取。自动选择 Fetcher，支持 Cloudflare/WAF 绕过、Session 登录、HTML 解析。当用户提到 scrape/crawl/fetch page/extract data/爬取/抓取/绕过Cloudflare/解析HTML/批量采集 时触发。"
+description: "使用 scrapling 進行網頁抓取和資料提取。自動選擇 Fetcher，支援 Cloudflare/WAF 繞過、Session 登入、HTML 解析。當使用者提到 scrape/crawl/fetch page/extract data/爬取/抓取/繞過Cloudflare/解析HTML/批次採集 時觸發。"
 user-invocable: true
 allowed-tools: Read, Bash
 argument-hint: "[URL or scraping task description]"
 license: MIT
 ---
 
-# Scrapling 网页抓取 Skill
+# Scrapling 網頁抓取 Skill
 
-## 步骤 0：检查版本
+## 步驟 0：檢查版本
 
 ```bash
 pip show scrapling
 ```
 
-- 未安装 → 执行 `pip install "scrapling[fetchers]"` + `scrapling install`
-- 有新版 → 执行 `pip install --upgrade "scrapling[fetchers]"` → 查 changelog 告知用户
-- 已最新 → 继续
+- 未安裝 → 執行 `pip install "scrapling[fetchers]"` + `scrapling install`
+- 有新版 → 執行 `pip install --upgrade "scrapling[fetchers]"` → 查 changelog 告知使用者
+- 已最新 → 繼續
 
-## 步骤 1：选择 Fetcher
+## 步驟 1：選擇 Fetcher
 
 ```
-目标网站 →
+目標網站 →
 │
-├─ 已有 HTML 字符串/文件，只需解析?
-│   → Selector（纯解析，无网络请求）
+├─ 已有 HTML 字串/檔案，只需解析?
+│   → Selector（純解析，無網路請求）
 │   → 模板: templates/parse_only.py
 │
-├─ 静态页面，无 JS 渲染，无反爬?
-│   → Fetcher（最快，基于 curl_cffi）
+├─ 靜態頁面，無 JS 渲染，無反爬?
+│   → Fetcher（最快，基於 curl_cffi）
 │   → 模板: templates/basic_fetch.py
 │
-├─ 需要登录（HTTP 表单，非 JS 登录）?
-│   → FetcherSession（保持会话 cookie）
+├─ 需要登入（HTTP 表單，非 JS 登入）?
+│   → FetcherSession（保持會話 cookie）
 │   → 模板: templates/session_login.py
 │
-├─ 有 Cloudflare / WAF 保护?
-│   → StealthyFetcher（Camoufox 浏览器，自动过 CF）
+├─ 有 Cloudflare / WAF 保護?
+│   → StealthyFetcher（Camoufox 瀏覽器，自動過 CF）
 │   → 模板: templates/stealth_cloudflare.py
 │
-├─ SPA 应用（React/Vue），需要 JS 渲染?
-│   → DynamicFetcher（Playwright 浏览器）
-│   → 基于模板即时生成
+├─ SPA 應用（React/Vue），需要 JS 渲染?
+│   → DynamicFetcher（Playwright 瀏覽器）
+│   → 基於模板即時生成
 │
-└─ 不确定?
-    → 先用 Fetcher 试，403/空内容 → 升级到 StealthyFetcher
+└─ 不確定?
+    → 先用 Fetcher 試，403/空內容 → 升級到 StealthyFetcher
 ```
 
-## 步骤 2：执行工作流
+## 步驟 2：執行工作流
 
 ```
-1. 检查版本（步骤 0）
-2. 查阅 references/site-patterns.md — 匹配已有模式则直接复用
-3. 无匹配 → 用决策树选择 Fetcher
-4. 读取对应模板 → 替换参数 → 生成完整脚本
-5. 执行脚本 → 返回结果
-6. **沉淀经验（必做）**:
-   - 新站点 → 追加到 site-patterns.md
-   - 新 cookie / 用户提供了 cookie → 保存到 cookie-vault.md
-   - **完成抓取后必须检查**：是否有新的 cookie 或 site pattern 需要保存
+1. 檢查版本（步驟 0）
+2. 查閱 references/site-patterns.md — 匹配已有模式則直接複用
+3. 無匹配 → 用決策樹選擇 Fetcher
+4. 讀取對應模板 → 替換引數 → 生成完整指令碼
+5. 執行指令碼 → 返回結果
+6. **沉澱經驗（必做）**:
+   - 新站點 → 追加到 site-patterns.md
+   - 新 cookie / 使用者提供了 cookie → 儲存到 cookie-vault.md
+   - **完成抓取後必須檢查**：是否有新的 cookie 或 site pattern 需要儲存
 ```
 
 ## Cookie 格式速查
 
-| Fetcher 类型 | Cookie 格式 | 示例 |
+| Fetcher 型別 | Cookie 格式 | 示例 |
 |-------------|-------------|------|
 | Fetcher / FetcherSession | `dict` | `{'name': 'value', 'token': 'abc'}` |
 | StealthyFetcher / DynamicFetcher | `list[dict]` | `[{'name': 'n', 'value': 'v', 'domain': '.site.com', 'path': '/'}]` |
 
-**浏览器 Fetcher cookie 必填字段**: `name`, `value`, `domain`, `path`
+**瀏覽器 Fetcher cookie 必填欄位**: `name`, `value`, `domain`, `path`
 
-## 超时单位速查
+## 超時單位速查
 
-| Fetcher 类型 | 超时单位 | 示例 |
+| Fetcher 型別 | 超時單位 | 示例 |
 |-------------|---------|------|
 | Fetcher / FetcherSession | 秒 | `timeout=30` |
 | StealthyFetcher / DynamicFetcher | 毫秒 | `timeout=60000` |
 
 ## 模板索引
 
-| 模板 | 文件 | 何时读取 |
+| 模板 | 檔案 | 何時讀取 |
 |------|------|---------|
-| 基础 HTTP 抓取 | `templates/basic_fetch.py` | 目标为静态页面，无反爬 |
-| Cloudflare 绕过 | `templates/stealth_cloudflare.py` | 目标有 CF/WAF 保护 |
-| Session 登录 | `templates/session_login.py` | 需 HTTP 表单登录后抓取 |
-| 纯 HTML 解析 | `templates/parse_only.py` | 已有 HTML 字符串，只需提取数据 |
+| 基礎 HTTP 抓取 | `templates/basic_fetch.py` | 目標為靜態頁面，無反爬 |
+| Cloudflare 繞過 | `templates/stealth_cloudflare.py` | 目標有 CF/WAF 保護 |
+| Session 登入 | `templates/session_login.py` | 需 HTTP 表單登入後抓取 |
+| 純 HTML 解析 | `templates/parse_only.py` | 已有 HTML 字串，只需提取資料 |
 
 ## References 索引
 
-| 文件 | 何时读取 |
+| 檔案 | 何時讀取 |
 |------|---------|
-| `references/site-patterns.md` | **每次抓取前先查阅** — 检查目标站点是否有已记录的模式 |
-| `references/api-quick-ref.md` | 生成脚本时查阅 — Fetcher/Selector 方法签名和参数 |
-| `references/troubleshooting.md` | 执行报错时查阅 — 按错误信息查找原因和解决方案 |
-| `references/cookie-vault.md` | 需要登录 cookie 时查阅 — 检查是否有历史记录可复用 |
-| `references/maintenance.md` | 安装/升级/依赖问题时查阅 — 安装层级和验证命令 |
+| `references/site-patterns.md` | **每次抓取前先查閱** — 檢查目標站點是否有已記錄的模式 |
+| `references/api-quick-ref.md` | 生成指令碼時查閱 — Fetcher/Selector 方法簽名和引數 |
+| `references/troubleshooting.md` | 執行報錯時查閱 — 按錯誤資訊查詢原因和解決方案 |
+| `references/cookie-vault.md` | 需要登入 cookie 時查閱 — 檢查是否有歷史記錄可複用 |
+| `references/maintenance.md` | 安裝/升級/依賴問題時查閱 — 安裝層級和驗證命令 |

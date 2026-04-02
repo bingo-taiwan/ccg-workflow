@@ -1,31 +1,31 @@
 ---
 name: typescript
-description: TypeScript/JavaScript 开发。前后端、Node.js、React、Vue。当用户提到 TypeScript、JavaScript、Node、React、Vue、Next.js 时使用。
+description: TypeScript/JavaScript 開發。前後端、Node.js、React、Vue。當使用者提到 TypeScript、JavaScript、Node、React、Vue、Next.js 時使用。
 ---
 
-# 📜 符箓秘典 · TypeScript/JavaScript
+# 📜 符籙秘典 · TypeScript/JavaScript
 
 
-## TypeScript 基础
+## TypeScript 基礎
 
-### 类型系统
+### 型別系統
 ```typescript
-// 基础类型
+// 基礎型別
 let name: string = "Alice";
 let age: number = 25;
 let active: boolean = true;
 let items: string[] = ["a", "b"];
 let tuple: [string, number] = ["hello", 10];
 
-// 接口
+// 介面
 interface User {
   id: number;
   name: string;
-  email?: string;  // 可选
-  readonly createdAt: Date;  // 只读
+  email?: string;  // 可選
+  readonly createdAt: Date;  // 只讀
 }
 
-// 类型别名
+// 型別別名
 type ID = string | number;
 type Status = "pending" | "active" | "inactive";
 
@@ -39,14 +39,14 @@ interface Response<T> {
   status: number;
 }
 
-// 工具类型
+// 工具型別
 type Partial<T> = { [P in keyof T]?: T[P] };
 type Required<T> = { [P in keyof T]-?: T[P] };
 type Pick<T, K extends keyof T> = { [P in K]: T[P] };
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 ```
 
-## Node.js 后端
+## Node.js 後端
 
 ### Express
 ```typescript
@@ -55,7 +55,7 @@ import express, { Request, Response, NextFunction } from 'express';
 const app = express();
 app.use(express.json());
 
-// 中间件
+// 中介軟體
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization;
   if (!token) {
@@ -76,7 +76,7 @@ app.post('/api/users', async (req: Request, res: Response) => {
   res.status(201).json(user);
 });
 
-// 错误处理
+// 錯誤處理
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
@@ -101,7 +101,7 @@ fastify.listen({ port: 3000 });
 
 ## React
 
-### 函数组件
+### 函式元件
 ```tsx
 import React, { useState, useEffect, useCallback } from 'react';
 
@@ -147,7 +147,7 @@ export default UserCard;
 
 ### Hooks
 ```tsx
-// 自定义 Hook
+// 自定義 Hook
 function useFetch<T>(url: string) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -213,7 +213,7 @@ const handleClick = () => {
 </template>
 ```
 
-## 测试
+## 測試
 
 ### Jest/Vitest
 ```typescript
@@ -244,7 +244,7 @@ vi.mock('./api', () => ({
 }));
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
@@ -261,17 +261,17 @@ myproject/
 └── public/
 ```
 
-## 常用库
+## 常用庫
 
-| 库 | 用途 |
+| 庫 | 用途 |
 |---|------|
 | Express/Fastify | Node.js 框架 |
 | React/Vue | 前端框架 |
-| Next.js/Nuxt | 全栈框架 |
+| Next.js/Nuxt | 全棧框架 |
 | Prisma | ORM |
-| Zod | 数据验证 |
-| Vitest/Jest | 测试 |
-| ESLint/Prettier | 代码规范 |
+| Zod | 資料驗證 |
+| Vitest/Jest | 測試 |
+| ESLint/Prettier | 程式碼規範 |
 
 ---
 

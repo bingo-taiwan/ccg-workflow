@@ -1,98 +1,98 @@
 ---
-description: 'Agent Teams 审查 - 双模型交叉审查并行实施的产出，分级处理 Critical/Warning/Info'
+description: 'Agent Teams 審查 - 雙模型交叉審查並行實施的產出，分級處理 Critical/Warning/Info'
 ---
 <!-- CCG:TEAM:REVIEW:START -->
 **Core Philosophy**
-- 双模型交叉验证捕获单模型审查遗漏的盲区。
-- Critical 问题必须修复后才能结束。
-- 审查范围严格限于 team-exec 的变更，不扩大范围。
+- 雙模型交叉驗證捕獲單模型審查遺漏的盲區。
+- Critical 問題必須修復後才能結束。
+- 審查範圍嚴格限於 team-exec 的變更，不擴大範圍。
 
 **Guardrails**
-- **MANDATORY**: Codex 和 Gemini 必须都完成审查后才能综合。
-- 审查范围限于 `git diff` 的变更，不做范围蔓延。
-- Lead 可以直接修复 Critical 问题（审查阶段允许写代码）。
+- **MANDATORY**: Codex 和 Gemini 必須都完成審查後才能綜合。
+- 審查範圍限於 `git diff` 的變更，不做範圍蔓延。
+- Lead 可以直接修復 Critical 問題（審查階段允許寫程式碼）。
 
 **Steps**
-1. **收集变更产物**
-   - 运行 `git diff` 获取变更摘要。
-   - 如果有 `.claude/team-plan/` 下的计划文件，读取约束和成功判据作为审查基准。
-   - 列出所有被修改的文件。
+1. **收集變更產物**
+   - 執行 `git diff` 獲取變更摘要。
+   - 如果有 `.claude/team-plan/` 下的計劃檔案，讀取約束和成功判據作為審查基準。
+   - 列出所有被修改的檔案。
 
-2. **多模型审查（PARALLEL）**
-   - **CRITICAL**: 必须在一条消息中同时发起两个 Bash 调用。
-   - **工作目录**：`{{WORKDIR}}` **必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断。
+2. **多模型審查（PARALLEL）**
+   - **CRITICAL**: 必須在一條訊息中同時發起兩個 Bash 呼叫。
+   - **工作目錄**：`{{WORKDIR}}` **必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷。
 
    **FIRST Bash call ({{BACKEND_PRIMARY}})**:
    ```
    Bash({
-     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{BACKEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\n审查以下变更：\n<git diff 输出或变更文件列表>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"问题描述\",\n      \"fix_suggestion\": \"修复建议\"\n    }\n  ],\n  \"passed_checks\": [\"已验证的检查项\"],\n  \"summary\": \"总体评估\"\n}\nEOF",
+     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{BACKEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\n審查以下變更：\n<git diff 輸出或變更檔案列表>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"問題描述\",\n      \"fix_suggestion\": \"修復建議\"\n    }\n  ],\n  \"passed_checks\": [\"已驗證的檢查項\"],\n  \"summary\": \"總體評估\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "{{BACKEND_PRIMARY}} 后端审查"
+     description: "{{BACKEND_PRIMARY}} 後端審查"
    })
    ```
 
    **SECOND Bash call ({{FRONTEND_PRIMARY}}) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{FRONTEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/gemini/reviewer.md\n<TASK>\n审查以下变更：\n<git diff 输出或变更文件列表>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"问题描述\",\n      \"fix_suggestion\": \"修复建议\"\n    }\n  ],\n  \"passed_checks\": [\"已验证的检查项\"],\n  \"summary\": \"总体评估\"\n}\nEOF",
+     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{FRONTEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/gemini/reviewer.md\n<TASK>\n審查以下變更：\n<git diff 輸出或變更檔案列表>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"問題描述\",\n      \"fix_suggestion\": \"修復建議\"\n    }\n  ],\n  \"passed_checks\": [\"已驗證的檢查項\"],\n  \"summary\": \"總體評估\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "{{FRONTEND_PRIMARY}} 前端审查"
+     description: "{{FRONTEND_PRIMARY}} 前端審查"
    })
    ```
 
-   **等待结果**:
+   **等待結果**:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
    TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
    ```
 
-   ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败，最多重试 2 次（间隔 5 秒）。3 次全败才跳过。
-   ⛔ **Codex 结果必须等待**：Codex 执行 5-15 分钟属正常，超时后继续轮询，禁止跳过。
+   ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗，最多重試 2 次（間隔 5 秒）。3 次全敗才跳過。
+   ⛔ **Codex 結果必須等待**：Codex 執行 5-15 分鐘屬正常，超時後繼續輪詢，禁止跳過。
 
-3. **综合发现**
-   - 合并两个模型的发现。
-   - 去重重叠问题。
-   - 按严重性分级：
-     * **Critical**: 安全漏洞、逻辑错误、数据丢失风险 → 必须修复
-     * **Warning**: 模式偏离、可维护性问题 → 建议修复
-     * **Info**: 小改进建议 → 可选修复
+3. **綜合發現**
+   - 合併兩個模型的發現。
+   - 去重重疊問題。
+   - 按嚴重性分級：
+     * **Critical**: 安全漏洞、邏輯錯誤、資料丟失風險 → 必須修復
+     * **Warning**: 模式偏離、可維護性問題 → 建議修復
+     * **Info**: 小改進建議 → 可選修復
 
-4. **输出审查报告**
+4. **輸出審查報告**
    ```markdown
-   ## 审查报告
+   ## 審查報告
 
-   ### 🔴 Critical (X issues) - 必须修复
+   ### 🔴 Critical (X issues) - 必須修復
    - [ ] [安全] file.ts:42 - 描述
-   - [ ] [逻辑] api.ts:15 - 描述
+   - [ ] [邏輯] api.ts:15 - 描述
 
-   ### 🟡 Warning (Y issues) - 建议修复
+   ### 🟡 Warning (Y issues) - 建議修復
    - [ ] [模式] utils.ts:88 - 描述
 
-   ### 🔵 Info (Z issues) - 可选
-   - [ ] [维护] helper.ts:20 - 描述
+   ### 🔵 Info (Z issues) - 可選
+   - [ ] [維護] helper.ts:20 - 描述
 
-   ### ✅ 已通过检查
-   - ✅ 无 XSS 漏洞
-   - ✅ 错误处理完整
+   ### ✅ 已透過檢查
+   - ✅ 無 XSS 漏洞
+   - ✅ 錯誤處理完整
    ```
 
-5. **决策门**
+5. **決策門**
    - **Critical > 0**:
-     * 展示发现，用 `AskUserQuestion` 询问："立即修复 / 跳过"
-     * 选择修复 → Lead 直接修复（后端问题参考 Codex 建议，前端参考 Gemini 建议）
-     * 修复后重新运行受影响的审查维度
-     * 重复直到 Critical = 0
+     * 展示發現，用 `AskUserQuestion` 詢問："立即修復 / 跳過"
+     * 選擇修復 → Lead 直接修復（後端問題參考 Codex 建議，前端參考 Gemini 建議）
+     * 修復後重新執行受影響的審查維度
+     * 重複直到 Critical = 0
    - **Critical = 0**:
-     * 报告通过，建议提交代码
+     * 報告透過，建議提交程式碼
 
-6. **上下文检查点**
-   - 报告当前上下文使用量。
+6. **上下文檢查點**
+   - 報告當前上下文使用量。
 
 **Exit Criteria**
-- [ ] Codex + Gemini 审查完成
-- [ ] 所有发现已综合分级
-- [ ] Critical = 0（已修复或用户确认跳过）
-- [ ] 审查报告已输出
+- [ ] Codex + Gemini 審查完成
+- [ ] 所有發現已綜合分級
+- [ ] Critical = 0（已修復或使用者確認跳過）
+- [ ] 審查報告已輸出
 <!-- CCG:TEAM:REVIEW:END -->

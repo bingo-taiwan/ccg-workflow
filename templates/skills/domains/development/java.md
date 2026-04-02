@@ -1,14 +1,14 @@
 ---
 name: java
-description: Java 开发。企业级应用、Spring Boot、微服务。当用户提到 Java、Spring、Maven、Gradle、JVM 时使用。
+description: Java 開發。企業級應用、Spring Boot、微服務。當使用者提到 Java、Spring、Maven、Gradle、JVM 時使用。
 ---
 
-# 📜 符箓秘典 · Java
+# 📜 符籙秘典 · Java
 
 
 ## Spring Boot
 
-### 基础项目
+### 基礎專案
 ```java
 @SpringBootApplication
 public class Application {
@@ -127,7 +127,7 @@ logging:
     com.myapp: DEBUG
 ```
 
-## 异常处理
+## 異常處理
 
 ```java
 @RestControllerAdvice
@@ -155,7 +155,7 @@ public class GlobalExceptionHandler {
     }
 }
 
-// 自定义异常
+// 自定義異常
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
         super(message);
@@ -163,7 +163,7 @@ public class ResourceNotFoundException extends RuntimeException {
 }
 ```
 
-## 测试
+## 測試
 
 ```java
 @SpringBootTest
@@ -203,7 +203,7 @@ class UserControllerTest {
     }
 }
 
-// 单元测试
+// 單元測試
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -226,7 +226,7 @@ class UserServiceTest {
 }
 ```
 
-## 项目结构
+## 專案結構
 
 ```
 myproject/
@@ -249,7 +249,7 @@ myproject/
 └── target/
 ```
 
-## 常用依赖
+## 常用依賴
 
 ```xml
 <!-- pom.xml -->

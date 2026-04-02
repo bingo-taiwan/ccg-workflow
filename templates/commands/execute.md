@@ -1,70 +1,70 @@
 ---
-description: '多模型协作执行 - 根据计划获取原型 → Claude 重构实施 → 多模型审计交付'
+description: '多模型協作執行 - 根據計劃獲取原型 → Claude 重構實施 → 多模型審計交付'
 ---
 
-# Execute - 多模型协作执行
+# Execute - 多模型協作執行
 
 $ARGUMENTS
 
 ---
 
-## 核心协议
+## 核心協議
 
-- **语言协议**：与工具/模型交互用**英语**，与用户交互用**中文**
-- **代码主权**：外部模型对文件系统**零写入权限**，所有修改由 Claude 执行
-- **脏原型重构**：将 Codex/Gemini 的 Unified Diff 视为"脏原型"，必须重构为生产级代码
-- **止损机制**：当前阶段输出通过验证前，不进入下一阶段
-- **前置条件**：仅在用户对 `/ccg:plan` 输出明确回复 "Y" 后执行（如缺失，必须先二次确认）
+- **語言協議**：與工具/模型互動用**英語**，與使用者互動用**中文**
+- **程式碼主權**：外部模型對檔案系統**零寫入許可權**，所有修改由 Claude 執行
+- **髒原型重構**：將 Codex/Gemini 的 Unified Diff 視為"髒原型"，必須重構為生產級程式碼
+- **止損機制**：當前階段輸出透過驗證前，不進入下一階段
+- **前置條件**：僅在使用者對 `/ccg:plan` 輸出明確回覆 "Y" 後執行（如缺失，必須先二次確認）
 
 ---
 
-## 多模型调用规范
+## 多模型呼叫規範
 
-**工作目录**：
-- `{{WORKDIR}}`：**必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断
-- 如果用户通过 `/add-dir` 添加了多个工作区，先用 Glob/Grep 确定任务相关的工作区
-- 如果无法确定，用 `AskUserQuestion` 询问用户选择目标工作区
+**工作目錄**：
+- `{{WORKDIR}}`：**必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷
+- 如果使用者透過 `/add-dir` 新增了多個工作區，先用 Glob/Grep 確定任務相關的工作區
+- 如果無法確定，用 `AskUserQuestion` 詢問使用者選擇目標工作區
 
-**调用语法**（并行用 `run_in_background: true`）：
+**呼叫語法**（並行用 `run_in_background: true`）：
 
 ```
-# 复用会话调用（推荐）- 原型生成（Implementation Prototype）
+# 複用會話呼叫（推薦）- 原型生成（Implementation Prototype）
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
-需求：<任务描述>
-上下文：<计划内容 + 目标文件>
+需求：<任務描述>
+上下文：<計劃內容 + 目標檔案>
 </TASK>
 OUTPUT: Unified Diff Patch ONLY. Strictly prohibit any actual modifications.
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 
-# 新会话调用 - 原型生成（Implementation Prototype）
+# 新會話呼叫 - 原型生成（Implementation Prototype）
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
-需求：<任务描述>
-上下文：<计划内容 + 目标文件>
+需求：<任務描述>
+上下文：<計劃內容 + 目標檔案>
 </TASK>
 OUTPUT: Unified Diff Patch ONLY. Strictly prohibit any actual modifications.
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 ```
 
-**审计调用语法**（Code Review / Audit）：
+**審計呼叫語法**（Code Review / Audit）：
 
 ```
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend <{{BACKEND_PRIMARY}}|{{FRONTEND_PRIMARY}}> {{GEMINI_MODEL_FLAG}}resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
-ROLE_FILE: <角色提示词路径>
+ROLE_FILE: <角色提示詞路徑>
 <TASK>
 Scope: Audit the final code changes.
 Inputs:
@@ -80,236 +80,236 @@ OUTPUT:
 EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "简短描述"
+  description: "簡短描述"
 })
 ```
 
-**角色提示词**：
+**角色提示詞**：
 
-| 阶段 | Codex | Gemini |
+| 階段 | Codex | Gemini |
 |------|-------|--------|
-| 实施 | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/frontend.md` |
-| 审查 | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/gemini/reviewer.md` |
+| 實施 | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/frontend.md` |
+| 審查 | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/gemini/reviewer.md` |
 
-**会话复用**：如果 `/ccg:plan` 提供了 SESSION_ID，使用 `resume <SESSION_ID>` 复用上下文。
+**會話複用**：如果 `/ccg:plan` 提供了 SESSION_ID，使用 `resume <SESSION_ID>` 複用上下文。
 
-**等待后台任务**（最大超时 600000ms = 10 分钟）：
+**等待後臺任務**（最大超時 600000ms = 10 分鐘）：
 
 ```
 TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 ```
 
 **重要**：
-- 必须指定 `timeout: 600000`，否则默认只有 30 秒会导致提前超时
-- 若 10 分钟后仍未完成，继续用 `TaskOutput` 轮询，**绝对不要 Kill 进程**
-- 若因等待时间过长跳过了等待，**必须调用 `AskUserQuestion` 询问用户选择继续等待还是 Kill Task**
-- ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败（非零退出码或输出包含错误信息），最多重试 2 次（间隔 5 秒）。仅当 3 次全部失败时才跳过 Gemini 结果并使用单模型结果继续。
-- ⛔ **Codex 结果必须等待**：Codex 执行时间较长（5-15 分钟）属于正常。TaskOutput 超时后必须继续用 TaskOutput 轮询，**绝对禁止在 Codex 未返回结果时直接跳过或继续下一阶段**。已启动的 Codex 任务若被跳过 = 浪费 token + 丢失结果。
+- 必須指定 `timeout: 600000`，否則預設只有 30 秒會導致提前超時
+- 若 10 分鐘後仍未完成，繼續用 `TaskOutput` 輪詢，**絕對不要 Kill 程序**
+- 若因等待時間過長跳過了等待，**必須呼叫 `AskUserQuestion` 詢問使用者選擇繼續等待還是 Kill Task**
+- ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗（非零退出碼或輸出包含錯誤資訊），最多重試 2 次（間隔 5 秒）。僅當 3 次全部失敗時才跳過 Gemini 結果並使用單模型結果繼續。
+- ⛔ **Codex 結果必須等待**：Codex 執行時間較長（5-15 分鐘）屬於正常。TaskOutput 超時後必須繼續用 TaskOutput 輪詢，**絕對禁止在 Codex 未返回結果時直接跳過或繼續下一階段**。已啟動的 Codex 任務若被跳過 = 浪費 token + 丟失結果。
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-**执行任务**：$ARGUMENTS
+**執行任務**：$ARGUMENTS
 
-### 📖 Phase 0：读取计划
+### 📖 Phase 0：讀取計劃
 
-`[模式：准备]`
+`[模式：準備]`
 
-1. **识别输入类型**：
-   - 计划文件路径（如 `.claude/plan/xxx.md`）
-   - 直接的任务描述
+1. **識別輸入型別**：
+   - 計劃檔案路徑（如 `.claude/plan/xxx.md`）
+   - 直接的任務描述
 
-2. **读取计划内容**：
-   - 若提供了计划文件路径，读取并解析
-   - 提取：任务类型、实施步骤、关键文件、SESSION_ID
+2. **讀取計劃內容**：
+   - 若提供了計劃檔案路徑，讀取並解析
+   - 提取：任務型別、實施步驟、關鍵檔案、SESSION_ID
 
-3. **执行前确认**：
-   - 若输入为"直接任务描述"或计划中缺失 `SESSION_ID` / 关键文件：先向用户确认补全信息
-   - 若无法确认用户是否已对计划回复 "Y"：必须二次询问确认后再进入下一阶段
+3. **執行前確認**：
+   - 若輸入為"直接任務描述"或計劃中缺失 `SESSION_ID` / 關鍵檔案：先向使用者確認補全資訊
+   - 若無法確認使用者是否已對計劃回覆 "Y"：必須二次詢問確認後再進入下一階段
 
-4. **任务类型判断**：
+4. **任務型別判斷**：
 
-   | 任务类型 | 判断依据 | 路由 |
+   | 任務型別 | 判斷依據 | 路由 |
    |----------|----------|------|
-   | **前端** | 页面、组件、UI、样式、布局 | Gemini |
-   | **后端** | API、接口、数据库、逻辑、算法 | Codex |
-   | **全栈** | 同时包含前后端 | Codex ∥ Gemini 并行 |
+   | **前端** | 頁面、元件、UI、樣式、佈局 | Gemini |
+   | **後端** | API、介面、資料庫、邏輯、演算法 | Codex |
+   | **全棧** | 同時包含前後端 | Codex ∥ Gemini 並行 |
 
 ---
 
-### 🔍 Phase 1：上下文快速检索
+### 🔍 Phase 1：上下文快速檢索
 
-`[模式：检索]`
+`[模式：檢索]`
 
-**⚠️ 必须使用 MCP 工具快速检索上下文，禁止手动逐个读取文件**
+**⚠️ 必須使用 MCP 工具快速檢索上下文，禁止手動逐個讀取檔案**
 
-根据计划中的"关键文件"列表，调用 `{{MCP_SEARCH_TOOL}}` 检索相关代码：
+根據計劃中的"關鍵檔案"列表，呼叫 `{{MCP_SEARCH_TOOL}}` 檢索相關程式碼：
 
 ```
 {{MCP_SEARCH_TOOL}}({
-  query: "<基于计划内容构建的语义查询，包含关键文件、模块、函数名>",
+  query: "<基於計劃內容構建的語義查詢，包含關鍵檔案、模組、函式名>",
   project_root_path: "{{WORKDIR}}"
 })
 ```
 
-**检索策略**：
-- 从计划的"关键文件"表格提取目标路径
-- 构建语义查询覆盖：入口文件、依赖模块、相关类型定义
-- 若检索结果不足，可追加 1-2 次递归检索
-- **禁止**使用 Bash + find/ls 手动探索项目结构
+**檢索策略**：
+- 從計劃的"關鍵檔案"表格提取目標路徑
+- 構建語義查詢覆蓋：入口檔案、依賴模組、相關型別定義
+- 若檢索結果不足，可追加 1-2 次遞迴檢索
+- **禁止**使用 Bash + find/ls 手動探索專案結構
 
-**检索完成后**：
-- 整理检索到的代码片段
-- 确认已获取实施所需的完整上下文
-- 进入 Phase 3
+**檢索完成後**：
+- 整理檢索到的程式碼片段
+- 確認已獲取實施所需的完整上下文
+- 進入 Phase 3
 
 ---
 
-### 🎨 Phase 3：原型获取
+### 🎨 Phase 3：原型獲取
 
 `[模式：原型]`
 
-**根据任务类型路由**：
+**根據任務型別路由**：
 
-#### Route A: 前端/UI/样式 → Gemini
+#### Route A: 前端/UI/樣式 → Gemini
 
 **限制**：上下文 < 32k tokens
 
-1. 调用 Gemini（使用 `~/.claude/.ccg/prompts/gemini/frontend.md`）
-2. 输入：计划内容 + 检索到的上下文 + 目标文件
+1. 呼叫 Gemini（使用 `~/.claude/.ccg/prompts/gemini/frontend.md`）
+2. 輸入：計劃內容 + 檢索到的上下文 + 目標檔案
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **Gemini 是前端设计的权威，其 CSS/React/Vue 原型为最终视觉基准**
-5. ⚠️ **警告**：忽略 Gemini 对后端逻辑的建议
-6. 若计划包含 `GEMINI_SESSION`：优先 `resume <GEMINI_SESSION>`
+4. **Gemini 是前端設計的權威，其 CSS/React/Vue 原型為最終視覺基準**
+5. ⚠️ **警告**：忽略 Gemini 對後端邏輯的建議
+6. 若計劃包含 `GEMINI_SESSION`：優先 `resume <GEMINI_SESSION>`
 
-#### Route B: 后端/逻辑/算法 → Codex
+#### Route B: 後端/邏輯/演算法 → Codex
 
-1. 调用 Codex（使用 `~/.claude/.ccg/prompts/codex/architect.md`）
-2. 输入：计划内容 + 检索到的上下文 + 目标文件
+1. 呼叫 Codex（使用 `~/.claude/.ccg/prompts/codex/architect.md`）
+2. 輸入：計劃內容 + 檢索到的上下文 + 目標檔案
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **{{BACKEND_PRIMARY}} 是后端逻辑的权威，利用其逻辑运算与 Debug 能力**
-5. 若计划包含 `CODEX_SESSION`：优先 `resume <CODEX_SESSION>`
+4. **{{BACKEND_PRIMARY}} 是後端邏輯的權威，利用其邏輯運算與 Debug 能力**
+5. 若計劃包含 `CODEX_SESSION`：優先 `resume <CODEX_SESSION>`
 
-#### Route C: 全栈 → 并行调用
+#### Route C: 全棧 → 並行呼叫
 
-1. **并行调用**（`run_in_background: true`）：
-   - Gemini：处理前端部分
-   - Codex：处理后端部分
-2. 用 `TaskOutput` 等待两个模型的完整结果
-3. 各自使用计划中对应的 `SESSION_ID` 进行 `resume`（若缺失则创建新会话）
+1. **並行呼叫**（`run_in_background: true`）：
+   - Gemini：處理前端部分
+   - Codex：處理後端部分
+2. 用 `TaskOutput` 等待兩個模型的完整結果
+3. 各自使用計劃中對應的 `SESSION_ID` 進行 `resume`（若缺失則建立新會話）
 
-**务必遵循上方 `多模型调用规范` 的 `重要` 指示**
+**務必遵循上方 `多模型呼叫規範` 的 `重要` 指示**
 
 ---
 
-### ⚡ Phase 4：编码实施
+### ⚡ Phase 4：編碼實施
 
-`[模式：实施]`
+`[模式：實施]`
 
-**Claude 作为代码主权者执行以下步骤**：
+**Claude 作為程式碼主權者執行以下步驟**：
 
-1. **读取 Diff**：解析 Codex/Gemini 返回的 Unified Diff Patch
+1. **讀取 Diff**：解析 Codex/Gemini 返回的 Unified Diff Patch
 
-2. **思维沙箱**：
-   - 模拟应用 Diff 到目标文件
-   - 检查逻辑一致性
-   - 识别潜在冲突或副作用
+2. **思維沙箱**：
+   - 模擬應用 Diff 到目標檔案
+   - 檢查邏輯一致性
+   - 識別潛在衝突或副作用
 
-3. **重构清理**：
-   - 将"脏原型"重构为**高可读、高可维护性、企业发布级代码**
-   - 去除冗余代码
-   - 确保符合项目现有代码规范
-   - **非必要不生成注释与文档**，代码自解释
+3. **重構清理**：
+   - 將"髒原型"重構為**高可讀、高可維護性、企業釋出級程式碼**
+   - 去除冗餘程式碼
+   - 確保符合專案現有程式碼規範
+   - **非必要不生成註釋與文件**，程式碼自解釋
 
 4. **最小作用域**：
-   - 变更仅限需求范围
-   - **强制审查**变更是否引入副作用
-   - 做针对性修正
+   - 變更僅限需求範圍
+   - **強制審查**變更是否引入副作用
+   - 做針對性修正
 
-5. **应用变更**：
-   - 使用 Edit/Write 工具执行实际修改
-   - **仅修改必要的代码**，严禁影响用户现有的其他功能
-6. **自检验证**（强烈建议）：
-   - 运行项目既有的 lint / typecheck / tests（优先最小相关范围）
-   - 若失败：优先修复回归，再继续进入 Phase 5
+5. **應用變更**：
+   - 使用 Edit/Write 工具執行實際修改
+   - **僅修改必要的程式碼**，嚴禁影響使用者現有的其他功能
+6. **自檢驗證**（強烈建議）：
+   - 執行專案既有的 lint / typecheck / tests（優先最小相關範圍）
+   - 若失敗：優先修復迴歸，再繼續進入 Phase 5
 
 ---
 
-### ✅ Phase 5：审计与交付
+### ✅ Phase 5：審計與交付
 
-`[模式：审计]`
+`[模式：審計]`
 
-#### 5.1 自动审计
+#### 5.1 自動審計
 
-**变更生效后，强制立即并行调用** Codex 和 Gemini 进行 Code Review：
+**變更生效後，強制立即並行呼叫** Codex 和 Gemini 進行 Code Review：
 
-1. **{{BACKEND_PRIMARY}} 审查**（`run_in_background: true`）：
+1. **{{BACKEND_PRIMARY}} 審查**（`run_in_background: true`）：
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/reviewer.md`
-   - 输入：变更的 Diff + 目标文件
-   - 关注：安全性、性能、错误处理、逻辑正确性
+   - 輸入：變更的 Diff + 目標檔案
+   - 關注：安全性、效能、錯誤處理、邏輯正確性
 
-2. **{{FRONTEND_PRIMARY}} 审查**（`run_in_background: true`）：
+2. **{{FRONTEND_PRIMARY}} 審查**（`run_in_background: true`）：
    - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/reviewer.md`
-   - 输入：变更的 Diff + 目标文件
-   - 关注：可访问性、设计一致性、用户体验
+   - 輸入：變更的 Diff + 目標檔案
+   - 關注：可訪問性、設計一致性、使用者體驗
 
-用 `TaskOutput` 等待两个模型的完整审查结果。优先复用 Phase 3 的会话（`resume <SESSION_ID>`）以保持上下文一致。
+用 `TaskOutput` 等待兩個模型的完整審查結果。優先複用 Phase 3 的會話（`resume <SESSION_ID>`）以保持上下文一致。
 
-#### 5.2 整合修复
+#### 5.2 整合修復
 
-1. 综合 Codex + Gemini 的审查意见
-2. 按信任规则权衡：后端以 Codex 为准，前端以 Gemini 为准
-3. 执行必要的修复
-4. 修复后按需重复 Phase 5.1（直到风险可接受）
+1. 綜合 Codex + Gemini 的審查意見
+2. 按信任規則權衡：後端以 Codex 為準，前端以 Gemini 為準
+3. 執行必要的修復
+4. 修復後按需重複 Phase 5.1（直到風險可接受）
 
-#### 5.3 交付确认
+#### 5.3 交付確認
 
-审计通过后，向用户报告：
+審計透過後，向使用者報告：
 
 ```markdown
-## ✅ 执行完成
+## ✅ 執行完成
 
-### 变更摘要
-| 文件 | 操作 | 说明 |
+### 變更摘要
+| 檔案 | 操作 | 說明 |
 |------|------|------|
 | path/to/file.ts | 修改 | 描述 |
 
-### 审计结果
-- Codex：<通过/发现 N 个问题>
-- Gemini：<通过/发现 N 个问题>
+### 審計結果
+- Codex：<透過/發現 N 個問題>
+- Gemini：<透過/發現 N 個問題>
 
-### 后续建议
-1. [ ] <建议的测试步骤>
-2. [ ] <建议的验证步骤>
+### 後續建議
+1. [ ] <建議的測試步驟>
+2. [ ] <建議的驗證步驟>
 ```
 
 ---
 
-## 关键规则
+## 關鍵規則
 
-1. **代码主权** – 所有文件修改由 Claude 执行，外部模型零写入权限
-2. **脏原型重构** – Codex/Gemini 的输出视为草稿，必须重构
-3. **信任规则** – 后端以 Codex 为准，前端以 Gemini 为准
-4. **最小变更** – 仅修改必要的代码，不引入副作用
-5. **强制审计** – 变更后必须进行多模型 Code Review
+1. **程式碼主權** – 所有檔案修改由 Claude 執行，外部模型零寫入許可權
+2. **髒原型重構** – Codex/Gemini 的輸出視為草稿，必須重構
+3. **信任規則** – 後端以 Codex 為準，前端以 Gemini 為準
+4. **最小變更** – 僅修改必要的程式碼，不引入副作用
+5. **強制審計** – 變更後必須進行多模型 Code Review
 
 ---
 
 ## 使用方法
 
 ```bash
-# 执行计划文件
+# 執行計劃檔案
 /ccg:execute .claude/plan/功能名.md
 
-# 直接执行任务（适用于已在上下文中讨论过的计划）
-/ccg:execute 根据之前的计划实施用户认证功能
+# 直接執行任務（適用於已在上下文中討論過的計劃）
+/ccg:execute 根據之前的計劃實施使用者認證功能
 ```
 
 ---
 
-## 与 /ccg:plan 的关系
+## 與 /ccg:plan 的關係
 
-1. `/ccg:plan` 生成计划 + SESSION_ID
-2. 用户确认 "Y" 后
-3. `/ccg:execute` 读取计划，复用 SESSION_ID，执行实施
+1. `/ccg:plan` 生成計劃 + SESSION_ID
+2. 使用者確認 "Y" 後
+3. `/ccg:execute` 讀取計劃，複用 SESSION_ID，執行實施

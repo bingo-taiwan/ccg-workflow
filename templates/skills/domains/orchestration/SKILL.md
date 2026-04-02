@@ -1,29 +1,29 @@
 ---
 name: orchestration
-description: 协同编排知识域。多Agent协同、任务分解、并行执行、冲突解决。当魔尊需要多Agent协作、任务编排、并行处理时使用。
+description: 協同編排知識域。多Agent協同、任務分解、並行執行、衝突解決。當魔尊需要多Agent協作、任務編排、並行處理時使用。
 license: MIT
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# 🕸 协同编排秘典
+# 🕸 協同編排秘典
 
-## 知识主题
+## 知識主題
 
-| 主题 | 文档 | 涵盖 |
+| 主題 | 文件 | 涵蓋 |
 |------|------|------|
-| 多Agent协同 | [multi-agent.md](multi-agent.md) | 角色定义、任务分解、通信协议、冲突解决、状态共享 |
+| 多Agent協同 | [multi-agent.md](multi-agent.md) | 角色定義、任務分解、通訊協議、衝突解決、狀態共享 |
 
-## 使用场景
+## 使用場景
 
-- 大型任务分解
-- 多文件并行处理
-- 复杂系统重构
-- 跨模块协同开发
-- 紧急多点修复
+- 大型任務分解
+- 多檔案並行處理
+- 複雜系統重構
+- 跨模組協同開發
+- 緊急多點修復
 
-## Codex 强化要点
+## Codex 強化要點
 
-- 优先使用 `spawn_agent/send_input/wait/close_agent` 形成闭环。
-- 代码探索优先 `explorer`，执行改动使用 `worker`，长耗时任务使用 `awaiter`。
-- 每个文件同一时刻仅允许一个 Agent 写入，先锁文件再并行。
+- 優先使用 `spawn_agent/send_input/wait/close_agent` 形成閉環。
+- 程式碼探索優先 `explorer`，執行改動使用 `worker`，長耗時任務使用 `awaiter`。
+- 每個檔案同一時刻僅允許一個 Agent 寫入，先鎖檔案再並行。

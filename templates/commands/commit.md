@@ -1,10 +1,10 @@
 ---
-description: '智能 Git 提交：分析改动生成 Conventional Commit 信息，支持拆分建议'
+description: '智慧 Git 提交：分析改動生成 Conventional Commit 資訊，支援拆分建議'
 ---
 
-# Commit - 智能 Git 提交
+# Commit - 智慧 Git 提交
 
-分析当前改动，生成 Conventional Commits 风格的提交信息。
+分析當前改動，生成 Conventional Commits 風格的提交資訊。
 
 ## 使用方法
 
@@ -12,94 +12,94 @@ description: '智能 Git 提交：分析改动生成 Conventional Commit 信息�
 /commit [options]
 ```
 
-## 选项
+## 選項
 
-| 选项 | 说明 |
+| 選項 | 說明 |
 |------|------|
-| `--no-verify` | 跳过 Git 钩子 |
-| `--all` | 暂存所有改动 |
-| `--amend` | 修补上次提交 |
-| `--signoff` | 附加签名 |
-| `--emoji` | 包含 emoji 前缀 |
+| `--no-verify` | 跳過 Git 鉤子 |
+| `--all` | 暫存所有改動 |
+| `--amend` | 修補上次提交 |
+| `--signoff` | 附加簽名 |
+| `--emoji` | 包含 emoji 字首 |
 | `--scope <scope>` | 指定作用域 |
-| `--type <type>` | 指定提交类型 |
+| `--type <type>` | 指定提交型別 |
 
 ---
 
-## 执行工作流
+## 執行工作流
 
-### 🔍 阶段 1：仓库校验
+### 🔍 階段 1：倉庫校驗
 
-`[模式：检查]`
+`[模式：檢查]`
 
-1. 验证 Git 仓库状态
-2. 检测 rebase/merge 冲突
-3. 读取当前分支/HEAD 状态
+1. 驗證 Git 倉庫狀態
+2. 檢測 rebase/merge 衝突
+3. 讀取當前分支/HEAD 狀態
 
-### 📋 阶段 2：改动检测
+### 📋 階段 2：改動檢測
 
 `[模式：分析]`
 
-1. 获取已暂存与未暂存改动
-2. 若暂存区为空：
-   - `--all` → 执行 `git add -A`
-   - 否则提示选择
+1. 獲取已暫存與未暫存改動
+2. 若暫存區為空：
+   - `--all` → 執行 `git add -A`
+   - 否則提示選擇
 
-### ✂️ 阶段 3：拆分建议
+### ✂️ 階段 3：拆分建議
 
-`[模式：建议]`
+`[模式：建議]`
 
-按以下维度聚类：
-- 关注点（源代码 vs 文档/测试）
-- 文件模式（不同目录/包）
-- 改动类型（新增 vs 删除）
+按以下維度聚類：
+- 關注點（原始碼 vs 文件/測試）
+- 檔案模式（不同目錄/包）
+- 改動型別（新增 vs 刪除）
 
-若检测到多组独立变更（>300 行 / 跨多个顶级目录），建议拆分。
+若檢測到多組獨立變更（>300 行 / 跨多個頂級目錄），建議拆分。
 
-### ✍️ 阶段 4：生成提交信息
+### ✍️ 階段 4：生成提交資訊
 
 `[模式：生成]`
 
 **格式**：`[emoji] <type>(<scope>): <subject>`
 
-- 首行 ≤ 72 字符
-- 祈使语气
-- 消息体：动机、实现要点、影响范围
+- 首行 ≤ 72 字元
+- 祈使語氣
+- 訊息體：動機、實現要點、影響範圍
 
-**语言**：根据最近 50 次提交判断中文/英文
+**語言**：根據最近 50 次提交判斷中文/英文
 
-### 📦 阶段 5：Context 自动归档（若 .context/ 存在）
+### 📦 階段 5：Context 自動歸檔（若 .context/ 存在）
 
-`[模式：上下文归档]`
+`[模式：上下文歸檔]`
 
-**前置判断**：
-- 若 `.context/` 目录不存在 → 在提交成功后输出提示：`💡 建议执行 /ccg:context init 启用决策追踪`，不阻断
-- 若 `.context/` 存在 → 执行以下步骤
+**前置判斷**：
+- 若 `.context/` 目錄不存在 → 在提交成功後輸出提示：`💡 建議執行 /ccg:context init 啟用決策追蹤`，不阻斷
+- 若 `.context/` 存在 → 執行以下步驟
 
-**从 git diff 自动生成 ContextEntry**：
+**從 git diff 自動生成 ContextEntry**：
 
-1. 获取当前分支名：`git branch --show-current`
-2. 获取暂存区变更：`git diff --cached --stat` + `git diff --cached`（完整 diff）
+1. 獲取當前分支名：`git branch --show-current`
+2. 獲取暫存區變更：`git diff --cached --stat` + `git diff --cached`（完整 diff）
 3. **分析 diff 生成 ContextEntry**：
-   - `summary`：从阶段 4 生成的 commit message 中取首行
-   - `decisions`：分析 diff 中的关键变更（新增依赖、架构调整、接口变更、配置修改），推断决策理由
-   - `bugs`：若 commit type 为 `fix`，从 diff 中提取 bug 症状、根因、修复方式
-   - `changes.files`：从 `git diff --cached --name-only` 提取
-   - `tests`：若变更包含测试文件，记录测试相关信息
-4. **合并 session.log**（可选）：若 `.context/current/branches/<branch>/session.log` 存在且非空，将其中的手动记录合并到 decisions/bugs 中，然后清空 session.log
-5. **脱敏**：扫描 token/key/password/secret 模式 → 替换为 `[REDACTED]`
-6. **追加**：将 ContextEntry 作为一行追加到 `.context/history/commits.jsonl`
-7. **重生成**：更新 `.context/history/commits.md` 人类视图
-8. **暂存**：`git add .context/history/`
-9. **Trailer**：在 commit message 中添加 `Context-Id: <uuid>` trailer
+   - `summary`：從階段 4 生成的 commit message 中取首行
+   - `decisions`：分析 diff 中的關鍵變更（新增依賴、架構調整、介面變更、配置修改），推斷決策理由
+   - `bugs`：若 commit type 為 `fix`，從 diff 中提取 bug 症狀、根因、修復方式
+   - `changes.files`：從 `git diff --cached --name-only` 提取
+   - `tests`：若變更包含測試檔案，記錄測試相關資訊
+4. **合併 session.log**（可選）：若 `.context/current/branches/<branch>/session.log` 存在且非空，將其中的手動記錄合併到 decisions/bugs 中，然後清空 session.log
+5. **脫敏**：掃描 token/key/password/secret 模式 → 替換為 `[REDACTED]`
+6. **追加**：將 ContextEntry 作為一行追加到 `.context/history/commits.jsonl`
+7. **重生成**：更新 `.context/history/commits.md` 人類檢視
+8. **暫存**：`git add .context/history/`
+9. **Trailer**：在 commit message 中新增 `Context-Id: <uuid>` trailer
 
-**ContextEntry 格式**参见 `/ccg:context` 命令中的 Schema 定义。
+**ContextEntry 格式**參見 `/ccg:context` 命令中的 Schema 定義。
 
-**失败降级**：若归档过程出错，不阻断提交。写入 minimal ContextEntry（仅 summary + files），继续正常提交。
+**失敗降級**：若歸檔過程出錯，不阻斷提交。寫入 minimal ContextEntry（僅 summary + files），繼續正常提交。
 
-### ✅ 阶段 6：执行提交
+### ✅ 階段 6：執行提交
 
-`[模式：执行]`
+`[模式：執行]`
 
 ```bash
 git commit [-S] [--no-verify] [-s] -F .git/COMMIT_EDITMSG
@@ -107,20 +107,20 @@ git commit [-S] [--no-verify] [-s] -F .git/COMMIT_EDITMSG
 
 ---
 
-## Type 与 Emoji 映射
+## Type 與 Emoji 對映
 
-| Emoji | Type | 说明 |
+| Emoji | Type | 說明 |
 |-------|------|------|
 | ✨ | `feat` | 新增功能 |
-| 🐛 | `fix` | 缺陷修复 |
-| 📝 | `docs` | 文档更新 |
-| 🎨 | `style` | 代码格式 |
-| ♻️ | `refactor` | 重构 |
-| ⚡️ | `perf` | 性能优化 |
-| ✅ | `test` | 测试相关 |
-| 🔧 | `chore` | 构建/工具 |
+| 🐛 | `fix` | 缺陷修復 |
+| 📝 | `docs` | 文件更新 |
+| 🎨 | `style` | 程式碼格式 |
+| ♻️ | `refactor` | 重構 |
+| ⚡️ | `perf` | 效能最佳化 |
+| ✅ | `test` | 測試相關 |
+| 🔧 | `chore` | 構建/工具 |
 | 👷 | `ci` | CI/CD |
-| ⏪️ | `revert` | 回滚 |
+| ⏪️ | `revert` | 回滾 |
 
 ---
 
@@ -130,22 +130,22 @@ git commit [-S] [--no-verify] [-s] -F .git/COMMIT_EDITMSG
 # 基本提交
 /commit
 
-# 暂存所有并提交
+# 暫存所有並提交
 /commit --all
 
-# 带 emoji 提交
+# 帶 emoji 提交
 /commit --emoji
 
-# 指定类型和作用域
+# 指定型別和作用域
 /commit --scope ui --type feat --emoji
 
-# 修补上次提交
+# 修補上次提交
 /commit --amend --signoff
 ```
 
-## 关键规则
+## 關鍵規則
 
-1. **仅使用 Git** – 不调用包管理器
-2. **尊重钩子** – 默认执行，`--no-verify` 可跳过
-3. **不改源码** – 只读写 `.git/COMMIT_EDITMSG`
+1. **僅使用 Git** – 不呼叫包管理器
+2. **尊重鉤子** – 預設執行，`--no-verify` 可跳過
+3. **不改原始碼** – 只讀寫 `.git/COMMIT_EDITMSG`
 4. **原子提交** – 一次提交只做一件事

@@ -1,35 +1,35 @@
 ---
 name: observability
-description: 可观测性秘典。日志、指标、追踪三大支柱，告警设计，SLI/SLO/SLA。当用户提到可观测性、日志、监控、指标、追踪、告警、SLO时路由到此。
+description: 可觀測性秘典。日誌、指標、追蹤三大支柱，告警設計，SLI/SLO/SLA。當使用者提到可觀測性、日誌、監控、指標、追蹤、告警、SLO時路由到此。
 ---
 
-# 🔧 炼器秘典 · 可观测性
+# 🔧 煉器秘典 · 可觀測性
 
 
 ## 三大支柱
 
 ```
 ┌─────────────────────────────────────────┐
-│            可观测性 (Observability)       │
+│            可觀測性 (Observability)       │
 ├─────────────┬─────────────┬─────────────┤
-│   📋 日志   │   📊 指标   │   🔗 追踪   │
+│   📋 日誌   │   📊 指標   │   🔗 追蹤   │
 │   Logs      │   Metrics   │   Traces    │
-│  离散事件   │  聚合数值   │  请求链路   │
+│  離散事件   │  聚合數值   │  請求鏈路   │
 │  What       │  How much   │  Where      │
 └─────────────┴─────────────┴─────────────┘
 ```
 
-| 支柱 | 特征 | 适用场景 | 代表工具 |
+| 支柱 | 特徵 | 適用場景 | 代表工具 |
 |------|------|----------|----------|
-| 日志 | 离散、非结构化/结构化事件 | 调试、审计、错误追踪 | ELK, Loki, CloudWatch |
-| 指标 | 聚合数值、时间序列 | 告警、趋势、容量规划 | Prometheus, Datadog, CloudWatch |
-| 追踪 | 分布式请求链路 | 延迟分析、依赖映射 | Jaeger, Zipkin, X-Ray |
+| 日誌 | 離散、非結構化/結構化事件 | 除錯、審計、錯誤追蹤 | ELK, Loki, CloudWatch |
+| 指標 | 聚合數值、時間序列 | 告警、趨勢、容量規劃 | Prometheus, Datadog, CloudWatch |
+| 追蹤 | 分散式請求鏈路 | 延遲分析、依賴對映 | Jaeger, Zipkin, X-Ray |
 
 ---
 
-## 日志 (Logs)
+## 日誌 (Logs)
 
-### 结构化日志
+### 結構化日誌
 
 ```json
 {
@@ -47,89 +47,89 @@ description: 可观测性秘典。日志、指标、追踪三大支柱，告警�
 }
 ```
 
-### 日志级别规范
+### 日誌級別規範
 
-| 级别 | 用途 | 生产环境 |
+| 級別 | 用途 | 生產環境 |
 |------|------|----------|
-| TRACE | 极细粒度调试 | ❌ 关闭 |
-| DEBUG | 开发调试信息 | ❌ 关闭 |
-| INFO | 业务关键事件 | ✅ 开启 |
-| WARN | 潜在问题，可自愈 | ✅ 开启 |
-| ERROR | 错误，需关注 | ✅ 开启 + 告警 |
-| FATAL | 致命错误，服务不可用 | ✅ 开启 + 紧急告警 |
+| TRACE | 極細粒度除錯 | ❌ 關閉 |
+| DEBUG | 開發除錯資訊 | ❌ 關閉 |
+| INFO | 業務關鍵事件 | ✅ 開啟 |
+| WARN | 潛在問題，可自愈 | ✅ 開啟 |
+| ERROR | 錯誤，需關注 | ✅ 開啟 + 告警 |
+| FATAL | 致命錯誤，服務不可用 | ✅ 開啟 + 緊急告警 |
 
-### 日志聚合架构
+### 日誌聚合架構
 
 ```
-应用 → Filebeat/Fluentd → Kafka(缓冲) → Logstash → Elasticsearch → Kibana
-                                       → S3(归档)
+應用 → Filebeat/Fluentd → Kafka(緩衝) → Logstash → Elasticsearch → Kibana
+                                       → S3(歸檔)
 ```
 
-### 日志最佳实践
+### 日誌最佳實踐
 
-- ✅ 结构化 JSON 格式
-- ✅ 包含 trace_id 关联追踪
-- ✅ 敏感数据脱敏
-- ✅ 合理的保留策略（热/温/冷）
-- ❌ 不记录密码/Token
-- ❌ 不在循环中打日志
-- ❌ 不用字符串拼接（用参数化）
+- ✅ 結構化 JSON 格式
+- ✅ 包含 trace_id 關聯追蹤
+- ✅ 敏感資料脫敏
+- ✅ 合理的保留策略（熱/溫/冷）
+- ❌ 不記錄密碼/Token
+- ❌ 不在迴圈中打日誌
+- ❌ 不用字串拼接（用引數化）
 
 ---
 
-## 指标 (Metrics)
+## 指標 (Metrics)
 
-### Prometheus 指标类型
+### Prometheus 指標型別
 
-| 类型 | 用途 | 示例 |
+| 型別 | 用途 | 示例 |
 |------|------|------|
-| Counter | 只增不减的计数器 | 请求总数、错误总数 |
-| Gauge | 可增可减的瞬时值 | 当前连接数、队列长度 |
-| Histogram | 分布统计（桶） | 请求延迟分布 |
-| Summary | 分布统计（分位数） | 请求延迟 P99 |
+| Counter | 只增不減的計數器 | 請求總數、錯誤總數 |
+| Gauge | 可增可減的瞬時值 | 當前連線數、佇列長度 |
+| Histogram | 分佈統計（桶） | 請求延遲分佈 |
+| Summary | 分佈統計（分位數） | 請求延遲 P99 |
 
-### 关键 PromQL
+### 關鍵 PromQL
 
 ```promql
-# 请求速率
+# 請求速率
 rate(http_requests_total[5m])
 
-# 错误率
+# 錯誤率
 rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
 
-# P99 延迟
+# P99 延遲
 histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
 
 # CPU 使用率
 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance)
 
-# 内存使用率
+# 記憶體使用率
 (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes
 ```
 
-### Grafana Dashboard 设计
+### Grafana Dashboard 設計
 
 ```yaml
-四大黄金信号 Dashboard:
+四大黃金訊號 Dashboard:
   Row 1 - 流量:
     - QPS (rate)
-    - 按 endpoint 分组
-  Row 2 - 错误:
-    - 错误率 (%)
-    - 按错误类型分组
-  Row 3 - 延迟:
+    - 按 endpoint 分組
+  Row 2 - 錯誤:
+    - 錯誤率 (%)
+    - 按錯誤型別分組
+  Row 3 - 延遲:
     - P50/P95/P99
-    - 延迟热力图
-  Row 4 - 饱和度:
+    - 延遲熱力圖
+  Row 4 - 飽和度:
     - CPU/Memory/Disk
-    - 连接池使用率
+    - 連線池使用率
 ```
 
 ---
 
-## 追踪 (Traces)
+## 追蹤 (Traces)
 
-### OpenTelemetry 集成
+### OpenTelemetry 整合
 
 ```python
 # Python 示例
@@ -149,41 +149,41 @@ tracer = trace.get_tracer(__name__)
 def process_order(order_id: str):
     span = trace.get_current_span()
     span.set_attribute("order.id", order_id)
-    # 业务逻辑...
+    # 業務邏輯...
 ```
 
-### 追踪架构
+### 追蹤架構
 
 ```
 Service-A → Service-B → Service-C
     │            │            │
     └── Span ────┴── Span ────┴── Span
          │
-    Trace (trace_id 贯穿全链路)
+    Trace (trace_id 貫穿全鏈路)
 ```
 
 ### Context Propagation
 
 ```
 HTTP Header: traceparent: 00-{trace_id}-{span_id}-{flags}
-gRPC Metadata: 自动传播
-Message Queue: 消息头注入 trace context
+gRPC Metadata: 自動傳播
+Message Queue: 訊息頭注入 trace context
 ```
 
 ---
 
-## 告警设计
+## 告警設計
 
-### 告警分级
+### 告警分級
 
-| 级别 | 响应时间 | 通知方式 | 示例 |
+| 級別 | 響應時間 | 通知方式 | 示例 |
 |------|----------|----------|------|
-| P0 Critical | 立即 | 电话 + PagerDuty | 服务完全不可用 |
-| P1 High | 15 min | Slack + 短信 | 错误率 > 5% |
-| P2 Medium | 1 hour | Slack | 延迟 P99 > 阈值 |
-| P3 Low | 次日 | 邮件/工单 | 磁盘使用 > 70% |
+| P0 Critical | 立即 | 電話 + PagerDuty | 服務完全不可用 |
+| P1 High | 15 min | Slack + 簡訊 | 錯誤率 > 5% |
+| P2 Medium | 1 hour | Slack | 延遲 P99 > 閾值 |
+| P3 Low | 次日 | 郵件/工單 | 磁碟使用 > 70% |
 
-### 告警规则示例
+### 告警規則示例
 
 ```yaml
 # Prometheus AlertManager
@@ -205,76 +205,76 @@ groups:
           severity: warning
 ```
 
-### 告警最佳实践
+### 告警最佳實踐
 
-- ✅ 基于 SLO 告警，而非资源指标
-- ✅ 设置合理的 `for` 持续时间，避免抖动
-- ✅ 告警必须可操作（收到告警知道该做什么）
-- ✅ 定期审查告警，清理无效告警
-- ❌ 不对每个指标都告警（告警疲劳）
-- ❌ 不设过低阈值（噪音）
+- ✅ 基於 SLO 告警，而非資源指標
+- ✅ 設定合理的 `for` 持續時間，避免抖動
+- ✅ 告警必須可操作（收到告警知道該做什麼）
+- ✅ 定期審查告警，清理無效告警
+- ❌ 不對每個指標都告警（告警疲勞）
+- ❌ 不設過低閾值（噪音）
 
 ---
 
 ## SLI / SLO / SLA
 
-### 定义
+### 定義
 
-| 概念 | 含义 | 示例 |
+| 概念 | 含義 | 示例 |
 |------|------|------|
-| SLI (指标) | 服务质量的量化度量 | 请求成功率、P99 延迟 |
-| SLO (目标) | SLI 的目标值 | 可用性 99.9%、P99 < 200ms |
-| SLA (协议) | 对外承诺 + 违约后果 | 99.9% 可用，否则赔偿 |
+| SLI (指標) | 服務質量的量化度量 | 請求成功率、P99 延遲 |
+| SLO (目標) | SLI 的目標值 | 可用性 99.9%、P99 < 200ms |
+| SLA (協議) | 對外承諾 + 違約後果 | 99.9% 可用，否則賠償 |
 
 ### Error Budget
 
 ```
 SLO = 99.9% 可用性
 Error Budget = 1 - 0.999 = 0.1%
-每月 Error Budget = 30天 × 24小时 × 60分钟 × 0.001 = 43.2 分钟
+每月 Error Budget = 30天 × 24小時 × 60分鐘 × 0.001 = 43.2 分鐘
 
-已消耗: 15 分钟
-剩余: 28.2 分钟
+已消耗: 15 分鐘
+剩餘: 28.2 分鐘
 ```
 
 ### SLO Dashboard
 
 ```yaml
 SLO Dashboard:
-  - 当前 SLI 值 vs SLO 目标
-  - Error Budget 剩余百分比
+  - 當前 SLI 值 vs SLO 目標
+  - Error Budget 剩餘百分比
   - Error Budget 消耗速率
-  - 30天滚动窗口趋势
-  - Burn Rate 告警状态
+  - 30天滾動視窗趨勢
+  - Burn Rate 告警狀態
 ```
 
 ---
 
-## 可观测性清单
+## 可觀測性清單
 
 ```yaml
-日志:
-  - [ ] 结构化 JSON 格式
-  - [ ] trace_id 关联
-  - [ ] 敏感数据脱敏
+日誌:
+  - [ ] 結構化 JSON 格式
+  - [ ] trace_id 關聯
+  - [ ] 敏感資料脫敏
   - [ ] 保留策略配置
 
-指标:
-  - [ ] 四大黄金信号覆盖
-  - [ ] 自定义业务指标
-  - [ ] Dashboard 就绪
-  - [ ] 告警规则配置
+指標:
+  - [ ] 四大黃金訊號覆蓋
+  - [ ] 自定義業務指標
+  - [ ] Dashboard 就緒
+  - [ ] 告警規則配置
 
-追踪:
-  - [ ] OpenTelemetry 集成
-  - [ ] 跨服务 Context Propagation
-  - [ ] 采样策略配置
-  - [ ] 关键路径标注
+追蹤:
+  - [ ] OpenTelemetry 整合
+  - [ ] 跨服務 Context Propagation
+  - [ ] 取樣策略配置
+  - [ ] 關鍵路徑標註
 
 告警:
-  - [ ] 基于 SLO 的告警
-  - [ ] 分级通知渠道
-  - [ ] Runbook 关联
-  - [ ] 定期审查机制
+  - [ ] 基於 SLO 的告警
+  - [ ] 分級通知渠道
+  - [ ] Runbook 關聯
+  - [ ] 定期審查機制
 ```
 

@@ -1,16 +1,16 @@
 ---
 name: rag-system
-description: RAG 检索增强生成架构。向量数据库、Embedding、检索策略、重排算法、混合检索。当用户提到 RAG、检索增强、向量数据库、Embedding、重排、LangChain、LlamaIndex 时使用。
+description: RAG 檢索增強生成架構。向量資料庫、Embedding、檢索策略、重排演算法、混合檢索。當使用者提到 RAG、檢索增強、向量資料庫、Embedding、重排、LangChain、LlamaIndex 時使用。
 ---
 
-# 🔮 丹鼎秘典 · RAG 系统 (Retrieval-Augmented Generation)
+# 🔮 丹鼎秘典 · RAG 系統 (Retrieval-Augmented Generation)
 
-## RAG 架构
+## RAG 架構
 
 ```
-查询 → Embedding → 向量检索 → 重排 → 上下文注入 → LLM 生成
+查詢 → Embedding → 向量檢索 → 重排 → 上下文注入 → LLM 生成
   │         │           │         │          │            │
-  └─ 改写 ──┴─ 混合检索 ─┴─ 相关性 ─┴─ 压缩 ──┴─ 答案 + 引用
+  └─ 改寫 ──┴─ 混合檢索 ─┴─ 相關性 ─┴─ 壓縮 ──┴─ 答案 + 引用
 ```
 
 ### 核心流程
@@ -20,7 +20,7 @@ from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 
-# 1. 文档加载与切分
+# 1. 文件載入與切分
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -34,11 +34,11 @@ splitter = RecursiveCharacterTextSplitter(
 )
 chunks = splitter.split_documents(documents)
 
-# 2. 向量化与存储
+# 2. 向量化與儲存
 embeddings = OpenAIEmbeddings()
 vectorstore = Chroma.from_documents(chunks, embeddings)
 
-# 3. 检索与生成
+# 3. 檢索與生成
 llm = ChatOpenAI(model="gpt-4", temperature=0)
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
@@ -46,20 +46,20 @@ qa_chain = RetrievalQA.from_chain_type(
     return_source_documents=True
 )
 
-result = qa_chain({"query": "什么是 RAG？"})
+result = qa_chain({"query": "什麼是 RAG？"})
 print(result["result"])
 ```
 
-## 向量数据库对比
+## 向量資料庫對比
 
-| 数据库 | 类型 | 索引算法 | 适用场景 | 部署 |
+| 資料庫 | 型別 | 索引演算法 | 適用場景 | 部署 |
 |--------|------|----------|----------|------|
-| Pinecone | 托管 | HNSW | 生产级、高并发 | 云端 |
-| Weaviate | 开源 | HNSW | 多模态、GraphQL | 自托管/云 |
-| Qdrant | 开源 | HNSW | 高性能、过滤 | 自托管/云 |
-| Chroma | 开源 | HNSW | 快速原型、本地 | 本地/内存 |
-| Milvus | 开源 | IVF/HNSW | 大规模、分布式 | 自托管 |
-| Faiss | 库 | IVF/PQ | 研究、离线 | 本地 |
+| Pinecone | 託管 | HNSW | 生產級、高併發 | 雲端 |
+| Weaviate | 開源 | HNSW | 多模態、GraphQL | 自託管/雲 |
+| Qdrant | 開源 | HNSW | 高效能、過濾 | 自託管/雲 |
+| Chroma | 開源 | HNSW | 快速原型、本地 | 本地/記憶體 |
+| Milvus | 開源 | IVF/HNSW | 大規模、分散式 | 自託管 |
+| Faiss | 庫 | IVF/PQ | 研究、離線 | 本地 |
 
 ### Pinecone 示例
 ```python
@@ -97,24 +97,24 @@ vectorstore = Qdrant.from_documents(
     client=client
 )
 
-# 带过滤的检索
+# 帶過濾的檢索
 results = vectorstore.similarity_search(
-    query="RAG 架构",
+    query="RAG 架構",
     k=5,
     filter={"source": "technical_docs"}
 )
 ```
 
-## Embedding 模型选择
+## Embedding 模型選擇
 
-### 模型对比
-| 模型 | 维度 | 性能 | 成本 | 适用场景 |
+### 模型對比
+| 模型 | 維度 | 效能 | 成本 | 適用場景 |
 |------|------|------|------|----------|
-| OpenAI ada-002 | 1536 | 高 | 中 | 通用、多语言 |
-| Cohere embed-v3 | 1024 | 高 | 中 | 多语言、压缩 |
-| BGE-large-zh | 1024 | 高 | 免费 | 中文优化 |
-| E5-large-v2 | 1024 | 中 | 免费 | 开源、通用 |
-| text2vec-base | 768 | 中 | 免费 | 中文、轻量 |
+| OpenAI ada-002 | 1536 | 高 | 中 | 通用、多語言 |
+| Cohere embed-v3 | 1024 | 高 | 中 | 多語言、壓縮 |
+| BGE-large-zh | 1024 | 高 | 免費 | 中文最佳化 |
+| E5-large-v2 | 1024 | 中 | 免費 | 開源、通用 |
+| text2vec-base | 768 | 中 | 免費 | 中文、輕量 |
 
 ### 本地 Embedding
 ```python
@@ -127,19 +127,19 @@ embeddings = HuggingFaceEmbeddings(
     encode_kwargs={'normalize_embeddings': True}
 )
 
-# 批量编码
-texts = ["文档1", "文档2", "文档3"]
+# 批次編碼
+texts = ["文件1", "文件2", "文件3"]
 vectors = embeddings.embed_documents(texts)
 
-# 查询编码（带指令）
-query_vector = embeddings.embed_query("为这个句子生成表示")
+# 查詢編碼（帶指令）
+query_vector = embeddings.embed_query("為這個句子生成表示")
 ```
 
-### 多模态 Embedding
+### 多模態 Embedding
 ```python
 from langchain.embeddings import OpenAIEmbeddings
 
-# CLIP 图文联合
+# CLIP 圖文聯合
 class MultiModalEmbedding:
     def __init__(self):
         self.text_model = OpenAIEmbeddings()
@@ -153,51 +153,51 @@ class MultiModalEmbedding:
         return self.text_model.embed_query(text)
 ```
 
-## 检索策略
+## 檢索策略
 
-### Dense 检索（向量）
+### Dense 檢索（向量）
 ```python
-# 余弦相似度检索
+# 餘弦相似度檢索
 retriever = vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": 5}
 )
 
-# MMR（最大边际相关性）- 多样性
+# MMR（最大邊際相關性）- 多樣性
 retriever = vectorstore.as_retriever(
     search_type="mmr",
     search_kwargs={"k": 5, "fetch_k": 20, "lambda_mult": 0.5}
 )
 
-# 相似度阈值过滤
+# 相似度閾值過濾
 retriever = vectorstore.as_retriever(
     search_type="similarity_score_threshold",
     search_kwargs={"score_threshold": 0.8, "k": 5}
 )
 ```
 
-### Sparse 检索（BM25）
+### Sparse 檢索（BM25）
 ```python
 from langchain.retrievers import BM25Retriever
 
-# BM25 关键词检索
+# BM25 關鍵詞檢索
 bm25_retriever = BM25Retriever.from_documents(chunks)
 bm25_retriever.k = 5
 
-results = bm25_retriever.get_relevant_documents("RAG 系统")
+results = bm25_retriever.get_relevant_documents("RAG 系統")
 ```
 
-### Hybrid 混合检索
+### Hybrid 混合檢索
 ```python
 from langchain.retrievers import EnsembleRetriever
 
 # 向量 + BM25 混合
 ensemble_retriever = EnsembleRetriever(
     retrievers=[vectorstore.as_retriever(), bm25_retriever],
-    weights=[0.6, 0.4]  # 向量权重 60%，BM25 权重 40%
+    weights=[0.6, 0.4]  # 向量權重 60%，BM25 權重 40%
 )
 
-results = ensemble_retriever.get_relevant_documents("查询")
+results = ensemble_retriever.get_relevant_documents("查詢")
 ```
 
 ### 多路召回
@@ -221,7 +221,7 @@ class MultiRecallRetriever:
         return self._rerank(unique_docs, query)[:top_k]
 ```
 
-## 重排算法
+## 重排演算法
 
 ### Cross-Encoder 重排
 ```python
@@ -235,7 +235,7 @@ class Reranker:
         pairs = [[query, doc.page_content] for doc in documents]
         scores = self.model.predict(pairs)
 
-        # 按分数排序
+        # 按分數排序
         ranked = sorted(zip(documents, scores), key=lambda x: x[1], reverse=True)
         return [doc for doc, score in ranked[:top_k]]
 
@@ -269,22 +269,22 @@ from langchain.chat_models import ChatOpenAI
 def llm_rerank(query: str, documents: list, top_k: int = 3):
     llm = ChatOpenAI(model="gpt-4", temperature=0)
 
-    prompt = f"""给定查询和文档列表，按相关性排序（1最相关）。
+    prompt = f"""給定查詢和文件列表，按相關性排序（1最相關）。
 
-查询: {query}
+查詢: {query}
 
-文档:
+文件:
 {chr(10).join([f"{i+1}. {doc.page_content[:200]}" for i, doc in enumerate(documents)])}
 
-输出格式: 1,3,2,5,4（仅数字和逗号）"""
+輸出格式: 1,3,2,5,4（僅數字和逗號）"""
 
     ranking = llm.predict(prompt).strip().split(',')
     return [documents[int(i)-1] for i in ranking[:top_k]]
 ```
 
-## 文档切分策略
+## 文件切分策略
 
-### 递归切分
+### 遞迴切分
 ```python
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -296,7 +296,7 @@ splitter = RecursiveCharacterTextSplitter(
 )
 ```
 
-### 语义切分
+### 語義切分
 ```python
 from langchain.text_splitter import SemanticChunker
 
@@ -309,7 +309,7 @@ semantic_splitter = SemanticChunker(
 chunks = semantic_splitter.split_text(long_text)
 ```
 
-### Markdown 结构化切分
+### Markdown 結構化切分
 ```python
 from langchain.text_splitter import MarkdownHeaderTextSplitter
 
@@ -323,30 +323,30 @@ markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on)
 chunks = markdown_splitter.split_text(markdown_text)
 ```
 
-## 查询优化
+## 查詢最佳化
 
-### 查询改写
+### 查詢改寫
 ```python
 from langchain.prompts import ChatPromptTemplate
 
 query_rewrite_prompt = ChatPromptTemplate.from_template("""
-将用户查询改写为更适合检索的形式。
+將使用者查詢改寫為更適合檢索的形式。
 
-原始查询: {query}
+原始查詢: {query}
 
-改写要求:
-1. 补全省略信息
-2. 扩展同义词
-3. 拆分复合问题
+改寫要求:
+1. 補全省略資訊
+2. 擴充套件同義詞
+3. 拆分複合問題
 
-改写后查询:""")
+改寫後查詢:""")
 
 def rewrite_query(query: str):
     chain = query_rewrite_prompt | llm
     return chain.invoke({"query": query}).content
 ```
 
-### 多查询生成
+### 多查詢生成
 ```python
 from langchain.retrievers.multi_query import MultiQueryRetriever
 
@@ -355,25 +355,25 @@ multi_query_retriever = MultiQueryRetriever.from_llm(
     llm=llm
 )
 
-# 自动生成 3-5 个变体查询
-results = multi_query_retriever.get_relevant_documents("RAG 是什么？")
+# 自動生成 3-5 個變體查詢
+results = multi_query_retriever.get_relevant_documents("RAG 是什麼？")
 ```
 
-### HyDE（假设文档嵌入）
+### HyDE（假設文件嵌入）
 ```python
 def hyde_retrieval(query: str):
-    # 1. 让 LLM 生成假设答案
-    hyde_prompt = f"请详细回答: {query}"
+    # 1. 讓 LLM 生成假設答案
+    hyde_prompt = f"請詳細回答: {query}"
     hypothetical_doc = llm.predict(hyde_prompt)
 
-    # 2. 用假设答案检索
+    # 2. 用假設答案檢索
     results = vectorstore.similarity_search(hypothetical_doc, k=5)
     return results
 ```
 
-## 上下文压缩
+## 上下文壓縮
 
-### LLM 压缩器
+### LLM 壓縮器
 ```python
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
@@ -385,11 +385,11 @@ compression_retriever = ContextualCompressionRetriever(
     base_retriever=vectorstore.as_retriever(search_kwargs={"k": 10})
 )
 
-# 检索 10 个文档，压缩后返回最相关片段
+# 檢索 10 個文件，壓縮後返回最相關片段
 compressed_docs = compression_retriever.get_relevant_documents(query)
 ```
 
-### Embedding 过滤
+### Embedding 過濾
 ```python
 from langchain.retrievers.document_compressors import EmbeddingsFilter
 
@@ -406,19 +406,19 @@ compression_retriever = ContextualCompressionRetriever(
 
 ## 完整 RAG Pipeline
 
-### LangChain 实现
+### LangChain 實現
 ```python
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 
-# 记忆
+# 記憶
 memory = ConversationBufferMemory(
     memory_key="chat_history",
     return_messages=True,
     output_key="answer"
 )
 
-# 对话式 RAG
+# 對話式 RAG
 qa_chain = ConversationalRetrievalChain.from_llm(
     llm=llm,
     retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
@@ -427,41 +427,41 @@ qa_chain = ConversationalRetrievalChain.from_llm(
     verbose=True
 )
 
-# 多轮对话
-result1 = qa_chain({"question": "什么是 RAG？"})
-result2 = qa_chain({"question": "它有什么优势？"})  # 自动引用上下文
+# 多輪對話
+result1 = qa_chain({"question": "什麼是 RAG？"})
+result2 = qa_chain({"question": "它有什麼優勢？"})  # 自動引用上下文
 ```
 
-### LlamaIndex 实现
+### LlamaIndex 實現
 ```python
 from llama_index import VectorStoreIndex, ServiceContext
 from llama_index.llms import OpenAI
 from llama_index.embeddings import OpenAIEmbedding
 
-# 服务上下文
+# 服務上下文
 service_context = ServiceContext.from_defaults(
     llm=OpenAI(model="gpt-4", temperature=0),
     embed_model=OpenAIEmbedding()
 )
 
-# 构建索引
+# 構建索引
 index = VectorStoreIndex.from_documents(
     documents,
     service_context=service_context
 )
 
-# 查询引擎
+# 查詢引擎
 query_engine = index.as_query_engine(
     similarity_top_k=5,
     response_mode="compact"  # 或 "tree_summarize", "refine"
 )
 
-response = query_engine.query("什么是 RAG？")
+response = query_engine.query("什麼是 RAG？")
 print(response.response)
-print(response.source_nodes)  # 引用来源
+print(response.source_nodes)  # 引用來源
 ```
 
-## 高级 RAG 模式
+## 高階 RAG 模式
 
 ### Self-RAG（自我反思）
 ```python
@@ -471,27 +471,27 @@ class SelfRAG:
         self.retriever = retriever
 
     def query(self, question: str):
-        # 1. 判断是否需要检索
+        # 1. 判斷是否需要檢索
         need_retrieval = self._check_retrieval_need(question)
 
         if not need_retrieval:
             return self.llm.predict(question)
 
-        # 2. 检索
+        # 2. 檢索
         docs = self.retriever.get_relevant_documents(question)
 
         # 3. 生成答案
         answer = self._generate_with_docs(question, docs)
 
-        # 4. 自我评估
+        # 4. 自我評估
         if self._verify_answer(question, answer, docs):
             return answer
         else:
-            # 重新检索或生成
+            # 重新檢索或生成
             return self._fallback_generate(question)
 ```
 
-### RAPTOR（递归摘要）
+### RAPTOR（遞迴摘要）
 ```python
 from langchain.chains.summarize import load_summarize_chain
 
@@ -500,10 +500,10 @@ def raptor_indexing(documents, levels=3):
     all_summaries = []
 
     for level in range(levels):
-        # 聚类
+        # 聚類
         clusters = cluster_documents(current_docs, n_clusters=10)
 
-        # 每个簇生成摘要
+        # 每個簇生成摘要
         summaries = []
         for cluster in clusters:
             summary = summarize_chain.run(cluster)
@@ -512,31 +512,31 @@ def raptor_indexing(documents, levels=3):
         all_summaries.extend(summaries)
         current_docs = summaries
 
-    # 索引原文档 + 各层摘要
+    # 索引原文件 + 各層摘要
     vectorstore.add_documents(documents + all_summaries)
 ```
 
-## 工具与框架
+## 工具與框架
 
-| 工具 | 类型 | 特点 |
+| 工具 | 型別 | 特點 |
 |------|------|------|
-| LangChain | 框架 | 生态丰富、组件化 |
-| LlamaIndex | 框架 | 索引优化、查询引擎 |
-| Haystack | 框架 | 生产级、Pipeline |
-| Pinecone | 向量库 | 托管、高性能 |
-| Qdrant | 向量库 | 开源、过滤强 |
-| Weaviate | 向量库 | 多模态、GraphQL |
+| LangChain | 框架 | 生態豐富、元件化 |
+| LlamaIndex | 框架 | 索引最佳化、查詢引擎 |
+| Haystack | 框架 | 生產級、Pipeline |
+| Pinecone | 向量庫 | 託管、高效能 |
+| Qdrant | 向量庫 | 開源、過濾強 |
+| Weaviate | 向量庫 | 多模態、GraphQL |
 | Cohere | API | Embedding + Rerank |
 
-## 最佳实践
+## 最佳實踐
 
-- ✅ 文档切分：chunk_size 500-1500，overlap 10-20%
-- ✅ 检索数量：初召回 10-20，重排后 3-5
-- ✅ 混合检索：向量 + BM25 权重 6:4 或 7:3
-- ✅ 元数据过滤：时间、来源、类型
-- ✅ 引用来源：返回 source_documents
-- ✅ 缓存：相同查询缓存结果
-- ✅ 监控：检索延迟、相关性、答案质量
-- ❌ 避免：chunk 过大/过小、无重排、无压缩
+- ✅ 文件切分：chunk_size 500-1500，overlap 10-20%
+- ✅ 檢索數量：初召回 10-20，重排後 3-5
+- ✅ 混合檢索：向量 + BM25 權重 6:4 或 7:3
+- ✅ 後設資料過濾：時間、來源、型別
+- ✅ 引用來源：返回 source_documents
+- ✅ 快取：相同查詢快取結果
+- ✅ 監控：檢索延遲、相關性、答案質量
+- ❌ 避免：chunk 過大/過小、無重排、無壓縮
 
 ---

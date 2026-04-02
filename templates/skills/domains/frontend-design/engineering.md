@@ -1,15 +1,15 @@
 ---
 name: frontend-engineering
-description: 前端工程化。性能优化（Web Vitals、懒加载、虚拟滚动）、测试（Vitest、Playwright、MSW）、构建工具（Vite、Webpack、esbuild）。当用户提到性能优化、前端测试、构建工具、代码分割时使用。
+description: 前端工程化。效能最佳化（Web Vitals、懶載入、虛擬滾動）、測試（Vitest、Playwright、MSW）、構建工具（Vite、Webpack、esbuild）。當使用者提到效能最佳化、前端測試、構建工具、程式碼分割時使用。
 ---
 
 # 前端工程化 · Frontend Engineering
 
-## 一、性能优化
+## 一、效能最佳化
 
 ### Core Web Vitals
 
-| 指标 | 含义 | 目标值 |
+| 指標 | 含義 | 目標值 |
 |------|------|--------|
 | LCP | Largest Contentful Paint | < 2.5s |
 | FID | First Input Delay | < 100ms |
@@ -17,21 +17,21 @@ description: 前端工程化。性能优化（Web Vitals、懒加载、虚拟滚
 | FCP | First Contentful Paint | < 1.8s |
 | TTI | Time to Interactive | < 3.8s |
 
-### 性能决策树
+### 效能決策樹
 
 ```
-加载慢 → Bundle 大？代码分割 + Tree Shaking | 资源多？懒加载 + 预加载 | 网络慢？CDN + 压缩
-渲染慢 → 列表长？虚拟滚动 | 重渲染？React.memo + useMemo | 布局抖动？固定尺寸
-交互慢 → JS 阻塞？Web Worker + startTransition | 动画卡顿？CSS 动画 + rAF
+載入慢 → Bundle 大？程式碼分割 + Tree Shaking | 資源多？懶載入 + 預載入 | 網路慢？CDN + 壓縮
+渲染慢 → 列表長？虛擬滾動 | 重渲染？React.memo + useMemo | 佈局抖動？固定尺寸
+互動慢 → JS 阻塞？Web Worker + startTransition | 動畫卡頓？CSS 動畫 + rAF
 ```
 
-### 代码分割
+### 程式碼分割
 
 ```typescript
-// 路由级别 — React.lazy + Suspense
+// 路由級別 — React.lazy + Suspense
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 
-// 组件级别 — 按需加载重量级组件
+// 元件級別 — 按需載入重量級元件
 const HeavyChart = lazy(() => import('./components/HeavyChart'))
 
 // Vite manualChunks
@@ -49,7 +49,7 @@ export default defineConfig({
 })
 ```
 
-### 虚拟滚动
+### 虛擬滾動
 
 ```typescript
 import { FixedSizeList } from 'react-window'
@@ -63,7 +63,7 @@ function VirtualList({ items }: { items: Item[] }) {
 }
 ```
 
-### React 性能要点
+### React 效能要點
 
 ```typescript
 // memo 避免重渲染
@@ -71,22 +71,22 @@ const Row = memo(function Row({ item, onClick }: Props) {
   return <div onClick={() => onClick(item.id)}>{item.name}</div>
 })
 
-// useMemo 缓存计算 + useCallback 缓存回调
+// useMemo 快取計算 + useCallback 快取回撥
 const filtered = useMemo(() => data.filter(x => x.name.includes(q)), [data, q])
 const handleClick = useCallback((id: string) => select(id), [])
 
-// startTransition 低优先级更新
+// startTransition 低優先順序更新
 startTransition(() => setResults(heavySearch(query)))
 ```
 
-### 资源优化 Checklist
+### 資源最佳化 Checklist
 
-- 图片：WebP 格式 + `loading="lazy"` + 响应式 `<picture>`
-- 字体：`font-display: swap` + `preload` woff2
-- 预加载：`dns-prefetch` → `preconnect` → `preload` → `prefetch`
-- 压缩：Gzip/Brotli + HTTP/2
+- 圖片：WebP 格式 + `loading="lazy"` + 響應式 `<picture>`
+- 字型：`font-display: swap` + `preload` woff2
+- 預載入：`dns-prefetch` → `preconnect` → `preload` → `prefetch`
+- 壓縮：Gzip/Brotli + HTTP/2
 
-### 性能监控
+### 效能監控
 
 ```typescript
 import { onCLS, onFID, onLCP } from 'web-vitals'
@@ -94,21 +94,21 @@ onCLS(sendToAnalytics)
 onFID(sendToAnalytics)
 onLCP(sendToAnalytics)
 
-// 自定义指标
+// 自定義指標
 performance.mark('start')
 doWork()
 performance.mark('end')
 performance.measure('work', 'start', 'end')
 ```
 
-## 二、测试
+## 二、測試
 
-### 测试金字塔
+### 測試金字塔
 
 ```
     /\       E2E (10%) — Playwright
-   /--\      集成 (20%) — Testing Library + MSW
-  /----\     单元 (70%) — Vitest
+   /--\      整合 (20%) — Testing Library + MSW
+  /----\     單元 (70%) — Vitest
 ```
 
 ### Vitest 配置
@@ -128,7 +128,7 @@ export default defineConfig({
 })
 ```
 
-### 单元测试
+### 單元測試
 
 ```typescript
 describe('formatCurrency', () => {
@@ -137,7 +137,7 @@ describe('formatCurrency', () => {
 })
 ```
 
-### 组件测试
+### 元件測試
 
 ```typescript
 import { render, screen, fireEvent } from '@testing-library/react'
@@ -187,32 +187,32 @@ class LoginPage {
 }
 ```
 
-### 测试 Checklist
+### 測試 Checklist
 
 - 遵循 AAA 模式（Arrange / Act / Assert）
-- 测试行为而非实现
-- Mock 外部依赖（API、时间）
-- 测试边界条件和错误路径
-- CI 中自动运行 + 覆盖率门禁 80%+
+- 測試行為而非實現
+- Mock 外部依賴（API、時間）
+- 測試邊界條件和錯誤路徑
+- CI 中自動執行 + 覆蓋率門禁 80%+
 
-## 三、构建工具
+## 三、構建工具
 
-### 选型决策
+### 選型決策
 
 ```
-新项目 React/Vue → Vite | Next.js → Turbopack | 零配置 → Parcel
-库开发 → Rollup / esbuild
-老项目复杂配置 → 保持 Webpack | 可迁移 → Vite
+新專案 React/Vue → Vite | Next.js → Turbopack | 零配置 → Parcel
+庫開發 → Rollup / esbuild
+老專案複雜配置 → 保持 Webpack | 可遷移 → Vite
 ```
 
-### 工具对比
+### 工具對比
 
-| 工具 | 冷启动 | HMR | 生产构建 | 生态 |
+| 工具 | 冷啟動 | HMR | 生產構建 | 生態 |
 |------|--------|-----|----------|------|
 | Vite | < 1s | < 100ms | 10-30s | 成熟 |
-| Webpack | 10-30s | 1-3s | 30-60s | 最丰富 |
-| Turbopack | < 1s | < 100ms | 10-20s | 新兴 |
-| esbuild | < 1s | N/A | 5-10s | 基础 |
+| Webpack | 10-30s | 1-3s | 30-60s | 最豐富 |
+| Turbopack | < 1s | < 100ms | 10-20s | 新興 |
+| esbuild | < 1s | N/A | 5-10s | 基礎 |
 
 ### Vite 核心配置
 
@@ -238,7 +238,7 @@ export default defineConfig({
 })
 ```
 
-### Webpack 生产优化要点
+### Webpack 生產最佳化要點
 
 ```javascript
 optimization: {
@@ -255,33 +255,33 @@ optimization: {
 }
 ```
 
-### Webpack → Vite 迁移要点
+### Webpack → Vite 遷移要點
 
 1. `npm install -D vite @vitejs/plugin-react`
-2. `index.html` 移到根目录，加 `<script type="module" src="/src/main.tsx">`
+2. `index.html` 移到根目錄，加 `<script type="module" src="/src/main.tsx">`
 3. `REACT_APP_*` → `VITE_*`，`process.env` → `import.meta.env`
 4. `require()` → `import`
 
-### 构建 Checklist
+### 構建 Checklist
 
-- 合理代码分割（路由级 + 第三方库分组）
-- Tree Shaking + 压缩（terser / esbuild）
-- 文件名哈希实现长期缓存
-- Source map 仅 dev 或 hidden
-- 定期 `webpack-bundle-analyzer` / `rollup-plugin-visualizer` 审计
-- CI 缓存 `node_modules` + 构建产物
+- 合理程式碼分割（路由級 + 第三方庫分組）
+- Tree Shaking + 壓縮（terser / esbuild）
+- 檔名雜湊實現長期快取
+- Source map 僅 dev 或 hidden
+- 定期 `webpack-bundle-analyzer` / `rollup-plugin-visualizer` 審計
+- CI 快取 `node_modules` + 構建產物
 
 ## 工具速查
 
-| 类别 | 推荐工具 |
+| 類別 | 推薦工具 |
 |------|----------|
-| 构建 | Vite (新项目) / Webpack (复杂项目) |
-| 单元测试 | Vitest |
-| 组件测试 | Testing Library |
+| 構建 | Vite (新專案) / Webpack (複雜專案) |
+| 單元測試 | Vitest |
+| 元件測試 | Testing Library |
 | E2E | Playwright |
 | API Mock | MSW |
-| 性能监控 | web-vitals + Lighthouse |
+| 效能監控 | web-vitals + Lighthouse |
 | Bundle 分析 | webpack-bundle-analyzer / rollup-plugin-visualizer |
-| 视觉回归 | Playwright screenshots / Chromatic |
+| 視覺迴歸 | Playwright screenshots / Chromatic |
 
 ---

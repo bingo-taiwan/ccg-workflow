@@ -1,126 +1,126 @@
 ---
-description: 'Agent Teams 需求研究 - 并行探索代码库，产出约束集 + 可验证成功判据'
+description: 'Agent Teams 需求研究 - 並行探索程式碼庫，產出約束集 + 可驗證成功判據'
 ---
 <!-- CCG:TEAM:RESEARCH:START -->
 **Core Philosophy**
-- Research 产出的是**约束集**，不是信息堆砌。每条约束缩小解决方案空间。
-- 约束告诉后续阶段"不要考虑这个方向"，使 plan 阶段能产出零决策计划。
-- 输出：约束集合 + 可验证的成功判据，写入 `.claude/team-plan/<任务名>-research.md`。
+- Research 產出的是**約束集**，不是資訊堆砌。每條約束縮小解決方案空間。
+- 約束告訴後續階段"不要考慮這個方向"，使 plan 階段能產出零決策計劃。
+- 輸出：約束集合 + 可驗證的成功判據，寫入 `.claude/team-plan/<任務名>-research.md`。
 
 **Guardrails**
-- **STOP! BEFORE ANY OTHER ACTION**: 必须先做 Prompt 增强。
-- 按上下文边界（context boundaries）划分探索范围，不按角色划分。
-- 多模型协作是 **mandatory**：Codex（后端边界）+ Gemini（前端边界）。
-- 不做架构决策——只发现约束。
-- 使用 `AskUserQuestion` 解决任何歧义，绝不假设。
+- **STOP! BEFORE ANY OTHER ACTION**: 必須先做 Prompt 增強。
+- 按上下文邊界（context boundaries）劃分探索範圍，不按角色劃分。
+- 多模型協作是 **mandatory**：Codex（後端邊界）+ Gemini（前端邊界）。
+- 不做架構決策——只發現約束。
+- 使用 `AskUserQuestion` 解決任何歧義，絕不假設。
 
 **Steps**
-0. **MANDATORY: Prompt 增强**
-   - **立即执行，不可跳过。**
-   - 分析 $ARGUMENTS 的意图、缺失信息、隐含假设，补全为结构化需求（明确目标、技术约束、范围边界、验收标准）。
-   - 后续所有步骤使用增强后的需求。
+0. **MANDATORY: Prompt 增強**
+   - **立即執行，不可跳過。**
+   - 分析 $ARGUMENTS 的意圖、缺失資訊、隱含假設，補全為結構化需求（明確目標、技術約束、範圍邊界、驗收標準）。
+   - 後續所有步驟使用增強後的需求。
 
-1. **代码库评估**
-   - 用 Glob/Grep/Read 扫描项目结构。
-   - 判断项目规模：单目录 vs 多目录。
-   - 识别技术栈、框架、现有模式。
+1. **程式碼庫評估**
+   - 用 Glob/Grep/Read 掃描專案結構。
+   - 判斷專案規模：單目錄 vs 多目錄。
+   - 識別技術棧、框架、現有模式。
 
-2. **定义探索边界（按上下文划分）**
-   - 识别自然的上下文边界（不是功能角色）：
-     * 边界 1：用户域代码（models, services, UI）
-     * 边界 2：认证与授权（middleware, session, tokens）
-     * 边界 3：基础设施（configs, builds, deployments）
-   - 每个边界应自包含，无需跨边界通信。
+2. **定義探索邊界（按上下文劃分）**
+   - 識別自然的上下文邊界（不是功能角色）：
+     * 邊界 1：使用者域程式碼（models, services, UI）
+     * 邊界 2：認證與授權（middleware, session, tokens）
+     * 邊界 3：基礎設施（configs, builds, deployments）
+   - 每個邊界應自包含，無需跨邊界通訊。
 
-3. **多模型并行探索（PARALLEL）**
-   - **CRITICAL**: 必须在一条消息中同时发起两个 Bash 调用。
-   - **工作目录**：`{{WORKDIR}}` **必须通过 Bash 执行 `pwd`（Unix）或 `cd`（Windows CMD）获取当前工作目录的绝对路径**，禁止从 `$HOME` 或环境变量推断。
+3. **多模型並行探索（PARALLEL）**
+   - **CRITICAL**: 必須在一條訊息中同時發起兩個 Bash 呼叫。
+   - **工作目錄**：`{{WORKDIR}}` **必須透過 Bash 執行 `pwd`（Unix）或 `cd`（Windows CMD）獲取當前工作目錄的絕對路徑**，禁止從 `$HOME` 或環境變數推斷。
 
    **FIRST Bash call ({{BACKEND_PRIMARY}})**:
    ```
    Bash({
-     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{BACKEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\n需求：<增强后的需求>\n探索范围：后端相关上下文边界\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"探索的上下文边界\",\n  \"existing_structures\": [\"发现的关键模式\"],\n  \"existing_conventions\": [\"使用中的规范\"],\n  \"constraints_discovered\": [\"限制解决方案空间的硬约束\"],\n  \"open_questions\": [\"需要用户确认的歧义\"],\n  \"dependencies\": [\"跨模块依赖\"],\n  \"risks\": [\"潜在阻碍\"],\n  \"success_criteria_hints\": [\"可观测的成功行为\"]\n}\nEOF",
+     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{BACKEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\n需求：<增強後的需求>\n探索範圍：後端相關上下文邊界\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"探索的上下文邊界\",\n  \"existing_structures\": [\"發現的關鍵模式\"],\n  \"existing_conventions\": [\"使用中的規範\"],\n  \"constraints_discovered\": [\"限制解決方案空間的硬約束\"],\n  \"open_questions\": [\"需要使用者確認的歧義\"],\n  \"dependencies\": [\"跨模組依賴\"],\n  \"risks\": [\"潛在阻礙\"],\n  \"success_criteria_hints\": [\"可觀測的成功行為\"]\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "{{BACKEND_PRIMARY}} 后端探索"
+     description: "{{BACKEND_PRIMARY}} 後端探索"
    })
    ```
 
    **SECOND Bash call ({{FRONTEND_PRIMARY}}) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{FRONTEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/gemini/analyzer.md\n<TASK>\n需求：<增强后的需求>\n探索范围：前端相关上下文边界\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"探索的上下文边界\",\n  \"existing_structures\": [\"发现的关键模式\"],\n  \"existing_conventions\": [\"使用中的规范\"],\n  \"constraints_discovered\": [\"限制解决方案空间的硬约束\"],\n  \"open_questions\": [\"需要用户确认的歧义\"],\n  \"dependencies\": [\"跨模块依赖\"],\n  \"risks\": [\"潜在阻碍\"],\n  \"success_criteria_hints\": [\"可观测的成功行为\"]\n}\nEOF",
+     command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--progress --backend {{FRONTEND_PRIMARY}} {{GEMINI_MODEL_FLAG}}- \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: ~/.claude/.ccg/prompts/gemini/analyzer.md\n<TASK>\n需求：<增強後的需求>\n探索範圍：前端相關上下文邊界\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"探索的上下文邊界\",\n  \"existing_structures\": [\"發現的關鍵模式\"],\n  \"existing_conventions\": [\"使用中的規範\"],\n  \"constraints_discovered\": [\"限制解決方案空間的硬約束\"],\n  \"open_questions\": [\"需要使用者確認的歧義\"],\n  \"dependencies\": [\"跨模組依賴\"],\n  \"risks\": [\"潛在阻礙\"],\n  \"success_criteria_hints\": [\"可觀測的成功行為\"]\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "{{FRONTEND_PRIMARY}} 前端探索"
    })
    ```
 
-   **等待结果**:
+   **等待結果**:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
    TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
    ```
 
-   ⛔ **Gemini 失败必须重试**：若 Gemini 调用失败，最多重试 2 次（间隔 5 秒）。3 次全败才跳过。
-   ⛔ **Codex 结果必须等待**：Codex 执行 5-15 分钟属正常，超时后继续轮询，禁止跳过。
+   ⛔ **Gemini 失敗必須重試**：若 Gemini 呼叫失敗，最多重試 2 次（間隔 5 秒）。3 次全敗才跳過。
+   ⛔ **Codex 結果必須等待**：Codex 執行 5-15 分鐘屬正常，超時後繼續輪詢，禁止跳過。
 
-4. **聚合与综合**
-   - 合并所有探索输出为统一约束集：
-     * **硬约束**：技术限制、不可违反的模式
-     * **软约束**：惯例、偏好、风格指南
-     * **依赖**：影响实施顺序的跨模块关系
-     * **风险**：需要缓解的阻碍
+4. **聚合與綜合**
+   - 合併所有探索輸出為統一約束集：
+     * **硬約束**：技術限制、不可違反的模式
+     * **軟約束**：慣例、偏好、風格指南
+     * **依賴**：影響實施順序的跨模組關係
+     * **風險**：需要緩解的阻礙
 
-5. **歧义消解**
-   - 编译优先级排序的开放问题列表。
-   - 用 `AskUserQuestion` 系统性地呈现：
-     * 分组相关问题
-     * 为每个问题提供上下文
-     * 在适用时建议默认值
-   - 将用户回答转化为额外约束。
+5. **歧義消解**
+   - 編譯優先順序排序的開放問題列表。
+   - 用 `AskUserQuestion` 系統性地呈現：
+     * 分組相關問題
+     * 為每個問題提供上下文
+     * 在適用時建議預設值
+   - 將使用者回答轉化為額外約束。
 
-6. **写入研究文件**
-   - 路径：`.claude/team-plan/<任务名>-research.md`
+6. **寫入研究檔案**
+   - 路徑：`.claude/team-plan/<任務名>-research.md`
    - 格式：
 
    ```markdown
-   # Team Research: <任务名>
+   # Team Research: <任務名>
 
-   ## 增强后的需求
-   <结构化需求描述>
+   ## 增強後的需求
+   <結構化需求描述>
 
-   ## 约束集
+   ## 約束集
 
-   ### 硬约束
-   - [HC-1] <约束描述> — 来源：<Codex/Gemini/用户>
+   ### 硬約束
+   - [HC-1] <約束描述> — 來源：<Codex/Gemini/使用者>
    - [HC-2] ...
 
-   ### 软约束
-   - [SC-1] <约束描述> — 来源：<Codex/Gemini/用户>
+   ### 軟約束
+   - [SC-1] <約束描述> — 來源：<Codex/Gemini/使用者>
    - [SC-2] ...
 
-   ### 依赖关系
-   - [DEP-1] <模块A> → <模块B>：<原因>
+   ### 依賴關係
+   - [DEP-1] <模組A> → <模組B>：<原因>
 
-   ### 风险
-   - [RISK-1] <风险描述> — 缓解：<策略>
+   ### 風險
+   - [RISK-1] <風險描述> — 緩解：<策略>
 
-   ## 成功判据
-   - [OK-1] <可验证的成功行为>
+   ## 成功判據
+   - [OK-1] <可驗證的成功行為>
    - [OK-2] ...
 
-   ## 开放问题（已解决）
-   - Q1: <问题> → A: <用户回答> → 约束：[HC/SC-N]
+   ## 開放問題（已解決）
+   - Q1: <問題> → A: <使用者回答> → 約束：[HC/SC-N]
    ```
 
-7. **上下文检查点**
-   - 报告当前上下文使用量。
-   - 提示：`研究完成，运行 /clear 后执行 /ccg:team-plan <任务名> 开始规划`
+7. **上下文檢查點**
+   - 報告當前上下文使用量。
+   - 提示：`研究完成，執行 /clear 後執行 /ccg:team-plan <任務名> 開始規劃`
 
 **Exit Criteria**
 - [ ] Codex + Gemini 探索完成
-- [ ] 所有歧义已通过用户确认解决
-- [ ] 约束集 + 成功判据已写入研究文件
-- [ ] 零开放问题残留
+- [ ] 所有歧義已透過使用者確認解決
+- [ ] 約束集 + 成功判據已寫入研究檔案
+- [ ] 零開放問題殘留
 <!-- CCG:TEAM:RESEARCH:END -->
